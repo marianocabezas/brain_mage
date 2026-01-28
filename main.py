@@ -47,9 +47,7 @@ def parse_inputs():
 """
 
 
-def main():
-    # Init
-    c = color_codes()
+def get_data_dict():
     options = parse_inputs()
 
     path = options['path']
@@ -90,6 +88,7 @@ def main():
 
         bl_date = None
         fu_date = None
+        surg_date = None
         surg_date_diff = None
 
         try:
@@ -100,7 +99,6 @@ def main():
                 c_rows.iloc[1]['Date'], '%d/%m/%Y'
             ).date()
             date_diff = relativedelta(fu_date, bl_date)
-            diffs.append(fu_date - bl_date)
             if had_surgery:
                 surg_date = datetime.strptime(
                     c_rows.iloc[1]['Surgerydate'], '%d/%m/%Y'
@@ -113,6 +111,7 @@ def main():
 
         if date_diff is not None:
             deltas.append(date_diff)
+            diffs.append(fu_date - bl_date)
             if had_surgery:
                 surg_deltas.append(surg_date_diff)
                 surg_diffs.append(fu_date - surg_date)
@@ -143,6 +142,13 @@ def main():
                 'Date': fu_date
             }
         }
+    return surg_dict, deltas, diffs, surg_deltas, surg_diffs
+
+def main():
+    # Init
+    options = parse_inputs()
+    path = options['path']
+    surg_dict, deltas, diffs, surg_deltas, surg_diffs = get_data_dict()
 
     notobese_nosurg_mage = [
         c_data['Follow-up']['MAGE']
