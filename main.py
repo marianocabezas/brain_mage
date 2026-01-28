@@ -204,22 +204,22 @@ def main():
     # MAGE difference data
 
     notobese_nosurg_diffmage = [
-        data['follow-up']['MAGE'] - data['baseline']['MAGE']
+        data['Follow-up']['MAGE'] - data['Baseline']['MAGE']
         for c, data in surg_dict.items()
         if
-        data['follow-up']['HasImage'] and data['baseline']['HasImage'] and not data['Obese'] and not data['HadSurgery']
+        data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and not data['Obese'] and not data['HadSurgery']
     ]
 
     obese_nosurg_diffmage = [
-        data['follow-up']['MAGE'] - data['baseline']['MAGE']
+        data['Follow-up']['MAGE'] - data['Baseline']['MAGE']
         for c, data in surg_dict.items()
-        if data['follow-up']['HasImage'] and data['baseline']['HasImage'] and data['Obese'] and not data['HadSurgery']
+        if data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and data['Obese'] and not data['HadSurgery']
     ]
 
     surg_diffmage = [
-        data['follow-up']['MAGE'] - data['baseline']['MAGE']
+        data['Follow-up']['MAGE'] - data['baseline']['MAGE']
         for c, data in surg_dict.items()
-        if data['follow-up']['HasImage'] and data['baseline']['HasImage'] and data['HadSurgery']
+        if data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and data['HadSurgery']
     ]
 
     x = ['Not obese (no surgery)'] * len(notobese_nosurg_diffmage) + ['Obese (no surgery)'] * len(
