@@ -1,5 +1,6 @@
 import argparse
 import os
+import nibabel as nib
 import time
 import json
 import random
@@ -143,6 +144,25 @@ def get_data_dict():
             }
         }
     return surg_dict, deltas, diffs, surg_deltas, surg_diffs
+
+
+def image_info(path, data_dict):
+    for c, c_data in data_dict.items():
+        if c_data['Follow-up']['HasImage'] and c_data['Baseline']['HasImage']:
+            bl_nii = nib.load(
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE.nii')
+            )
+            fu_nii = nib.load(
+                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE.nii')
+            )
+            bl_x, bl_y, bl_z = bl_nii.get_fdata().shape
+            fu_x, fu_y, fu_z = fu_nii.get_fdata().shape
+            print(
+                'Subject {:} - Baseline {:3d} x {:3d} x {:3d} - Follow-up {:3d} x {:3d} x {:3d}'.format(
+                    c, bl_x, bl_y, bl_z, fu_x, fu_y, fu_z
+                )
+            )
+
 
 def main():
     # Init
