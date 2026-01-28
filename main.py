@@ -81,6 +81,7 @@ def main():
 
         had_surgery = ironmet_data[pd_idx].iloc[0]['Surgery'].tolist() > 0
 
+        age_bl = c_rows.iloc[0]['Age']
         age_fu = c_rows.iloc[1]['Age']
 
         bl_date = None
@@ -115,7 +116,9 @@ def main():
             'Obese': obesity_bl > 0,
             'HadSurgery': had_surgery,
             'DateDiff': date_diff,
+            'Age': age_bl,
             'Baseline': {
+                'Age': age_bl,
                 'HasImage': c in baseline_codes,
                 'Obesity': obesity_bl,
                 'BMI': bmi_bl,
@@ -125,6 +128,7 @@ def main():
                 'Date': bl_date
             },
             'Follow-up': {
+                'Age': age_fu,
                 'HasImage': c in followup_codes,
                 'Obesity': obesity_fu,
                 'BMI': bmi_fu,
@@ -136,21 +140,21 @@ def main():
         }
 
     notobese_nosurg_mage = [
-        c_data['follow-up']['MAGE']
+        c_data['Follow-up']['MAGE']
         for c, c_data in surg_dict.items()
-        if c_data['follow-up']['HasImage'] and not c_data['Obese'] and not c_data['HadSurgery']
+        if c_data['Follow-up']['HasImage'] and not c_data['Obese'] and not c_data['HadSurgery']
     ]
 
     obese_nosurg_mage = [
-        c_data['follow-up']['MAGE']
+        c_data['Follow-up']['MAGE']
         for c, c_data in surg_dict.items()
-        if c_data['follow-up']['HasImage'] and c_data['Obese'] and not c_data['HadSurgery']
+        if c_data['Follow-up']['HasImage'] and c_data['Obese'] and not c_data['HadSurgery']
     ]
 
     surg_mage = [
-        c_data['follow-up']['MAGE']
+        c_data['Follow-up']['MAGE']
         for c, c_data in surg_dict.items()
-        if c_data['follow-up']['HasImage'] and c_data['HadSurgery']
+        if c_data['Follow-up']['HasImage'] and c_data['HadSurgery']
     ]
 
     print(np.mean(deltas), np.mean(diffs))
