@@ -159,7 +159,8 @@ def main():
         if c_data['Follow-up']['HasImage'] and c_data['HadSurgery']
     ]
 
-    print(np.mean(deltas), np.mean(diffs))
+    print(np.mean(deltas), np.mean(diffs), type(np.mean(diffs)))
+    print(np.mean(surg_deltas), np.mean(surg_diffs))
     n_fu = len(notobese_nosurg_mage) + len(obese_nosurg_mage) + len(surg_mage)
     print(
         'Mean difference: {:d} years, {:d} months and {:d} days (from baseline)'.format(
