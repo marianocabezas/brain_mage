@@ -9,13 +9,16 @@ import pandas as pd
 from dateutil.relativedelta import relativedelta
 import importlib
 import yaml
+from time import strftime
+from copy import deepcopy
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.special import softmax
 import torch
 from torch.nn import ModuleList
 from torch.utils.data import DataLoader
-from time import strftime
-from copy import deepcopy
-from scipy.special import softmax
 from utils import color_codes, time_to_string
+
 
 
 """
@@ -190,6 +193,58 @@ def main():
         '{: 5.2f}%'.format(100 * len(surg_mage) / n_fu)
     )
 
+    # Absolute MAGE at follow-up
+
+    x = ['Not obese (no surgery)'] * len(notobese_nosurg_mage) + ['Obese (no surgery)'] * len(obese_nosurg_mage) + [
+        'Surgery'] * len(surg_mage)
+    y = notobese_nosurg_mage + obese_nosurg_mage + surg_mage
+
+    mage_df = pd.DataFrame(list(zip(y, x)), columns=['MAGE', 'Group'])
+
+    # MAGE difference data
+
+    notobese_nosurg_diffmage = [
+        data['follow-up']['MAGE'] - data['baseline']['MAGE']
+        for c, data in surg_dict.items()
+        if
+        data['follow-up']['HasImage'] and data['baseline']['HasImage'] and not data['Obese'] and not data['HadSurgery']
+    ]
+
+    obese_nosurg_diffmage = [
+        data['follow-up']['MAGE'] - data['baseline']['MAGE']
+        for c, data in surg_dict.items()
+        if data['follow-up']['HasImage'] and data['baseline']['HasImage'] and data['Obese'] and not data['HadSurgery']
+    ]
+
+    surg_diffmage = [
+        data['follow-up']['MAGE'] - data['baseline']['MAGE']
+        for c, data in surg_dict.items()
+        if data['follow-up']['HasImage'] and data['baseline']['HasImage'] and data['HadSurgery']
+    ]
+
+    x = ['Not obese (no surgery)'] * len(notobese_nosurg_diffmage) + ['Obese (no surgery)'] * len(
+        obese_nosurg_diffmage) + ['Surgery'] * len(surg_diffmage)
+    y = notobese_nosurg_diffmage + obese_nosurg_diffmage + surg_diffmage
+
+    diffmage_df = pd.DataFrame(list(zip(y, x)), columns=['DiffMAGE', 'Group'])
+
+    plt.figure(figsize=(10, 5))
+    plt.subplot(1, 2, 1)
+    sns.boxplot(x='Group', y='MAGE', data=mage_df)
+    plt.xticks(rotation=45)
+    plt.subplot(1, 2, 2)
+    sns.boxplot(x='Group', y='DiffMAGE', data=diffmage_df)
+    plt.xticks(rotation=45)
+    plt.savefig('mage_boxplots.png')
+
+    plt.figure(figsize=(10, 5))
+    plt.subplot(1, 2, 1)
+    sns.violinplot(x='Group', y='MAGE', data=mage_df)
+    plt.xticks(rotation=45)
+    plt.subplot(1, 2, 2)
+    sns.violinplot(x='Group', y='DiffMAGE', data=diffmage_df)
+    plt.xticks(rotation=45)
+    plt.savefig('mage_violinplots.png')
 
 
 if __name__ == '__main__':
