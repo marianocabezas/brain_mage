@@ -276,7 +276,11 @@ def main():
         ),
     )
 
+    print('-'.join('' * 30))
+
     mage_info(path, surg_dict)
+
+    print('-'.join('' * 30))
 
     image_info(path, surg_dict)
 
