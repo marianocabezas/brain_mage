@@ -217,7 +217,7 @@ def main():
     ]
 
     surg_diffmage = [
-        data['Follow-up']['MAGE'] - data['baseline']['MAGE']
+        data['Follow-up']['MAGE'] - data['Baseline']['MAGE']
         for c, data in surg_dict.items()
         if data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and data['HadSurgery']
     ]
