@@ -235,7 +235,7 @@ def main():
     plt.subplot(1, 2, 2)
     sns.boxplot(x='Group', y='DiffMAGE', data=diffmage_df)
     plt.xticks(rotation=45)
-    plt.savefig('mage_boxplots.png')
+    plt.savefig(os.path.join(path, 'mage_boxplots.png'))
 
     plt.figure(figsize=(10, 5))
     plt.subplot(1, 2, 1)
@@ -244,7 +244,7 @@ def main():
     plt.subplot(1, 2, 2)
     sns.violinplot(x='Group', y='DiffMAGE', data=diffmage_df)
     plt.xticks(rotation=45)
-    plt.savefig('mage_violinplots.png')
+    plt.savefig(os.path.join(path, 'mage_violinplots.png'))
 
 
 if __name__ == '__main__':
