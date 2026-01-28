@@ -63,6 +63,7 @@ def main():
     deltas = []
     diffs = []
     surg_deltas = []
+    surg_diffs = []
     surg_dict = {}
     for c in patient_codes:
         pd_idx = ironmet_data['ID'].str.contains(c)
@@ -111,6 +112,7 @@ def main():
             deltas.append(date_diff)
             if had_surgery:
                 surg_deltas.append(surg_date_diff)
+                surg_diffs.append(fu_date - surg_date)
 
         surg_dict[c] = {
             'Obese': obesity_bl > 0,
@@ -160,16 +162,18 @@ def main():
     print(np.mean(deltas), np.mean(diffs))
     n_fu = len(notobese_nosurg_mage) + len(obese_nosurg_mage) + len(surg_mage)
     print(
-        'Mean difference: {:d} years and {:d} months (from baseline)'.format(
+        'Mean difference: {:d} years, {:d} months and {:d days (from baseline)'.format(
             np.mean(deltas).years,
-            np.mean(deltas).months
+            np.mean(deltas).months,
+            np.mean(deltas).days
         ),
     )
     print(
-        'Mean difference: {:d} years and {:d} months (from surgery)'.format(
+        'Mean difference: {:d} years, {:d} months and {:d days (from surgery)'.format(
             np.mean(surg_deltas).years,
-            np.mean(surg_deltas).months
-        )
+            np.mean(surg_deltas).months,
+            np.mean(surg_deltas).days
+        ),
     )
 
     print(
