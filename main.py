@@ -164,47 +164,27 @@ def image_info(path, data_dict):
             )
 
 
-def main():
-    # Init
-    options = parse_inputs()
-    path = options['path']
-    surg_dict, deltas, diffs, surg_deltas, surg_diffs = get_data_dict()
-
+def mage_info(path, data_dict):
     notobese_nosurg_mage = [
         c_data['Follow-up']['MAGE']
-        for c, c_data in surg_dict.items()
+        for c, c_data in data_dict.items()
         if c_data['Follow-up']['HasImage'] and not c_data['Obese'] and not c_data['HadSurgery']
     ]
 
     obese_nosurg_mage = [
         c_data['Follow-up']['MAGE']
-        for c, c_data in surg_dict.items()
+        for c, c_data in data_dict.items()
         if c_data['Follow-up']['HasImage'] and c_data['Obese'] and not c_data['HadSurgery']
     ]
 
     surg_mage = [
         c_data['Follow-up']['MAGE']
-        for c, c_data in surg_dict.items()
+        for c, c_data in data_dict.items()
         if c_data['Follow-up']['HasImage'] and c_data['HadSurgery']
     ]
 
-    print(np.mean(deltas), np.mean(diffs), type(np.mean(diffs)))
-    print(np.mean(surg_deltas), np.mean(surg_diffs))
     n_fu = len(notobese_nosurg_mage) + len(obese_nosurg_mage) + len(surg_mage)
-    print(
-        'Mean difference: {:d} years, {:d} months and {:d} days (from baseline)'.format(
-            np.mean(deltas).years,
-            np.mean(deltas).months,
-            np.mean(deltas).days
-        ),
-    )
-    print(
-        'Mean difference: {:d} years, {:d} months and {:d} days (from surgery)'.format(
-            np.mean(surg_deltas).years,
-            np.mean(surg_deltas).months,
-            np.mean(surg_deltas).days
-        ),
-    )
+
 
     print(
         'Not obese (no surgery)', len(notobese_nosurg_mage),
@@ -231,20 +211,20 @@ def main():
 
     notobese_nosurg_diffmage = [
         data['Follow-up']['MAGE'] - data['Baseline']['MAGE']
-        for c, data in surg_dict.items()
+        for c, data in data_dict.items()
         if
         data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and not data['Obese'] and not data['HadSurgery']
     ]
 
     obese_nosurg_diffmage = [
         data['Follow-up']['MAGE'] - data['Baseline']['MAGE']
-        for c, data in surg_dict.items()
+        for c, data in data_dict.items()
         if data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and data['Obese'] and not data['HadSurgery']
     ]
 
     surg_diffmage = [
         data['Follow-up']['MAGE'] - data['Baseline']['MAGE']
-        for c, data in surg_dict.items()
+        for c, data in data_dict.items()
         if data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and data['HadSurgery']
     ]
 
@@ -271,6 +251,34 @@ def main():
     sns.violinplot(x='Group', y='DiffMAGE', data=diffmage_df)
     plt.xticks(rotation=45)
     plt.savefig(os.path.join(path, 'mage_violinplots.png'))
+
+
+def main():
+    # Init
+    options = parse_inputs()
+    path = options['path']
+    surg_dict, deltas, diffs, surg_deltas, surg_diffs = get_data_dict()
+
+    print(np.mean(deltas), np.mean(diffs), type(np.mean(diffs)))
+    print(np.mean(surg_deltas), np.mean(surg_diffs))
+    print(
+        'Mean difference: {:d} years, {:d} months and {:d} days (from baseline)'.format(
+            np.mean(deltas).years,
+            np.mean(deltas).months,
+            np.mean(deltas).days
+        ),
+    )
+    print(
+        'Mean difference: {:d} years, {:d} months and {:d} days (from surgery)'.format(
+            np.mean(surg_deltas).years,
+            np.mean(surg_deltas).months,
+            np.mean(surg_deltas).days
+        ),
+    )
+
+    mage_info(path, surg_dict)
+
+    image_info(path, surg_dict)
 
 
 if __name__ == '__main__':
