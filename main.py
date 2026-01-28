@@ -162,14 +162,14 @@ def main():
     print(np.mean(deltas), np.mean(diffs))
     n_fu = len(notobese_nosurg_mage) + len(obese_nosurg_mage) + len(surg_mage)
     print(
-        'Mean difference: {:d} years, {:d} months and {:d days (from baseline)'.format(
+        'Mean difference: {:d} years, {:d} months and {:d} days (from baseline)'.format(
             np.mean(deltas).years,
             np.mean(deltas).months,
             np.mean(deltas).days
         ),
     )
     print(
-        'Mean difference: {:d} years, {:d} months and {:d days (from surgery)'.format(
+        'Mean difference: {:d} years, {:d} months and {:d} days (from surgery)'.format(
             np.mean(surg_deltas).years,
             np.mean(surg_deltas).months,
             np.mean(surg_deltas).days
@@ -181,11 +181,11 @@ def main():
         '{: 5.2f}%'.format(100 * len(notobese_nosurg_mage) / n_fu)
     )
     print(
-        'Obese (no surgery)', len(obese_nosurg_mage),
+        'Obese (no surgery)    ', len(obese_nosurg_mage),
         '{: 5.2f}%'.format(100 * len(obese_nosurg_mage) / n_fu)
     )
     print(
-        'Surgery', len(surg_mage),
+        'Surgery               ', len(surg_mage),
         '{: 5.2f}%'.format(100 * len(surg_mage) / n_fu)
     )
 
