@@ -31,7 +31,7 @@ def parse_inputs():
     # Mode selector
     parser.add_argument(
         '-i', '--input-path',
-        dest='path', default='/home/Data/Ironmet_CGM',
+        dest='path', default='/home/Data/IronMET_CGM',
         help='Path to the files (imaging and tabular data).'
     )
     options = vars(parser.parse_args())
