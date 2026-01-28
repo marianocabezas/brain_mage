@@ -3,7 +3,7 @@ import os
 import time
 import json
 import random
-import datetime
+from datetime import datetime
 import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
