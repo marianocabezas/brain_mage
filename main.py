@@ -172,7 +172,7 @@ def image_info(path, data_dict):
             )
 
             bl_im = bl_nii.get_fdata()
-            affine = torch.eye(4, dtype=torch.float32)
+            affine = torch.eye(4, dtype=torch.float64)
 
             bl_new = resample(
                 bl_im, bl_nii.header.get_zooms(),
