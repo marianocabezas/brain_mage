@@ -177,7 +177,7 @@ def image_info(path, data_dict):
             bl_im = bl_nii.get_fdata()
             fu_im = fu_nii.get_fdata()
 
-            affine, ... = halfway_registration(
+            affine, ._, _. = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms()
             )
 
@@ -187,12 +187,12 @@ def image_info(path, data_dict):
             bl_new = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 fu_nii.shape, fu_nii.header.get_zooms(),
-                affine
+                bl_affine
             )
             fu_new = resample(
                 fu_im, fu_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                affine
+                fu_affine
             )
 
 
