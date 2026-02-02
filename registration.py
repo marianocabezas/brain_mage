@@ -138,3 +138,85 @@ def resample(
     ).view(output_dims)
 
     return moved
+
+
+def halfway_registration(
+    fixed, moving, fixed_spacing, moving_spacing,
+    mask=None, init_affine=None,
+    scales=None, epochs=500, patience=100, init_lr=1e-3, loss_f=xcor_loss,
+    device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+):
+    if scales is None:
+        scales = [8, 4, 2, 1]
+
+    best_fit = np.inf
+    final_e = 0
+    final_fit = np.inf
+
+    if mask is not None:
+        mask_tensor = torch.from_numpy(mask).view(
+            (1, 1) + fixed.shape
+        ).to(device)
+    if init_affine is None:
+        init_affine = torch.eye(4, dtype=torch.float64).to(device)
+    learnable_affine = torch.tensor(
+        init_affine[:3, :], device=device,
+        requires_grad=True, dtype=torch.float64
+    )
+    fixed_affine = torch.tensor(
+        init_affine[3:, :], device=device,
+        requires_grad=False, dtype=torch.float64
+    )
+
+    lr = init_lr
+    best_affine = torch.tensor(init_affine)
+
+    for s in scales:
+        optimizer = torch.optim.SGD([learnable_affine], lr=lr)
+        no_improv = 0
+        for e in range(epochs):
+            affine = torch.cat([learnable_affine, fixed_affine])
+
+            f_affine = affine / 2
+            m_affine = torch.inverse(affine) / 2
+            moving_moved = resample(moving, moving_spacing, fixed.shape, fixed_spacing, m_affine)
+            fixed_moved = resample(fixed, fixed_spacing, fixed.shape, fixed_spacing, f_affine)
+            moving_tensor = moving_moved.view((1, 1) + fixed.shape)
+            fixed_tensor = fixed_moved.view((1, 1) + fixed.shape)
+            moved_s = func.avg_pool2d(moving_tensor, s)
+            fixed_s = func.avg_pool2d(fixed_tensor, s)
+            if mask is None:
+                loss = loss_f(moved_s, fixed_s)
+            else:
+                mask_s = func.max_pool2d(
+                    mask_tensor.to(torch.float32), s
+                ) > 0
+                loss = loss_f(moved_s, fixed_s, mask_s)
+            loss_value = loss.detach().cpu().numpy().tolist()
+            if loss_value < best_fit:
+                final_e = e
+                final_fit = loss_value
+                best_fit = loss_value
+                best_affine = learnable_affine.detach()
+            else:
+                no_improv += 1
+                if no_improv == patience:
+                    break
+            optimizer.zero_grad()
+            loss.backward()
+            if e == 0:
+                print('Epoch {:03d} [scale {:02d}]: {:8.4f}'.format(
+                    e + 1, s, loss_value
+                ))
+            optimizer.step()
+        learnable_affine = torch.tensor(
+            best_affine.cpu().numpy(), device=device, requires_grad=True,
+            dtype=torch.float64
+        )
+        print('Epoch {:03d} [scale {:02d}]: {:8.4f}'.format(
+            final_e + 1, s, final_fit
+        ))
+        best_fit = np.inf
+        # lr = lr / 5
+    best_affine = torch.cat([learnable_affine, fixed_affine.detach()])
+    return best_affine, final_e, final_fit

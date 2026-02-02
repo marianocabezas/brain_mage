@@ -19,7 +19,7 @@ import torch
 from torch.nn import ModuleList
 from torch.utils.data import DataLoader
 from utils import color_codes, time_to_string
-from registration import resample
+from registration import resample, halfway_registration
 
 
 
@@ -170,18 +170,33 @@ def image_info(path, data_dict):
                     fu_x, fu_y, fu_z, fu_sx, fu_sy, fu_sz
                 )
             )
-            print(fu_sx, fu_sy, fu_sz)
+
+            target_spacing = (0.9583333, 0.9583333, 1.0)
+            target_dims = (240, 240, 145)
 
             bl_im = bl_nii.get_fdata()
-            affine = torch.eye(4, dtype=torch.float64)
+            fu_im = fu_nii.get_fdata()
+
+            affine, ... = halfway_registration(
+                fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms()
+            )
+
+            fu_affine = affine / 2
+            bl_affine = torch.inverse(affine) / 2
 
             bl_new = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 fu_nii.shape, fu_nii.header.get_zooms(),
                 affine
             )
+            fu_new = resample(
+                fu_im, fu_nii.header.get_zooms(),
+                target_dims, target_spacing,
+                affine
+            )
 
-            print(bl_new.shape)
+
+            print(bl_new.shape, fu_new.shape)
 
 
 def mage_info(path, data_dict):
