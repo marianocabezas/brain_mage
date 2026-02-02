@@ -174,7 +174,13 @@ def image_info(path, data_dict):
             bl_im = bl_nii.get_fdata()
             affine = torch.eye(4, dtype=torch.float32)
 
-            bl_new = resample(bl_im, bl_nii.header.get_zooms(), fu_nii.shape, fu_nii.get_zooms())
+            bl_new = resample(
+                bl_im, bl_nii.header.get_zooms(),
+                fu_nii.shape, fu_nii.header.get_zooms(),
+                affine
+            )
+
+            print(bl_new.shape)
 
 
 def mage_info(path, data_dict):
