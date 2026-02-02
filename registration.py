@@ -1,0 +1,140 @@
+import os
+import numpy as np
+import torch
+import torch.nn.functional as func
+from sklearn.metrics import mean_squared_error as mse
+from skimage.metrics import structural_similarity as ssim
+from utils import load_xcf, robust_fit_ellipse, ellipse_to_mask
+
+
+"""
+> Similarity-based losses
+"""
+
+
+def xcor_loss(fixed, moved, mask=None):
+    if mask is None:
+        fixed_norm = fixed - torch.mean(fixed)
+        moved_norm = moved - torch.mean(moved)
+    else:
+        valid_fixed = fixed[mask]
+        valid_moved = moved[mask]
+        fixed_norm = valid_fixed - torch.mean(valid_fixed)
+        moved_norm = valid_moved - torch.mean(valid_moved)
+    fixed_sq = torch.sum(fixed_norm ** 2)
+    moved_sq = torch.sum(moved_norm ** 2)
+
+    den = torch.sqrt(fixed_sq * moved_sq)
+    num = torch.sum(fixed_norm * moved_norm)
+
+    xcor = num / den if den > 0 else 0
+
+    return 1. - xcor
+
+
+def xcor_patch_loss(fixed, moved, mask=None, k=8):
+    if len(fixed.shape) < 4:
+        unsqueeze = (1,) * (4 - len(fixed.shape))
+        fixed = torch.reshape(fixed, unsqueeze + fixed.shape)
+    if len(moved.shape) < 4:
+        unsqueeze = (1,) * (4 - len(moved.shape))
+        moved = torch.reshape(moved, unsqueeze + moved.shape)
+    fixed_mean = func.interpolate(
+        func.avg_pool2d(fixed, k),
+        fixed.shape[2:]
+    )
+    moved_mean = func.interpolate(
+        func.avg_pool2d(moved, k),
+        moved.shape[2:]
+    )
+    fixed_norm = fixed - fixed_mean
+    moved_norm = moved - moved_mean
+    fixed_sq = func.avg_pool2d(fixed_norm ** 2, k)
+    moved_sq = func.avg_pool2d(moved_norm ** 2, k)
+
+    den = torch.sqrt(fixed_sq * moved_sq)
+    num = func.avg_pool2d(fixed_norm * moved_norm, k)
+
+    xcor = torch.mean(num / den)
+
+    return 1. - xcor
+
+
+def mse_loss(fixed, moved, mask=None):
+    if mask is None:
+        mse_val = func.mse_loss(moved, fixed)
+    else:
+        valid_fixed = fixed[mask]
+        valid_moved = moved[mask]
+        mse_val = func.mse_loss(valid_moved, valid_fixed)
+
+    return mse_val
+
+
+"""
+> Registration code
+"""
+
+
+def resample(
+    moving, moving_spacing, output_dims, output_spacing,
+    affine, mode='bilinear'
+):
+    m_width, m_height, m_depth = moving.shape
+    m_width_s, m_height_s, m_depth_s = moving_spacing
+    f_width, f_height, f_depth = output_dims
+    f_width_s, f_height_s, f_depth_s = output_spacing
+
+    image_tensor = torch.from_numpy(
+        moving.astype(np.float32)
+    ).view(
+        (1, 1, m_width, m_height, m_depth)
+    ).to(affine.device)
+
+    if f_width_s == m_width_s:
+        x_step = 1
+    else:
+        x_step = f_width_s / m_width_s
+    if f_height_s == m_height_s:
+        y_step = 1
+    else:
+        y_step = f_height_s / m_height_s
+    if f_depth_s == m_depth_s:
+        z_step = 1
+    else:
+        z_step = f_depth_s / m_depth_s
+
+    # Initial grid
+    x = torch.arange(
+        start=0, end=x_step * f_width, step=x_step
+    ).to(dtype=torch.float64, device=affine.device)
+    y = torch.arange(
+        start=0, end=y_step * f_height, step=y_step
+    ).to(dtype=torch.float64, device=affine.device)
+    z = torch.arange(
+        start=0, end=z_step * f_depth, step=z_step
+    ).to(dtype=torch.float64, device=affine.device)
+    grid_x, grid_y, grid_z = torch.meshgrid(x, y, z, indexing='xy')
+    grid = torch.stack([
+        grid_x.flatten(),
+        grid_y.flatten(),
+        grid_z.flatten(),
+        torch.ones_like(grid_x.flatten())
+    ], dim=0)
+
+    scales = torch.tensor(
+        [[m_width], [m_height], [m_depth]],
+        dtype=torch.float64, device=affine.device
+    )
+    affine_grid = 2 * (affine @ grid)[:2, :] / scales - 1
+
+    tensor_grid = torch.swapaxes(affine_grid, 0, 1).view(
+        1, f_height, f_width, f_depth, 3
+    )
+
+    moved = func.grid_sample(
+        image_tensor, tensor_grid.to(dtype=torch.float32),
+        align_corners=True, mode=mode
+    ).view(output_dims)
+
+    return moved

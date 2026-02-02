@@ -19,6 +19,7 @@ import torch
 from torch.nn import ModuleList
 from torch.utils.data import DataLoader
 from utils import color_codes, time_to_string
+from registration import resample
 
 
 
@@ -156,12 +157,20 @@ def image_info(path, data_dict):
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE.nii')
             )
             bl_x, bl_y, bl_z = bl_nii.get_fdata().shape
+            bl_sx, bl_sy, bl_sz = bl_nii.header.get_zooms()
             fu_x, fu_y, fu_z = fu_nii.get_fdata().shape
+            fu_sx, fu_sy, fu_sz = fu_nii.header.get_zooms()
             print(
-                'Subject {:} - Baseline {:3d} x {:3d} x {:3d} - Follow-up {:3d} x {:3d} x {:3d}'.format(
-                    c, bl_x, bl_y, bl_z, fu_x, fu_y, fu_z
+                'Subject {:} - Baseline {:3d} x {:3d} x {:3d} ({:3d} x {:3d} x {:3d})'.format(
+                    c, bl_x, bl_y, bl_z,  bl_sx, bl_sy, bl_sz
+                ), end=' '
+            )
+            print(
+                '- Follow-up {:3d} x {:3d} x {:3d} ({:3d} x {:3d} x {:3d})'.format(
+                    fu_x, fu_y, fu_z, fu_sx, fu_sy, fu_sz
                 )
             )
+            print(bl_nii.header)
 
 
 def mage_info(path, data_dict):
