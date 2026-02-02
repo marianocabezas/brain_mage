@@ -161,12 +161,12 @@ def image_info(path, data_dict):
             fu_x, fu_y, fu_z = fu_nii.get_fdata().shape
             fu_sx, fu_sy, fu_sz = fu_nii.header.get_zooms()
             print(
-                'Subject {:} - Baseline {:3d} x {:3d} x {:3d} ({:3d} x {:3d} x {:3d})'.format(
+                'Subject {:} - Baseline {:3d} x {:3d} x {:3d} ({:4.2f} x {:4.2f} x {:4.2f})'.format(
                     c, bl_x, bl_y, bl_z,  bl_sx, bl_sy, bl_sz
                 ), end=' '
             )
             print(
-                '- Follow-up {:3d} x {:3d} x {:3d} ({:3d} x {:3d} x {:3d})'.format(
+                '- Follow-up {:3d} x {:3d} x {:3d} ({:4.2f} x {:4.2f} x {:4.2f})'.format(
                     fu_x, fu_y, fu_z, fu_sx, fu_sy, fu_sz
                 )
             )
