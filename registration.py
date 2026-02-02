@@ -183,8 +183,8 @@ def halfway_registration(
             fixed_moved = resample(fixed, fixed_spacing, fixed.shape, fixed_spacing, f_affine)
             moving_tensor = moving_moved.view((1, 1) + fixed.shape)
             fixed_tensor = fixed_moved.view((1, 1) + fixed.shape)
-            moved_s = func.avg_pool2d(moving_tensor, s)
-            fixed_s = func.avg_pool2d(fixed_tensor, s)
+            moved_s = func.avg_pool3d(moving_tensor, s)
+            fixed_s = func.avg_pool3d(fixed_tensor, s)
             if mask is None:
                 loss = loss_f(moved_s, fixed_s)
             else:
