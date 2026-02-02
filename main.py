@@ -170,6 +170,7 @@ def image_info(path, data_dict):
                     fu_x, fu_y, fu_z, fu_sx, fu_sy, fu_sz
                 )
             )
+            print(fu_sx, fu_sy, fu_sz)
 
             bl_im = bl_nii.get_fdata()
             affine = torch.eye(4, dtype=torch.float64)
