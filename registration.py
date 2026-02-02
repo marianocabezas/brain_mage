@@ -4,7 +4,6 @@ import torch
 import torch.nn.functional as func
 from sklearn.metrics import mean_squared_error as mse
 from skimage.metrics import structural_similarity as ssim
-from utils import load_xcf, robust_fit_ellipse, ellipse_to_mask
 
 
 """
