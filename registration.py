@@ -133,7 +133,8 @@ def resample(
     )
 
     moved = func.grid_sample(
-        image_tensor, tensor_grid,
+        image_tensor.to(torch.float32),
+        tensor_grid.to(torch.float32),
         align_corners=True, mode=mode
     ).view(output_dims)
 
