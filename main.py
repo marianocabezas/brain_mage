@@ -173,7 +173,7 @@ def image_info(path, data_dict):
 
             bl_test = resample(
                 bl_im, bl_nii.header.get_zooms(),
-                bl_im.shape, bl_nii.header.get_zooms(),
+                target_dims, target_spacing,
                 torch.eye(4, dtype=torch.float64)
             ).detach().cpu().numpy()
             bl_test_nii = nib.Nifti1Image(bl_test, None, header=bl_nii.header)
