@@ -204,7 +204,6 @@ def halfway_registration(
                 mask_tensor_a_s = func.max_pool3d(
                     mask_tensor_a, s
                 ) > 0
-                print(np.sum(mask_a), torch.sum(mask_tensor_a), torch.sum(mask_tensor_a_s))
             else:
                 mask_tensor_a_s = None
 
