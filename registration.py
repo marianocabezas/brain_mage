@@ -25,6 +25,8 @@ def xcor_loss(fixed, moved, mask=None):
     den = torch.sqrt(fixed_sq * moved_sq)
     num = torch.sum(fixed_norm * moved_norm)
 
+    print(num, den)
+
     xcor = num / den if den > 0 else 0
 
     return 1. - xcor
@@ -194,7 +196,6 @@ def halfway_registration(
             tensor_a_s = func.avg_pool3d(tensor_a, s)
             tensor_b_s = func.avg_pool3d(tensor_b, s)
 
-            '''
             if mask_a is not None:
                 mask_tensor_a = resample(
                     mask_a.astype(np.float32), spacing_a,
@@ -235,9 +236,6 @@ def halfway_registration(
                 loss = loss_f(tensor_a_s, tensor_b_s)
             else:
                 loss = loss_f(tensor_a_s, tensor_b_s, mask_tensor)
-            '''
-
-            print(torch.mean(tensor_a_s), torch.mean(tensor_b_s))
 
             loss = loss_f(tensor_a_s, tensor_b_s)
 
