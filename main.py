@@ -31,6 +31,18 @@ def parse_inputs():
         dest='path', default='/home/Data/IronMET_CGM',
         help='Path to the files (imaging and tabular data).'
     )
+    parser.add_argument(
+        '-e', '--epochs',
+        dest='epochs',
+        type=int, default=500,
+        help='Number of epochs'
+    )
+    parser.add_argument(
+        '-p', '--patience',
+        dest='epochs',
+        type=int, default=100,
+        help='Number of epochs'
+    )
     options = vars(parser.parse_args())
 
     return options
@@ -139,7 +151,7 @@ def get_data_dict():
     return surg_dict, deltas, diffs, surg_deltas, surg_diffs
 
 
-def image_info(path, data_dict):
+def image_info(path, data_dict, epochs, patience):
     for c, c_data in data_dict.items():
         if c_data['Follow-up']['HasImage'] and c_data['Baseline']['HasImage']:
             bl_nii = nib.load(
@@ -193,7 +205,7 @@ def image_info(path, data_dict):
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_mask, mask_b=bl_mask,
                 shape_target=target_dims, spacing_target=target_spacing,
-                scales=[8, 4, 2, 1], epochs=1000, patience=100
+                scales=[8, 4, 2, 1], epochs=epochs, patience=patience
             )
 
             bl_new = resample(
@@ -311,6 +323,8 @@ def main():
     # Init
     options = parse_inputs()
     path = options['path']
+    epochs = options['epochs']
+    patience = options['patience']
     surg_dict, deltas, diffs, surg_deltas, surg_diffs = get_data_dict()
 
     print(np.mean(deltas), np.mean(diffs), type(np.mean(diffs)))
@@ -336,7 +350,7 @@ def main():
 
     print('-'.join([''] * 30))
 
-    image_info(path, surg_dict)
+    image_info(path, surg_dict, epochs, patience)
 
 
 if __name__ == '__main__':
