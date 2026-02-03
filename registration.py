@@ -140,7 +140,7 @@ def resample(
 
     print(
         grid_x[50, 60, 130], grid_y[50, 60, 130], grid_z[50, 60, 130],
-        moving[50, 60, 130], moving[50, 60, 130], tensor_grid[0, 50, 60, 130, :]
+        moving[50, 60, 130], moved[50, 60, 130], tensor_grid[0, 50, 60, 130, :]
     )
 
     return moved
