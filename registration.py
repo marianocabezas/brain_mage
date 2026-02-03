@@ -187,6 +187,7 @@ def resample(
         (affine * affine_scaling).view((1,) + affine.shape)[:, :-1, :],
         (1, 1) + output_dims,
         align_corners=True
+    )
     moved = func.grid_sample(
         image_tensor, grid,
         align_corners=True
