@@ -288,7 +288,7 @@ def compute_matrices(alpha, beta, gamma, T):
     ])
     R = torch.stack([Rx, Ry, Rz], dim=0)
     Rt = R.transpose(0, 1)
-
+    print(Rx.shape, R.shape)
     Tinv = - Rt @ T / 2
 
     affine_fwd = torch.cat([
