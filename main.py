@@ -187,7 +187,7 @@ def image_info(path, data_dict):
 
             affine, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
-                mask_a=fu_im > fu_th, mask_b=bl_im > bl_th,
+                mask_a=fu_im > fu_th, mask_b=bl_im > bl_th, optimizer=torch.optim.Adam,
                 shape_target=target_dims, spacing_target=target_spacing,
                 loss_f=mse_loss, scales=[4, 2, 1], epochs=50, patience=10,
             )
