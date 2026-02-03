@@ -11,7 +11,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import torch
 from utils import color_codes, time_to_string
-from registration import resample, halfway_rigid_registration, mse_loss
+from registration import resample, halfway_registration, mse_loss, xcor_loss
 
 
 
@@ -189,14 +189,7 @@ def image_info(path, data_dict):
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_test.nii.gz')
             )'''
 
-            '''affine, _, _ = halfway_registration(
-                fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
-                mask_a=fu_mask, mask_b=bl_mask,
-                shape_target=target_dims, spacing_target=target_spacing,
-                scales=[8, 4, 2, 1], epochs=1000, patience=100
-            )'''
-
-            affine_fu, affine_bl, _, _ = halfway_rigid_registration(
+            affine, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_mask, mask_b=bl_mask,
                 shape_target=target_dims, spacing_target=target_spacing,
