@@ -160,15 +160,11 @@ def halfway_registration(
     if spacing_target is None:
         spacing_target = spacing_a
     if mask_a is not None:
-        mask_tensor_a = torch.from_numpy(mask_a).view(
-            (1, 1) + image_a.shape
-        ).to(device)
+        mask_tensor_a = torch.from_numpy(mask_a).to(device)
     else:
         mask_tensor_a = None
     if mask_b is not None:
-        mask_tensor_b = torch.from_numpy(mask_b).view(
-            (1, 1) + image_b.shape
-        ).to(device)
+        mask_tensor_b = torch.from_numpy(mask_b).to(device)
     else:
         mask_tensor_b = None
     learnable_affine = torch.tensor(
@@ -211,7 +207,7 @@ def halfway_registration(
                         shape_target, spacing_target,
                         affine,
                         mode='nearest'
-                    ), s
+                    ).view((1, 1) + shape_target), s
                 ) > 0
             else:
                 mask_tensor_a_s = None
@@ -224,7 +220,7 @@ def halfway_registration(
                         shape_target, spacing_target,
                         torch.inverse(affine),
                         mode='nearest'
-                    ), s
+                    ).view((1, 1) + shape_target), s
                 ) > 0
             else:
                 mask_tensor_b_s = None
