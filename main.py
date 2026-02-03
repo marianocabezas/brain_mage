@@ -11,7 +11,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import torch
 from utils import color_codes, time_to_string
-from registration import resample, halfway_registration, mse_loss, xcor_loss
+from registration import resample, halfway_rigid_registration, mse_loss
 
 
 
@@ -189,7 +189,14 @@ def image_info(path, data_dict):
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_test.nii.gz')
             )'''
 
-            affine, _, _ = halfway_registration(
+            '''affine, _, _ = halfway_registration(
+                fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
+                mask_a=fu_mask, mask_b=bl_mask,
+                shape_target=target_dims, spacing_target=target_spacing,
+                scales=[8, 4, 2, 1], epochs=1000, patience=100
+            )'''
+
+            affine_fu, affine_bl, _, _ = halfway_rigid_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_mask, mask_b=bl_mask,
                 shape_target=target_dims, spacing_target=target_spacing,
@@ -199,12 +206,12 @@ def image_info(path, data_dict):
             bl_new = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                torch.inverse(affine)
+                affine_bl
             ).detach().cpu().numpy()
             fu_new = resample(
                 fu_im, fu_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                affine
+                affine_fu
             ).detach().cpu().numpy()
             bl_hdr.set_zooms(target_spacing)
             bl_new_nii = nib.Nifti1Image(bl_new, None, header=bl_hdr)
