@@ -89,6 +89,8 @@ def resample(
         (1, 1, m_width, m_height, m_depth)
     ).to(affine.device)
 
+    print(f_width_s / m_width_s, f_width_s, m_width_s, f_width, m_width)
+
     if f_width_s == m_width_s:
         x_step = 1
     else:
@@ -125,8 +127,6 @@ def resample(
         [[m_depth], [m_height], [m_width]],
         dtype=torch.float64, device=affine.device
     )
-
-    print(grid_x.min(), grid_x.max(), grid_y.min(), grid_y.max(), grid_z.min(), grid_z.max())
 
     affine_grid = 2 * (affine @ grid)[:3, :] / scales - 1
 
