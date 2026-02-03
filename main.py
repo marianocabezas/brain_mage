@@ -168,8 +168,13 @@ def image_info(path, data_dict):
             bl_im = bl_nii.get_fdata()
             fu_im = fu_nii.get_fdata()
 
+            bl_th = filters.threshold_otsu(bl_im)
+            fu_th = filters.threshold_otsu(fu_im)
+
             affine, _, _ = halfway_registration(
-                fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms()
+                fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
+                mask_a=fu_im > fu_th, mask_b=bl_im > bl_th,
+                shape_target=target_dims, spacing_target=target_spacing,
             )
 
             bl_new = resample(
