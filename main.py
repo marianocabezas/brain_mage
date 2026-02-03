@@ -176,6 +176,8 @@ def image_info(path, data_dict):
             fu_hdr = fu_nii.header
             fu_hdr.set_zooms(target_dims)
 
+            print(bl_nii.header)
+
             bl_test = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 target_dims, target_spacing,
