@@ -266,7 +266,7 @@ def halfway_registration(
 def compute_matrices(alpha, beta, gamma, T):
 
     fixed_affine = torch.tensor(
-        [0, 0, 0, 1], device=alpha.device,
+        [[0, 0, 0, 1]], device=alpha.device,
         requires_grad=False, dtype=torch.float64
     )
 
