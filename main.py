@@ -181,7 +181,7 @@ def image_info(path, data_dict):
                 target_dims, target_spacing,
                 torch.eye(4, dtype=torch.float64)
             ).detach().cpu().numpy()
-            print(bl_im.mean(), bl_test.mean(), bl_test.min(), bl_test.max())
+
             bl_test_nii = nib.Nifti1Image(bl_test, None, header=bl_nii.header)
             bl_test_nii.to_filename(
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_test.nii.gz')
