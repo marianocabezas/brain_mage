@@ -25,8 +25,6 @@ def xcor_loss(fixed, moved, mask=None):
     den = torch.sqrt(fixed_sq * moved_sq)
     num = torch.sum(fixed_norm * moved_norm)
 
-    print(num, den)
-
     xcor = num / den if den > 0 else 0
 
     return 1. - xcor
@@ -180,6 +178,8 @@ def halfway_registration(
         no_improv = 0
         for e in range(epochs):
             affine = torch.cat([learnable_affine, fixed_affine])
+
+            print(affine, torch.inverse(affine))
 
             moved_a = resample(
                 image_a, spacing_a,
