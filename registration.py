@@ -138,11 +138,6 @@ def resample(
         align_corners=True, mode=mode
     ).view(output_dims)
 
-    print(
-        grid_x[50, 60, 130], grid_y[50, 60, 130], grid_z[50, 60, 130],
-        moving[50, 60, 130], moved[50, 60, 130], moved[130, 60, 50]
-    )
-
     return moved
 
 
