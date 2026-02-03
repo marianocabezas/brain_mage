@@ -237,6 +237,8 @@ def halfway_registration(
                 loss = loss_f(tensor_a_s, tensor_b_s, mask_tensor)
             '''
 
+            print(torch.mean(tensor_a_s), torch.mean(tensor_b_s))
+
             loss = loss_f(tensor_a_s, tensor_b_s)
 
             loss_value = loss.detach().cpu().numpy().tolist()
