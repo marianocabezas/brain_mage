@@ -111,7 +111,7 @@ def resample(
     )
 
     grid = func.affine_grid(
-        (affine * affine_scaling).view((1,) + affine.shape)[:, :-1, :],
+        affine.view((1,) + affine.shape)[:, :-1, :],
         (1, 1) + output_dims,
         align_corners=True
     )
