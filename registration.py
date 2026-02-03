@@ -159,14 +159,8 @@ def halfway_registration(
         ).to(device)
     if init_affine is None:
         init_affine = torch.eye(4, dtype=torch.float64).to(device)
-    learnable_affine = torch.tensor(
-        init_affine[:3, :].detach().clone(), device=device,
-        requires_grad=True, dtype=torch.float64
-    )
-    fixed_affine = torch.tensor(
-        init_affine[3:, :].detach().clone(), device=device,
-        requires_grad=False, dtype=torch.float64
-    )
+    learnable_affine = init_affine[:3, :].detach().clone().requires_grad_(True).to(device, torch.float64)
+    fixed_affine = init_affine[3:, :].detach().clone().to(device, torch.float64)
 
     lr = init_lr
     best_affine = torch.tensor(init_affine)

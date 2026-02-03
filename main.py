@@ -188,12 +188,12 @@ def image_info(path, data_dict):
                 bl_im, bl_nii.header.get_zooms(),
                 fu_nii.shape, fu_nii.header.get_zooms(),
                 bl_affine
-            )
+            ).detach().cpu().numpy()
             fu_new = resample(
                 fu_im, fu_nii.header.get_zooms(),
                 target_dims, target_spacing,
                 fu_affine
-            )
+            ).detach().cpu().numpy()
 
             bl_new_nii = nib.Nifti1Image(bl_new, None, header=bl_nii.header)
             bl_new_nii.to_filename(
