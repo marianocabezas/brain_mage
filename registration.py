@@ -195,7 +195,7 @@ def halfway_registration(
             tensor_b_s = func.avg_pool3d(tensor_b, s)
             if mask_a is not None:
                 mask_tensor_a = resample(
-                    mask_a, spacing_a,
+                    mask_a.astype(np.float32), spacing_a,
                     shape_target, spacing_target,
                     affine,
                     mode='nearest'
@@ -209,9 +209,9 @@ def halfway_registration(
 
             if mask_b is not None:
                 mask_tensor_b = resample(
-                    mask_b, spacing_b,
+                    mask_b.astype(np.float32), spacing_b,
                     shape_target, spacing_target,
-                    affine,
+                    torch.inverse(affine),
                     mode='nearest'
                 ).view((1, 1) + shape_target)
                 mask_tensor_b_s = func.max_pool3d(
