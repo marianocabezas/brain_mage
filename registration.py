@@ -169,7 +169,7 @@ def halfway_registration(
     )
 
     lr = init_lr
-    best_affine = torch.tensor(id_affine)
+    best_affine = torch.tensor(id_affine[:3, :])
 
     for s in scales:
         optimizer = torch.optim.SGD([learnable_affine], lr=lr)
@@ -234,6 +234,7 @@ def halfway_registration(
                 final_e = e
                 final_fit = loss_value
                 best_fit = loss_value
+                print(best_affine, learnable_affine)
                 best_affine = learnable_affine.detach()
             else:
                 no_improv += 1

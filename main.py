@@ -190,11 +190,11 @@ def image_info(path, data_dict):
 
             bl_new_nii = nib.Nifti1Image(bl_new, None, header=bl_nii.header)
             bl_new_nii.to_filename(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii')
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
             )
             fu_new_nii = nib.Nifti1Image(fu_new, None, header=fu_nii.header)
             fu_new_nii.to_filename(
-                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii')
+                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
             )
 
 
