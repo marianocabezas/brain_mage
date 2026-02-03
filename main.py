@@ -181,7 +181,7 @@ def image_info(path, data_dict):
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_test.nii.gz')
             )
 
-            affine, _, _ = halfway_registration(
+            '''affine, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_im > fu_th, mask_b=bl_im > bl_th,
                 shape_target=target_dims, spacing_target=target_spacing,
@@ -205,7 +205,7 @@ def image_info(path, data_dict):
             fu_new_nii = nib.Nifti1Image(fu_new, bl_nii.get_qqform(), header=fu_nii.header)
             fu_new_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
-            )
+            )'''
 
 
 def mage_info(path, data_dict):

@@ -131,15 +131,17 @@ def resample(
     tensor_grid = torch.swapaxes(affine_grid, 0, 1).view(
         1, f_width, f_height, f_depth, 3
     )
-    print(
-        grid_x[0, 1, 2], grid_y[0, 1, 2], grid_z[0, 1, 2],
-        moving[0, 1, 2], tensor_grid[0, 0, 1, 2, :]
-    )
+
 
     moved = func.grid_sample(
         image_tensor, tensor_grid.to(dtype=torch.float32),
         align_corners=True, mode=mode
     ).view(output_dims)
+
+    print(
+        grid_x[50, 60, 130], grid_y[50, 60, 130], grid_z[50, 60, 130],
+        moving[50, 60, 130], moving[50, 60, 130], tensor_grid[0, 50, 60, 130, :]
+    )
 
     return moved
 
