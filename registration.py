@@ -80,6 +80,78 @@ def resample(
 ):
     m_width, m_height, m_depth = moving.shape
     m_width_s, m_height_s, m_depth_s = moving_spacing
+    f_width, f_height, f_depth = output_dims
+    f_width_s, f_height_s, f_depth_s = output_spacing
+
+    image_tensor = torch.from_numpy(
+        moving.astype(np.float32)
+    ).view(
+        (1, 1, m_width, m_height, m_depth)
+    ).to(affine.device)
+
+    if f_width_s == m_width_s:
+        x_step = 1
+    else:
+        x_step = f_width_s / m_width_s
+    if f_height_s == m_height_s:
+        y_step = 1
+    else:
+        y_step = f_height_s / m_height_s
+    if f_depth_s == m_depth_s:
+        z_step = 1
+    else:
+        z_step = f_depth_s / m_depth_s
+
+    # Initial grid
+    x = torch.arange(
+        start=0, end=x_step * f_width, step=x_step
+    ).to(dtype=torch.float64, device=affine.device)
+    y = torch.arange(
+        start=0, end=y_step * f_height, step=y_step
+    ).to(dtype=torch.float64, device=affine.device)
+    z = torch.arange(
+        start=0, end=z_step * f_depth, step=z_step
+    ).to(dtype=torch.float64, device=affine.device)
+
+    grid_x, grid_y, grid_z = torch.meshgrid(x, y, z, indexing='ij')
+    grid = torch.stack([
+        grid_z.flatten(),
+        grid_y.flatten(),
+        grid_x.flatten(),
+        torch.ones_like(grid_x.flatten())
+    ], dim=0)
+
+    scales = torch.tensor(
+        [[m_depth], [m_height], [m_width]],
+        dtype=torch.float64, device=affine.device
+    )
+
+    affine_grid = 2 * (affine @ grid)[:3, :] / scales - 1
+
+    tensor_grid = torch.swapaxes(affine_grid, 0, 1).view(
+        1, f_width, f_height, f_depth, 3
+    )
+
+
+    moved = func.grid_sample(
+        image_tensor, tensor_grid.to(dtype=torch.float32),
+        align_corners=True, mode=mode
+    ).view(output_dims)
+
+    print(
+        grid_x[50, 60, 130], grid_y[50, 60, 130], grid_z[50, 60, 130],
+        moving[50, 60, 130], moved[50, 60, 130], moved[130, 60, 50]
+    )
+
+    return moved
+
+
+'''def resample(
+    moving, moving_spacing, output_dims, output_spacing,
+    affine, mode='bilinear'
+):
+    m_width, m_height, m_depth = moving.shape
+    m_width_s, m_height_s, m_depth_s = moving_spacing
     f_width_s, f_height_s, f_depth_s = output_spacing
 
     image_tensor = torch.from_numpy(
@@ -121,7 +193,7 @@ def resample(
         align_corners=True, mode=mode
     ).view(output_dims)
 
-    return moved
+    return moved'''
 
 
 def halfway_registration(
