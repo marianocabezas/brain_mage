@@ -179,8 +179,6 @@ def halfway_registration(
         for e in range(epochs):
             affine = torch.cat([learnable_affine, fixed_affine])
 
-            print(affine, torch.inverse(affine))
-
             moved_a = resample(
                 image_a, spacing_a,
                 shape_target, spacing_target,
