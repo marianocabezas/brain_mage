@@ -10,7 +10,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import torch
 from utils import color_codes, time_to_string
-from registration import resample, halfway_registration
+from registration import resample, halfway_registration, mse_loss, xcor_loss
 
 
 
@@ -188,18 +188,18 @@ def image_info(path, data_dict):
             affine, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_im > fu_th, mask_b=bl_im > bl_th,
-                shape_target=target_dims, spacing_target=target_spacing,
+                shape_target=target_dims, spacing_target=target_spacing
             )
 
             bl_new = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                affine
+                torch.inverse(affine)
             ).detach().cpu().numpy()
             fu_new = resample(
                 fu_im, fu_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                torch.inverse(affine)
+                affine
             ).detach().cpu().numpy()
             bl_hdr.set_zooms(target_spacing)
             bl_new_nii = nib.Nifti1Image(bl_new, None, header=bl_hdr)
