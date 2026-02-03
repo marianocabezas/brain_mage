@@ -159,14 +159,6 @@ def halfway_registration(
         shape_target = image_a
     if spacing_target is None:
         spacing_target = spacing_a
-    if mask_a is not None:
-        mask_tensor_a = torch.from_numpy(mask_a).to(device)
-    else:
-        mask_tensor_a = None
-    if mask_b is not None:
-        mask_tensor_b = torch.from_numpy(mask_b).to(device)
-    else:
-        mask_tensor_b = None
     learnable_affine = torch.tensor(
         id_affine[:3, :], device=device,
         requires_grad=True, dtype=torch.float64
@@ -199,11 +191,10 @@ def halfway_registration(
             tensor_b = moved_b.view((1, 1) + shape_target)
             tensor_a_s = func.avg_pool3d(tensor_a, s)
             tensor_b_s = func.avg_pool3d(tensor_b, s)
-            if mask_tensor_a is not None:
+            if mask_a is not None:
                 mask_tensor_a_s = func.max_pool2d(
                     resample(
-                        mask_tensor_a.to(torch.float32),
-                        spacing_a,
+                        mask_a, spacing_a,
                         shape_target, spacing_target,
                         affine,
                         mode='nearest'
@@ -212,11 +203,10 @@ def halfway_registration(
             else:
                 mask_tensor_a_s = None
 
-            if mask_tensor_b is not None:
+            if mask_b is not None:
                 mask_tensor_b_s = func.max_pool2d(
                     resample(
-                        mask_tensor_b.to(torch.float32),
-                        spacing_b,
+                        mask_b, spacing_b,
                         shape_target, spacing_target,
                         torch.inverse(affine),
                         mode='nearest'
