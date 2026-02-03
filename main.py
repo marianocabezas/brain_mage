@@ -189,7 +189,7 @@ def image_info(path, data_dict):
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_im > fu_th, mask_b=bl_im > bl_th,
                 shape_target=target_dims, spacing_target=target_spacing,
-                scales=[4, 2, 1], epochs=500, patience=100, #loss_f=mse_loss,
+                scales=[8, 4, 2, 1], epochs=500, patience=100
             )
 
             bl_new = resample(
