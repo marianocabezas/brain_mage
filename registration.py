@@ -91,15 +91,15 @@ def resample(
     if f_width_s == m_width_s:
         x_step = 1
     else:
-        x_step = m_width_s / f_width_s
+        x_step = f_width_s / m_width_s
     if f_height_s == m_height_s:
         y_step = 1
     else:
-        y_step = m_height_s / f_height_s
+        y_step = f_height_s / m_height_s
     if f_depth_s == m_depth_s:
         z_step = 1
     else:
-        z_step = m_depth_s / f_depth_s
+        z_step = f_depth_s / m_depth_s
 
     affine_scaling = torch.tensor(
         [
