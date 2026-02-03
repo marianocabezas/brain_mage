@@ -171,17 +171,12 @@ def image_info(path, data_dict):
             bl_th = filters.threshold_otsu(bl_im)
             fu_th = filters.threshold_otsu(fu_im)
 
-            bl_test = resample(
-                bl_im, bl_nii.header.get_zooms(),
-                target_dims, target_spacing,
-                torch.eye(4, dtype=torch.float64)
-            ).detach().cpu().numpy()
-            bl_test_nii = nib.Nifti1Image(bl_test, None, header=bl_nii.header)
-            bl_test_nii.to_filename(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_test.nii.gz')
-            )
+            bl_hdr = bl_nii.header
+            bl_hdr.set_zooms(target_dims)
+            fu_hdr = fu_nii.header
+            fu_hdr.set_zooms(target_dims)
 
-            '''affine, _, _ = halfway_registration(
+            affine, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_im > fu_th, mask_b=bl_im > bl_th,
                 shape_target=target_dims, spacing_target=target_spacing,
@@ -198,14 +193,14 @@ def image_info(path, data_dict):
                 torch.inverse(affine)
             ).detach().cpu().numpy()
 
-            bl_new_nii = nib.Nifti1Image(bl_new, bl_nii.get_qqform(), header=bl_nii.header)
+            bl_new_nii = nib.Nifti1Image(bl_new, None, header=bl_hdr)
             bl_new_nii.to_filename(
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
             )
-            fu_new_nii = nib.Nifti1Image(fu_new, bl_nii.get_qqform(), header=fu_nii.header)
+            fu_new_nii = nib.Nifti1Image(fu_new, None, header=fu_hdr)
             fu_new_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
-            )'''
+            )
 
 
 def mage_info(path, data_dict):

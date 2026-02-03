@@ -141,56 +141,6 @@ def resample(
     return moved
 
 
-'''def resample(
-    moving, moving_spacing, output_dims, output_spacing,
-    affine, mode='bilinear'
-):
-    m_width, m_height, m_depth = moving.shape
-    m_width_s, m_height_s, m_depth_s = moving_spacing
-    f_width_s, f_height_s, f_depth_s = output_spacing
-
-    image_tensor = torch.from_numpy(
-        moving.astype(np.float32)
-    ).view(
-        (1, 1, m_width, m_height, m_depth)
-    ).to(affine.device)
-
-    if f_width_s == m_width_s:
-        x_step = 1
-    else:
-        x_step = f_width_s / m_width_s
-    if f_height_s == m_height_s:
-        y_step = 1
-    else:
-        y_step = f_height_s / m_height_s
-    if f_depth_s == m_depth_s:
-        z_step = 1
-    else:
-        z_step = f_depth_s / m_depth_s
-
-    affine_scaling = torch.tensor(
-        [
-            [x_step, x_step, x_step, x_step],
-            [y_step, y_step, y_step, y_step],
-            [z_step, z_step, z_step, z_step],
-            [     1,      1,      1,      1],
-        ], dtype=affine.dtype, device=affine.device
-    )
-
-    grid = func.affine_grid(
-        affine.view((1,) + affine.shape)[:, :-1, :],
-        (1, 1) + output_dims,
-        align_corners=True
-    )
-    moved = func.grid_sample(
-        image_tensor.to(torch.float32),
-        grid.to(torch.float32),
-        align_corners=True, mode=mode
-    ).view(output_dims)
-
-    return moved'''
-
-
 def halfway_registration(
     image_a, image_b, spacing_a, spacing_b,
     mask_a=None, mask_b=None,
