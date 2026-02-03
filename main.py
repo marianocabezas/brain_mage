@@ -39,7 +39,7 @@ def parse_inputs():
     )
     parser.add_argument(
         '-p', '--patience',
-        dest='epochs',
+        dest='patience',
         type=int, default=100,
         help='Number of epochs'
     )
