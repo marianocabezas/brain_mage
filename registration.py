@@ -349,7 +349,7 @@ def halfway_rigid_registration(
     ]
 
     for s in scales:
-        optimizer = torch.optim.Adam([alpha, beta, gamma, t], lr=lr)
+        optimizer = torch.optim.Adam([alpha, beta, gamma, T], lr=lr)
         no_improv = 0
         for e in range(epochs):
             affine_fwd, affine_bck = compute_matrices(alpha, beta, gamma, T)
