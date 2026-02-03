@@ -229,6 +229,7 @@ def halfway_registration(
             if mask_tensor is None:
                 loss = loss_f(tensor_a_s, tensor_b_s)
             else:
+                print(torch.sum(mask_tensor))
                 loss = loss_f(tensor_a_s, tensor_b_s, mask_tensor)
 
             loss_value = loss.detach().cpu().numpy().tolist()
