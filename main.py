@@ -172,8 +172,8 @@ def image_info(path, data_dict):
             bl_th = filters.threshold_otsu(bl_im)
             fu_th = filters.threshold_otsu(fu_im)
 
-            bl_mask = binary_erosion(bl_im > bl_th, structure=np.ones((3, 3)), iterations=3)
-            fu_mask = binary_erosion(fu_im > fu_th, structure=np.ones((3, 3)), iterations=3)
+            bl_mask = binary_erosion(bl_im > bl_th, structure=np.ones((3, 3, 3)), iterations=3)
+            fu_mask = binary_erosion(fu_im > fu_th, structure=np.ones((3, 3, 3)), iterations=3)
 
             bl_hdr = bl_nii.header
             fu_hdr = fu_nii.header
