@@ -234,8 +234,6 @@ def halfway_registration(
             else:
                 loss = loss_f(tensor_a_s, tensor_b_s, mask_tensor)
 
-            loss = loss_f(tensor_a_s, tensor_b_s)
-
             loss_value = loss.detach().cpu().numpy().tolist()
             if loss_value < best_fit:
                 final_e = e
