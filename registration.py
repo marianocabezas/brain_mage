@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import torch
 import torch.nn.functional as func
@@ -141,7 +140,9 @@ def resample(
 
 
 def halfway_registration(
-    fixed, moving, fixed_spacing, moving_spacing, mask=None,
+    image_a, image_b, spacing_a, spacing_b,
+    mask_a=None, mask_b=None,
+    shape_target=None, spacing_target=None,
     scales=None, epochs=500, patience=100, init_lr=1e-3, loss_f=xcor_loss,
     device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 ):
@@ -154,10 +155,22 @@ def halfway_registration(
 
     id_affine = np.eye(4)
 
-    if mask is not None:
-        mask_tensor = torch.from_numpy(mask).view(
-            (1, 1) + fixed.shape
+    if shape_target is None:
+        shape_target = image_a
+    if spacing_target is None:
+        spacing_target = spacing_a
+    if mask_a is not None:
+        mask_tensor_a = torch.from_numpy(mask_a).view(
+            (1, 1) + image_a.shape
         ).to(device)
+    else:
+        mask_tensor_a = None
+    if mask_b is not None:
+        mask_tensor_b = torch.from_numpy(mask_b).view(
+            (1, 1) + image_b.shape
+        ).to(device)
+    else:
+        mask_tensor_b = None
     learnable_affine = torch.tensor(
         id_affine[:3, :], device=device,
         requires_grad=True, dtype=torch.float64
@@ -176,19 +189,60 @@ def halfway_registration(
         for e in range(epochs):
             affine = torch.cat([learnable_affine, fixed_affine])
 
-            moving_moved = resample(moving, moving_spacing, fixed.shape, fixed_spacing, affine)
-            fixed_moved = resample(fixed, fixed_spacing, fixed.shape, fixed_spacing, -affine)
-            moving_tensor = moving_moved.view((1, 1) + fixed.shape)
-            fixed_tensor = fixed_moved.view((1, 1) + fixed.shape)
-            moved_s = func.avg_pool3d(moving_tensor, s)
-            fixed_s = func.avg_pool3d(fixed_tensor, s)
-            if mask is None:
-                loss = loss_f(moved_s, fixed_s)
-            else:
-                mask_s = func.max_pool2d(
-                    mask_tensor.to(torch.float32), s
+            moved_a = resample(
+                image_a, spacing_a,
+                shape_target, spacing_target,
+                affine
+            )
+            moved_b = resample(
+                image_b, spacing_b,
+                shape_target, spacing_target,
+                torch.inverse(affine)
+            )
+            tensor_a = moved_a.view((1, 1) + shape_target)
+            tensor_b = moved_b.view((1, 1) + shape_target)
+            tensor_a_s = func.avg_pool3d(tensor_a, s)
+            tensor_b_s = func.avg_pool3d(tensor_b, s)
+            if mask_tensor_a is not None:
+                mask_tensor_a_s = func.max_pool2d(
+                    resample(
+                        mask_tensor_a.to(torch.float32),
+                        spacing_a,
+                        shape_target, spacing_target,
+                        affine,
+                        mode='nearest'
+                    ), s
                 ) > 0
-                loss = loss_f(moved_s, fixed_s, mask_s)
+            else:
+                mask_tensor_a_s = None
+
+            if mask_tensor_b is not None:
+                mask_tensor_b_s = func.max_pool2d(
+                    resample(
+                        mask_tensor_b.to(torch.float32),
+                        spacing_b,
+                        shape_target, spacing_target,
+                        torch.inverse(affine),
+                        mode='nearest'
+                    ), s
+                ) > 0
+            else:
+                mask_tensor_b_s = None
+
+            if mask_tensor_a_s is not None and mask_tensor_b_s is not None:
+                mask_tensor = mask_tensor_a_s * mask_tensor_b_s
+            elif mask_tensor_a_s is not None:
+                mask_tensor = mask_tensor_a_s
+            elif mask_tensor_b_s is not None:
+                mask_tensor = mask_tensor_b_s
+            else:
+                mask_tensor = None
+
+            if mask_tensor is None:
+                loss = loss_f(tensor_a_s, tensor_b_s)
+            else:
+                loss = loss_f(tensor_a_s, tensor_b_s, mask_tensor)
+
             loss_value = loss.detach().cpu().numpy().tolist()
             if loss_value < best_fit:
                 final_e = e

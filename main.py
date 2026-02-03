@@ -1,23 +1,14 @@
-import argparse
 import os
-import nibabel as nib
-import time
-import json
-import random
-from datetime import datetime
+import argparse
 import numpy as np
 import pandas as pd
+import nibabel as nib
+from skimage import filters
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import importlib
-import yaml
-from time import strftime
-from copy import deepcopy
 import seaborn as sns
 import matplotlib.pyplot as plt
-from scipy.special import softmax
 import torch
-from torch.nn import ModuleList
-from torch.utils.data import DataLoader
 from utils import color_codes, time_to_string
 from registration import resample, halfway_registration
 
@@ -181,18 +172,15 @@ def image_info(path, data_dict):
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms()
             )
 
-            fu_affine = affine / 2
-            bl_affine = torch.inverse(affine) / 2
-
             bl_new = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 fu_nii.shape, fu_nii.header.get_zooms(),
-                bl_affine
+                affine
             ).detach().cpu().numpy()
             fu_new = resample(
                 fu_im, fu_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                fu_affine
+                torch.inverse(affine)
             ).detach().cpu().numpy()
 
             bl_new_nii = nib.Nifti1Image(bl_new, None, header=bl_nii.header)
