@@ -194,26 +194,30 @@ def halfway_registration(
             tensor_a_s = func.avg_pool3d(tensor_a, s)
             tensor_b_s = func.avg_pool3d(tensor_b, s)
             if mask_a is not None:
+                mask_tensor_a = resample(
+                    mask_a, spacing_a,
+                    shape_target, spacing_target,
+                    affine,
+                    mode='nearest'
+                ).view((1, 1) + shape_target)
                 mask_tensor_a_s = func.max_pool3d(
-                    resample(
-                        mask_a, spacing_a,
-                        shape_target, spacing_target,
-                        affine,
-                        mode='nearest'
-                    ).view((1, 1) + shape_target), s
+                    mask_tensor_a, s
                 ) > 0
+                print(np.sum(mask_a), torch.sum(mask_tensor_a), np.sum(mask_tensor_a_s))
             else:
                 mask_tensor_a_s = None
 
             if mask_b is not None:
+                mask_tensor_b = resample(
+                    mask_b, spacing_b,
+                    shape_target, spacing_target,
+                    affine,
+                    mode='nearest'
+                ).view((1, 1) + shape_target)
                 mask_tensor_b_s = func.max_pool3d(
-                    resample(
-                        mask_b, spacing_b,
-                        shape_target, spacing_target,
-                        torch.inverse(affine),
-                        mode='nearest'
-                    ).view((1, 1) + shape_target), s
+                    mask_tensor_b, s
                 ) > 0
+                print(np.sum(mask_b), torch.sum(mask_tensor_b), np.sum(mask_tensor_b_s))
             else:
                 mask_tensor_b_s = None
 

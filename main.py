@@ -176,8 +176,6 @@ def image_info(path, data_dict):
             fu_hdr = fu_nii.header
             fu_hdr.set_zooms(target_dims)
 
-            print(np.sum(fu_im > fu_th), np.sum(bl_im > bl_th))
-
             affine, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_im > fu_th, mask_b=bl_im > bl_th,
