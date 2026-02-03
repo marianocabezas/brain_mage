@@ -179,7 +179,7 @@ def resample(
             [x_step, x_step, x_step, x_step],
             [y_step, y_step, y_step, y_step],
             [z_step, z_step, z_step, z_step],
-            [1, 1, 1, 1, 1],
+            [     1,      1,      1,      1],
         ], dtype=affine.dtype, device=affine.device
     )
 
