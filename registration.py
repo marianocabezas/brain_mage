@@ -115,14 +115,14 @@ def mse_loss(fixed, moved, mask=None):
 
     grid_x, grid_y, grid_z = torch.meshgrid(x, y, z, indexing='ij')
     grid = torch.stack([
-        grid_x.flatten(),
-        grid_y.flatten(),
         grid_z.flatten(),
+        grid_y.flatten(),
+        grid_x.flatten(),
         torch.ones_like(grid_x.flatten())
     ], dim=0)
 
     scales = torch.tensor(
-        [[m_width], [m_height], [m_depth]],
+        [[m_depth], [m_height], [m_width]],
         dtype=torch.float64, device=affine.device
     )
 
@@ -152,7 +152,6 @@ def resample(
 ):
     m_width, m_height, m_depth = moving.shape
     m_width_s, m_height_s, m_depth_s = moving_spacing
-    f_width, f_height, f_depth = output_dims
     f_width_s, f_height_s, f_depth_s = output_spacing
 
     image_tensor = torch.from_numpy(
@@ -192,7 +191,7 @@ def resample(
         image_tensor.to(torch.float32),
         grid.to(torch.float32),
         align_corners=True
-    ).view(output_dims.shape)
+    ).view(output_dims)
 
     return moved
 
