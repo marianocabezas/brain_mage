@@ -193,6 +193,8 @@ def halfway_registration(
             tensor_b = moved_b.view((1, 1) + shape_target)
             tensor_a_s = func.avg_pool3d(tensor_a, s)
             tensor_b_s = func.avg_pool3d(tensor_b, s)
+
+            '''
             if mask_a is not None:
                 mask_tensor_a = resample(
                     mask_a.astype(np.float32), spacing_a,
@@ -217,7 +219,6 @@ def halfway_registration(
                 mask_tensor_b_s = func.max_pool3d(
                     mask_tensor_b, s
                 ) > 0
-                print(np.sum(mask_b), torch.sum(mask_tensor_b), torch.sum(mask_tensor_b_s))
             else:
                 mask_tensor_b_s = None
 
@@ -234,6 +235,9 @@ def halfway_registration(
                 loss = loss_f(tensor_a_s, tensor_b_s)
             else:
                 loss = loss_f(tensor_a_s, tensor_b_s, mask_tensor)
+            '''
+
+            loss = loss_f(tensor_a_s, tensor_b_s)
 
             loss_value = loss.detach().cpu().numpy().tolist()
             if loss_value < best_fit:
