@@ -89,8 +89,6 @@ def resample(
         (1, 1, m_width, m_height, m_depth)
     ).to(affine.device)
 
-    print(f_width_s / m_width_s, f_width_s, m_width_s, f_width, m_width)
-
     if f_width_s == m_width_s:
         x_step = 1
     else:
