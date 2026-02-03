@@ -171,8 +171,6 @@ def image_info(path, data_dict):
             bl_th = filters.threshold_otsu(bl_im)
             fu_th = filters.threshold_otsu(fu_im)
 
-            print(bl_im.min(), bl_im.max(), bl_th)
-
             affine, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_im > fu_th, mask_b=bl_im > bl_th,
@@ -181,7 +179,7 @@ def image_info(path, data_dict):
 
             bl_new = resample(
                 bl_im, bl_nii.header.get_zooms(),
-                fu_nii.shape, fu_nii.header.get_zooms(),
+                target_dims, target_spacing,
                 affine
             ).detach().cpu().numpy()
             fu_new = resample(
@@ -198,8 +196,6 @@ def image_info(path, data_dict):
             fu_new_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii')
             )
-
-            print(bl_new.shape, fu_new.shape)
 
 
 def mage_info(path, data_dict):
