@@ -277,11 +277,17 @@ def compute_matrices(alpha, beta, gamma, T):
     sin_b = torch.sin(beta / 2)
     sin_g = torch.sin(gamma / 2)
 
-    R = torch.cat([
-        [cos_b * cos_g, sin_a * sin_b * cos_g - cos_a * sin_g, cos_a * sin_b * cos_g + sin_a * sin_g],
-        [cos_b * sin_g, sin_a * sin_b * sin_g + cos_a * cos_g, cos_a * sin_b * sin_g - sin_a * cos_g],
-        [-sin_b, sin_a * cos_b, cos_a * cos_b]
+    Rx = torch.stack([
+        cos_b * cos_g, sin_a * sin_b * cos_g - cos_a * sin_g, cos_a * sin_b * cos_g + sin_a * sin_g
     ])
+    Ry = torch.stack([
+        cos_b * sin_g, sin_a * sin_b * sin_g + cos_a * cos_g, cos_a * sin_b * sin_g - sin_a * cos_g
+    ])
+    Rz = torch.stack([
+        -sin_b, sin_a * cos_b, cos_a * cos_b
+    ])
+    R = torch.stack([Rx, Ry, Rz], dim=0)
+    print(Rx[1], R[0, 1])
     Rt = R.transpose()
 
     Tinv = - Rt @ T / 2
