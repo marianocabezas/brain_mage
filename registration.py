@@ -93,7 +93,6 @@ def resample(
         x_step = 1
     else:
         x_step = f_width_s / m_width_s
-        print(f_width_s / m_width_s, f_width_s, m_width_s, f_width)
     if f_height_s == m_height_s:
         y_step = 1
     else:
@@ -134,8 +133,6 @@ def resample(
     tensor_grid = torch.swapaxes(affine_grid, 0, 1).view(
         1, f_width, f_height, f_depth, 3
     )
-
-    print(tensor_grid[0, 200, 200, 100])
 
     moved = func.grid_sample(
         image_tensor.to(torch.float32),
