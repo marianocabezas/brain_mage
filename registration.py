@@ -93,6 +93,7 @@ def resample(
         x_step = 1
     else:
         x_step = f_width_s / m_width_s
+        print(f_width_s / m_width_s, f_width_s, m_width_s, f_width)
     if f_height_s == m_height_s:
         y_step = 1
     else:
