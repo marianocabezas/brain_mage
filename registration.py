@@ -143,9 +143,8 @@ def resample(
 
 def halfway_registration(
     image_a, image_b, spacing_a, spacing_b, mask_a=None, mask_b=None,
-    shape_target=None, spacing_target=None, optimizer=None,
+    shape_target=None, spacing_target=None,
     scales=None, epochs=500, patience=100, init_lr=1e-3, loss_f=xcor_loss,
-
     device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 ):
     if scales is None:
@@ -172,11 +171,9 @@ def halfway_registration(
 
     lr = init_lr
     best_affine = torch.tensor(id_affine[:3, :])
-    if optimizer is None:
-        optimizer = torch.optim.SGD
 
     for s in scales:
-        optimizer = optimizer([learnable_affine], lr=lr)
+        optimizer = torch.optim.Adam([learnable_affine], lr=lr)
         no_improv = 0
         for e in range(epochs):
             affine = torch.cat([learnable_affine, fixed_affine])
