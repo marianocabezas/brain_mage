@@ -113,7 +113,7 @@ def resample(
         start=0, end=z_step * f_depth, step=z_step
     ).to(dtype=torch.float64, device=affine.device)
 
-    grid_x, grid_y, grid_z = torch.meshgrid(x, y, z, indexing='xy')
+    grid_x, grid_y, grid_z = torch.meshgrid(x, y, z, indexing='ij')
     grid = torch.stack([
         grid_x.flatten(),
         grid_y.flatten(),
