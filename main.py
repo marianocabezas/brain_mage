@@ -197,6 +197,16 @@ def image_info(path, data_dict):
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
             )
 
+            bl_test = resample(
+                bl_im, bl_nii.header.get_zooms(),
+                target_dims, target_spacing,
+                torch.eye(4)
+            ).detach().cpu().numpy()
+            bl_test_nii = nib.Nifti1Image(bl_test, None, header=bl_nii.header)
+            bl_test_nii.to_filename(
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_test.nii.gz')
+            )
+
 
 def mage_info(path, data_dict):
     notobese_nosurg_mage = [
