@@ -234,7 +234,6 @@ def halfway_registration(
                 final_e = e
                 final_fit = loss_value
                 best_fit = loss_value
-                print(best_affine, learnable_affine)
                 best_affine = learnable_affine.detach()
             else:
                 no_improv += 1
@@ -257,4 +256,4 @@ def halfway_registration(
         best_fit = np.inf
         # lr = lr / 5
     best_affine = torch.cat([learnable_affine, fixed_affine.detach()])
-    return best_affine @ best_affine, final_e, final_fit
+    return best_affine, final_e, final_fit
