@@ -127,8 +127,10 @@ def resample(
 
     affine_grid = 2 * (affine @ grid)[:3, :] / scales - 1
 
+    print(affine_grid.shape, torch.swapaxes(affine_grid, 0, 1).shape)
+
     tensor_grid = torch.swapaxes(affine_grid, 0, 1).view(
-        1, f_height, f_width, f_depth, 3
+        1, f_width, f_height, f_depth, 3
     )
 
     moved = func.grid_sample(
