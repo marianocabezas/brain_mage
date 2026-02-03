@@ -152,7 +152,7 @@ def halfway_registration(
     final_e = 0
     final_fit = np.inf
 
-    id_affine = np.eyes(4)
+    id_affine = np.eye(4)
 
     if mask is not None:
         mask_tensor = torch.from_numpy(mask).view(
