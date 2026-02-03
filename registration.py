@@ -126,6 +126,7 @@ def resample(
         dtype=torch.float64, device=affine.device
     )
 
+    print(torch.max(2 * (affine @ grid)[:3, :], dim=1))
     affine_grid = 2 * (affine @ grid)[:3, :] / scales - 1
 
     tensor_grid = torch.swapaxes(affine_grid, 0, 1).view(
