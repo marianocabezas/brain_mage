@@ -126,7 +126,7 @@ def resample(
         dtype=torch.float64, device=affine.device
     )
 
-    print(grid_x.min(), grid_x.max() / m_width, grid_y.min(), grid_y.max() / m_height)
+    print(grid_x.min(), grid_x.max(), grid_y.min(), grid_y.max(), grid_z.min(), grid_z.max())
 
     affine_grid = 2 * (affine @ grid)[:3, :] / scales - 1
 
