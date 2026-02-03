@@ -288,7 +288,6 @@ def compute_matrices(alpha, beta, gamma, T):
     ])
     R = torch.stack([Rx, Ry, Rz], dim=0)
     Rt = R.transpose(0, 1)
-    print(Rx.shape, R.shape)
     Tinv = - Rt @ T / 2
 
     affine_fwd = torch.cat([
@@ -341,7 +340,7 @@ def halfway_rigid_registration(
         requires_grad=True, dtype=torch.float64
     )
     T = torch.tensor(
-        np.zeros(3), device=device,
+        np.zeros((3, 1)), device=device,
         requires_grad=True, dtype=torch.float64
     )
 
