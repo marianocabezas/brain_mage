@@ -141,8 +141,7 @@ def resample(
 
 
 def halfway_registration(
-    fixed, moving, fixed_spacing, moving_spacing,
-    mask=None, init_affine=None,
+    fixed, moving, fixed_spacing, moving_spacing, mask=None,
     scales=None, epochs=500, patience=100, init_lr=1e-3, loss_f=xcor_loss,
     device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 ):
@@ -153,23 +152,23 @@ def halfway_registration(
     final_e = 0
     final_fit = np.inf
 
+    id_affine = np.eyes(4)
+
     if mask is not None:
         mask_tensor = torch.from_numpy(mask).view(
             (1, 1) + fixed.shape
         ).to(device)
-    if init_affine is None:
-        init_affine = np.eye(4, dtype=np.float64)
     learnable_affine = torch.tensor(
-        init_affine[:3, :], device=device,
+        id_affine[:3, :], device=device,
         requires_grad=True, dtype=torch.float64
     )
     fixed_affine = torch.tensor(
-        init_affine[3:, :], device=device,
+        id_affine[3:, :], device=device,
         requires_grad=False, dtype=torch.float64
     )
 
     lr = init_lr
-    best_affine = torch.tensor(init_affine)
+    best_affine = torch.tensor(id_affine)
 
     for s in scales:
         optimizer = torch.optim.SGD([learnable_affine], lr=lr)
@@ -177,10 +176,8 @@ def halfway_registration(
         for e in range(epochs):
             affine = torch.cat([learnable_affine, fixed_affine])
 
-            f_affine = affine / 2
-            m_affine = torch.inverse(affine) / 2
-            moving_moved = resample(moving, moving_spacing, fixed.shape, fixed_spacing, m_affine)
-            fixed_moved = resample(fixed, fixed_spacing, fixed.shape, fixed_spacing, f_affine)
+            moving_moved = resample(moving, moving_spacing, fixed.shape, fixed_spacing, affine)
+            fixed_moved = resample(fixed, fixed_spacing, fixed.shape, fixed_spacing, -affine)
             moving_tensor = moving_moved.view((1, 1) + fixed.shape)
             fixed_tensor = fixed_moved.view((1, 1) + fixed.shape)
             moved_s = func.avg_pool3d(moving_tensor, s)
@@ -219,4 +216,4 @@ def halfway_registration(
         best_fit = np.inf
         # lr = lr / 5
     best_affine = torch.cat([learnable_affine, fixed_affine.detach()])
-    return best_affine, final_e, final_fit
+    return best_affine @ best_affine, final_e, final_fit
