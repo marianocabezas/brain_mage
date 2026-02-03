@@ -287,8 +287,7 @@ def compute_matrices(alpha, beta, gamma, T):
         -sin_b, sin_a * cos_b, cos_a * cos_b
     ])
     R = torch.stack([Rx, Ry, Rz], dim=0)
-    print(Rx[1], R[0, 1])
-    Rt = R.transpose()
+    Rt = R.transpose(0, 1)
 
     Tinv = - Rt @ T / 2
 
