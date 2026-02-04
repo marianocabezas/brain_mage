@@ -156,6 +156,9 @@ def halfway_registration(
 
     id_affine = np.eye(4)
 
+    image_a = (image_a - image_a.mean())/ image_a.std()
+    image_b = (image_b - image_b.mean()) / image_b.std()
+
     if shape_target is None:
         shape_target = image_a
     if spacing_target is None:
