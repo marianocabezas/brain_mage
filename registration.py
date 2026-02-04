@@ -156,7 +156,7 @@ def halfway_registration(
 
     id_affine = np.eye(4)
 
-    image_a = (image_a - image_a.mean())/ image_a.std()
+    image_a = (image_a - image_a.mean()) / image_a.std()
     image_b = (image_b - image_b.mean()) / image_b.std()
 
     if shape_target is None:
@@ -176,7 +176,7 @@ def halfway_registration(
     best_affine = torch.tensor(id_affine[:3, :])
 
     for s in scales:
-        optimizer = torch.optim.Adam([learnable_affine], lr=lr)
+        optimizer = torch.optim.SGD([learnable_affine], lr=lr)
         no_improv = 0
         for e in range(epochs):
             affine = torch.cat([learnable_affine, fixed_affine])
