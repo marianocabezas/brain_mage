@@ -133,7 +133,7 @@ def resample(
     )
 
     moved = func.grid_sample(
-        image_tensor.to(torch.float32),
+        image_tensor,
         tensor_grid.to(torch.float32),
         align_corners=True, mode=mode
     ).view(output_dims)
@@ -176,7 +176,7 @@ def halfway_registration(
     best_affine = torch.tensor(id_affine[:3, :])
 
     for s in scales:
-        optimizer = torch.optim.SGD([learnable_affine], lr=lr)
+        optimizer = torch.optim.Adam([learnable_affine], lr=lr)
         no_improv = 0
         for e in range(epochs):
             affine = torch.cat([learnable_affine, fixed_affine])
