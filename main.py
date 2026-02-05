@@ -200,17 +200,8 @@ def image_info(path, data_dict, epochs, patience):
             bl_im = bl_nii.get_fdata()
             fu_im = fu_nii.get_fdata()
 
-            bl_th = filters.threshold_otsu(bl_im)
-            fu_th = filters.threshold_otsu(fu_im)
-
-            bl_mask = binary_opening(
-                bl_im > bl_th, structure=np.ones((3, 3, 3)),
-                iterations=3
-            )
-            fu_mask = binary_opening(
-                fu_im > fu_th, structure=np.ones((3, 3, 3)),
-                iterations=3
-            )
+            bl_mask = get_brain_mask(bl_im)
+            fu_mask = get_brain_mask(fu_im)
 
             bl_hdr = bl_nii.header
             fu_hdr = fu_nii.header
