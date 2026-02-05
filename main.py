@@ -235,6 +235,7 @@ def image_info(path, data_dict, epochs, patience):
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE.nii'),
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg_sitk.nii.gz'),
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg_sitk.nii.gz'),
+                target_dims, target_spacing
             )
 
 
