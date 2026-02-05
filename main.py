@@ -5,7 +5,7 @@ import pandas as pd
 import nibabel as nib
 from skimage import filters
 from datetime import datetime
-from scipy.ndimage import binary_erosion
+from scipy.ndimage import binary_erosion, binary_opening
 from dateutil.relativedelta import relativedelta
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -185,13 +185,13 @@ def image_info(path, data_dict, epochs, patience):
             bl_th = filters.threshold_otsu(bl_im)
             fu_th = filters.threshold_otsu(fu_im)
 
-            bl_mask = binary_erosion(
+            bl_mask = binary_opening(
                 bl_im > bl_th, structure=np.ones((3, 3, 3)),
-                iterations=5
+                iterations=10
             )
             fu_mask = binary_erosion(
                 fu_im > fu_th, structure=np.ones((3, 3, 3)),
-                iterations=5
+                iterations=10
             )
 
             bl_hdr = bl_nii.header
