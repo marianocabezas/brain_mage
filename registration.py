@@ -572,6 +572,7 @@ def halfway_registration(
                     ),
                     dim=0
                 )
+                print(mask_tensor.shape, mask_tensor_a_s.shape, mask_tensor_b_s.shape)
             elif mask_tensor_a_s is not None:
                 mask_tensor = mask_tensor_a_s
             elif mask_tensor_b_s is not None:
