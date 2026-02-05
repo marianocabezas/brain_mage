@@ -320,7 +320,9 @@ def sitk_registration(
     # registration_method.AddCommand(sitk.sitkStartEvent, )
     # registration_method.AddCommand(sitk.sitkEndEvent, )
 
-    final_transform = registration_method.Execute(fixed_image, moving_image)
+    final_transform = registration_method.Execute(
+        fixed_image, moving_image
+    ).GetNthTransform(0)
 
     # Always check the reason optimization terminated.
     print("Final metric value: {0}".format(registration_method.GetMetricValue()))
