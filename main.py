@@ -187,11 +187,11 @@ def image_info(path, data_dict, epochs, patience):
 
             bl_mask = binary_opening(
                 bl_im > bl_th, structure=np.ones((3, 3, 3)),
-                iterations=10
+                iterations=5
             )
-            fu_mask = binary_erosion(
+            fu_mask = binary_opening(
                 fu_im > fu_th, structure=np.ones((3, 3, 3)),
-                iterations=10
+                iterations=5
             )
 
             bl_hdr = bl_nii.header
