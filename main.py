@@ -167,7 +167,7 @@ def get_brain_mask(image):
 
     brain = labels == largest_lab
 
-    return binary_dilation(brain, structure=np.ones((3, 3, 3)), iterations=3)
+    return binary_dilation(brain, structure=np.ones((3, 3, 3)), iterations=5)
 
 
 def image_info(path, data_dict, epochs, patience):
