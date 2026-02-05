@@ -692,7 +692,6 @@ def sitk_registration(
         transform=affine_b,
         interpolator=sitk.sitkLinear,
         defaultPixelValue=0.0,
-        PixelIDValueEnum=fixed_image.GetPixelID(),
     )
     sitk.WriteImage(
         b_resampled, outputname_b
