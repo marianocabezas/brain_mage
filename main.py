@@ -45,6 +45,12 @@ def parse_inputs():
         help='Number of epochs'
     )
     parser.add_argument(
+        '-s', '--scales',
+        dest='scales',
+        nargs='+', type=int, default=[4, 2, 1],
+        help='Number of epochs'
+    )
+    parser.add_argument(
         '-l', '--learning-rate',
         dest='learning_rate',
         type=float, default=1e-3,
