@@ -187,11 +187,11 @@ def image_info(path, data_dict, epochs, patience):
 
             bl_mask = binary_opening(
                 bl_im > bl_th, structure=np.ones((3, 3, 3)),
-                iterations=5
+                iterations=3
             )
             fu_mask = binary_opening(
                 fu_im > fu_th, structure=np.ones((3, 3, 3)),
-                iterations=5
+                iterations=3
             )
 
             bl_hdr = bl_nii.header
@@ -205,17 +205,6 @@ def image_info(path, data_dict, epochs, patience):
             fu_mask_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
             )
-
-            '''bl_test = resample(
-                bl_im, bl_nii.header.get_zooms(),
-                target_dims, target_spacing,
-                torch.eye(4, dtype=torch.float64)
-            ).detach().cpu().numpy()
-
-            bl_test_nii = nib.Nifti1Image(bl_test, None, header=bl_nii.header)
-            bl_test_nii.to_filename(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_test.nii.gz')
-            )'''
 
             '''affine_fu, affine_bl, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
