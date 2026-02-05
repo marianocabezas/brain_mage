@@ -163,8 +163,12 @@ def halfway_registration(
         shape_target = image_a
     if spacing_target is None:
         spacing_target = spacing_a
-    learnable_affine = torch.tensor(
-        id_affine[:3, :], device=device,
+    R = torch.tensor(
+        id_affine[:3, :3], device=device,
+        requires_grad=True, dtype=torch.float64
+    )
+    T = torch.tensor(
+        id_affine[:3, 3:], device=device,
         requires_grad=True, dtype=torch.float64
     )
     fixed_affine = torch.tensor(
@@ -173,23 +177,29 @@ def halfway_registration(
     )
 
     lr = init_lr
-    best_affine = torch.tensor(id_affine[:3, :])
+    best_R = R.detach().cpu().numpy()
+    best_T = T.detach().cpu().numpy()
 
     for s in scales:
-        optimizer = torch.optim.SGD([learnable_affine], lr=lr)
+        optimizer = torch.optim.SGD([R, T], lr=lr)
         no_improv = 0
         for e in range(epochs):
-            affine = torch.cat([learnable_affine, fixed_affine])
+            learnable_affine_a = torch.cat([R, T], dim=1)
+            affine_a = torch.cat([learnable_affine_a, fixed_affine])
+            Rt = R.transpose(0, 1)
+            RtT = Rt @ T
+            learnable_affine_b = torch.cat([Rt, RtT], dim=1)
+            affine_b = torch.cat([learnable_affine_b, fixed_affine])
 
             moved_a = resample(
                 image_a, spacing_a,
                 shape_target, spacing_target,
-                affine
+                affine_a
             )
             moved_b = resample(
                 image_b, spacing_b,
                 shape_target, spacing_target,
-                torch.inverse(affine)
+                affine_b
             )
             tensor_a = moved_a.view((1, 1) + shape_target)
             tensor_b = moved_b.view((1, 1) + shape_target)
@@ -200,7 +210,7 @@ def halfway_registration(
                 mask_tensor_a = resample(
                     mask_a.astype(np.float32), spacing_a,
                     shape_target, spacing_target,
-                    affine,
+                    affine_a,
                     mode='nearest'
                 ).view((1, 1) + shape_target)
                 mask_tensor_a_s = func.max_pool3d(
@@ -213,7 +223,7 @@ def halfway_registration(
                 mask_tensor_b = resample(
                     mask_b.astype(np.float32), spacing_b,
                     shape_target, spacing_target,
-                    torch.inverse(affine),
+                    affine_b,
                     mode='nearest'
                 ).view((1, 1) + shape_target)
                 mask_tensor_b_s = func.max_pool3d(
@@ -241,7 +251,8 @@ def halfway_registration(
                 final_e = e
                 final_fit = loss_value
                 best_fit = loss_value
-                best_affine = learnable_affine.detach()
+                best_R = R.detach().cpu().numpy()
+                best_T = T.detach().cpu().numpy()
             else:
                 no_improv += 1
                 if no_improv == patience:
@@ -253,8 +264,12 @@ def halfway_registration(
                     e + 1, s, loss_value
                 ))
             optimizer.step()
-        learnable_affine = torch.tensor(
-            best_affine.cpu().numpy(), device=device, requires_grad=True,
+        R = torch.tensor(
+            best_R, device=device, requires_grad=True,
+            dtype=torch.float64
+        )
+        T = torch.tensor(
+            best_T, device=device, requires_grad=True,
             dtype=torch.float64
         )
         print('Epoch {:03d} [scale {:02d}]: {:8.4f}'.format(
@@ -262,5 +277,6 @@ def halfway_registration(
         ))
         best_fit = np.inf
         # lr = lr / 5
+    learnable_affine = torch.cat([R, T], dim=1)
     best_affine = torch.cat([learnable_affine, fixed_affine.detach()])
     return best_affine, final_e, final_fit
