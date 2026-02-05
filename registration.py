@@ -1,4 +1,5 @@
 import numpy as np
+import SimpleITK as sitk
 import torch
 import torch.nn.functional as func
 from sklearn.metrics import mean_squared_error as mse
@@ -277,6 +278,68 @@ def halfway_registration(
         ))
         best_fit = np.inf
         # lr = lr / 5
-    learnable_affine = torch.cat([R, T], dim=1)
-    best_affine = torch.cat([learnable_affine, fixed_affine.detach()])
-    return best_affine, final_e, final_fit
+    learnable_affine_a = torch.cat([R, T], dim=1)
+    Rt = R.transpose(0, 1)
+    RtT = Rt @ T
+    affine_a = torch.cat([learnable_affine_a, fixed_affine.detach()])
+    learnable_affine_b = torch.cat([Rt, RtT], dim=1)
+    affine_b = torch.cat([learnable_affine_b, fixed_affine.detach()])
+    return affine_a, affine_b, final_e, final_fit
+
+
+def sitk_registration(imagename_a, imagename_b, outputname_a, outputname_b):
+    fixed_image = sitk.ReadImage(imagename_a, sitk.sitkFloat32)
+    moving_image = sitk.ReadImage(imagename_b, sitk.sitkFloat32)
+
+    initial_transform = sitk.CenteredTransformInitializer(
+        fixed_image,
+        moving_image,
+        sitk.Euler3DTransform(),
+        sitk.CenteredTransformInitializerFilter.GEOMETRY,
+    )
+
+    registration_method = sitk.ImageRegistrationMethod()
+
+    # Similarity metric settings.
+    registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
+    registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
+    registration_method.SetMetricSamplingPercentage(0.01)
+
+    registration_method.SetInterpolator(sitk.sitkLinear)
+
+    # Optimizer settings.
+    registration_method.SetOptimizerAsGradientDescent(
+        learningRate=1.0,
+        numberOfIterations=100,
+        convergenceMinimumValue=1e-6,
+        convergenceWindowSize=10,
+    )
+
+    # Don't optimize in-place, we would possibly like to run this cell multiple times.
+    registration_method.SetInitialTransform(initial_transform, inPlace=False)
+
+    # Connect all of the observers so that we can perform plotting during registration.
+    # registration_method.AddCommand(sitk.sitkStartEvent, )
+    # registration_method.AddCommand(sitk.sitkEndEvent, )
+
+    final_transform = registration_method.Execute(fixed_image, moving_image)
+
+    # Always check the reason optimization terminated.
+    print("Final metric value: {0}".format(registration_method.GetMetricValue()))
+    print(
+        "Optimizer's stopping condition, {0}".format(
+            registration_method.GetOptimizerStopConditionDescription()
+        )
+    )
+
+    moving_resampled = sitk.Resample(
+        moving_image,
+        fixed_image,
+        final_transform,
+        sitk.sitkLinear,
+        0.0,
+        moving_image.GetPixelID(),
+    )
+    sitk.WriteImage(
+        moving_resampled, outputname_b
+    )
