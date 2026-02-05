@@ -287,7 +287,10 @@ def halfway_registration(
     return affine_a, affine_b, final_e, final_fit
 
 
-def sitk_registration(imagename_a, imagename_b, outputname_a, outputname_b):
+def sitk_registration(
+        imagename_a, imagename_b, outputname_a, outputname_b,
+        shape_target, spacing_target
+):
     fixed_image = sitk.ReadImage(imagename_a, sitk.sitkFloat32)
     moving_image = sitk.ReadImage(imagename_b, sitk.sitkFloat32)
 
@@ -324,6 +327,20 @@ def sitk_registration(imagename_a, imagename_b, outputname_a, outputname_b):
 
     final_transform = registration_method.Execute(fixed_image, moving_image)
 
+    angle_x = final_transform.GetAngleX()
+    angle_y = final_transform.GetAngleY()
+    angle_z = final_transform.GetAnglez()
+
+    t = final_transform.GetTranslation()
+
+    affine_a = sitk.Euler3DTransform(
+        final_transform.GetCenter(), angle_x / 2, angle_y / 2, angle_z / 2, t / 2
+    )
+
+    affine_b = sitk.Euler3DTransform(
+        final_transform.GetCenter(), -angle_x / 2, -angle_y / 2, -angle_z / 2, -t / 2
+    )
+
     # Always check the reason optimization terminated.
     print("Final metric value: {0}".format(registration_method.GetMetricValue()))
     print(
@@ -332,14 +349,28 @@ def sitk_registration(imagename_a, imagename_b, outputname_a, outputname_b):
         )
     )
 
-    moving_resampled = sitk.Resample(
+    a_resampled = sitk.Resample(
         moving_image,
-        fixed_image,
-        final_transform,
-        sitk.sitkLinear,
-        0.0,
-        moving_image.GetPixelID(),
+        size=shape_target,
+        outputSpacing=spacing_target,
+        transform=affine_a,
+        interpolator=sitk.sitkLinear,
+        defaultPixelValue=0.0,
+        PixelIDValueEnum=moving_image.GetPixelID(),
     )
     sitk.WriteImage(
-        moving_resampled, outputname_b
+        a_resampled, outputname_a
+    )
+
+    b_resampled = sitk.Resample(
+        fixed_image,
+        size=shape_target,
+        outputSpacing=spacing_target,
+        transform=affine_b,
+        interpolator=sitk.sitkLinear,
+        defaultPixelValue=0.0,
+        PixelIDValueEnum=fixed_image.GetPixelID(),
+    )
+    sitk.WriteImage(
+        b_resampled, outputname_b
     )
