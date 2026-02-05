@@ -332,11 +332,9 @@ def sitk_registration(
         )
     )
 
-    print(final_transform)
-
     angle_x = final_transform.GetAngleX()
     angle_y = final_transform.GetAngleY()
-    angle_z = final_transform.GetAnglez()
+    angle_z = final_transform.GetAngleZ()
 
     t = final_transform.GetTranslation()
 
