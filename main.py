@@ -44,6 +44,12 @@ def parse_inputs():
         type=int, default=100,
         help='Number of epochs'
     )
+    parser.add_argument(
+        '-l', '--learning-rate',
+        dest='learning_rate',
+        type=float, default=1e-3,
+        help='Number of epochs'
+    )
     options = vars(parser.parse_args())
 
     return options
@@ -171,7 +177,7 @@ def get_brain_mask(image):
     return binary_fill_holes(brain)
 
 
-def image_info(path, data_dict, epochs, patience):
+def image_info(path, data_dict, epochs, patience, lr):
     for c, c_data in data_dict.items():
         if c_data['Follow-up']['HasImage'] and c_data['Baseline']['HasImage']:
             bl_nii = nib.load(
@@ -225,7 +231,7 @@ def image_info(path, data_dict, epochs, patience):
 
             affine_fu, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
-                mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss, init_lr=1e-1,
+                mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss, init_lr=lr,
                 scales=[8, 4, 2, 1], epochs=epochs, patience=patience
             )
 
@@ -346,6 +352,7 @@ def main():
     path = options['path']
     epochs = options['epochs']
     patience = options['patience']
+    lr = options['learning_rate']
     surg_dict, deltas, diffs, surg_deltas, surg_diffs = get_data_dict()
 
     print(np.mean(deltas), np.mean(diffs), type(np.mean(diffs)))
@@ -371,7 +378,7 @@ def main():
 
     print('-'.join([''] * 30))
 
-    image_info(path, surg_dict, epochs, patience)
+    image_info(path, surg_dict, epochs, patience, lr)
 
 
 if __name__ == '__main__':
