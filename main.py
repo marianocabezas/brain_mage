@@ -5,7 +5,7 @@ import pandas as pd
 import nibabel as nib
 from skimage import filters
 from datetime import datetime
-from scipy.ndimage import binary_erosion, binary_opening
+from scipy.ndimage import binary_erosion, binary_dilation, label
 from dateutil.relativedelta import relativedelta
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -150,6 +150,24 @@ def get_data_dict():
             }
         }
     return surg_dict, deltas, diffs, surg_deltas, surg_diffs
+
+
+def get_brain_mask(image):
+    th = filters.threshold_otsu(image)
+
+    mask_erode = binary_erosion(
+        image > th, structure=np.ones((3, 3, 3)),
+        iterations=4
+    )
+
+    labels, n_lab = label(mask_erode, np.ones((3, 3, 3)))
+
+    areas = [np.sum(labels == lab) for lab in range(n_lab)]
+    largest_lab = np.argmax(areas[1:]) + 1
+
+    brain = labels == largest_lab
+
+    return binary_dilation(brain, structure=np.ones((3, 3, 3)), iterations=3)
 
 
 def image_info(path, data_dict, epochs, patience):
