@@ -197,6 +197,15 @@ def image_info(path, data_dict, epochs, patience):
             bl_hdr = bl_nii.header
             fu_hdr = fu_nii.header
 
+            bl_mask_nii = nib.Nifti1Image(bl_mask.astype(np.uint8), None, header=bl_hdr)
+            bl_mask_nii.to_filename(
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
+            )
+            fu_mask_nii = nib.Nifti1Image(fu_mask.astype(np.uint8), None, header=fu_hdr)
+            fu_mask_nii.to_filename(
+                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
+            )
+
             '''bl_test = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 target_dims, target_spacing,
