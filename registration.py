@@ -25,7 +25,7 @@ def mutual_information_loss(fixed, moved, mask=None):
     h_fixed = torch.sum(hist_fixed * torch.log(hist_fixed))
     h_moved = torch.sum(hist_fixed * torch.log(hist_fixed))
 
-    return 2 * I / (h_fixed * h_moved)
+    return - 2 * I / (h_fixed * h_moved)
 
 
 def xcor_loss(fixed, moved, mask=None):
