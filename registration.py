@@ -294,12 +294,7 @@ def sitk_registration(
     fixed_image = sitk.ReadImage(imagename_a, sitk.sitkFloat32)
     moving_image = sitk.ReadImage(imagename_b, sitk.sitkFloat32)
 
-    initial_transform = sitk.CenteredTransformInitializer(
-        fixed_image,
-        moving_image,
-        sitk.Euler3DTransform(),
-        sitk.CenteredTransformInitializerFilter.GEOMETRY,
-    )
+    initial_transform = sitk.Euler3DTransform()
 
     registration_method = sitk.ImageRegistrationMethod()
 
