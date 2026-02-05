@@ -261,7 +261,7 @@ def halfway_registration(
             optimizer.zero_grad()
             loss.backward()
             if e == 0:
-                print('Epoch {:04d} [scale {:02d}]: {:8.4f}'.format(
+                print('Pytorch - Epoch {:04d} [scale {:02d}]: {:8.4f}'.format(
                     e + 1, s, loss_value
                 ))
             optimizer.step()
@@ -273,7 +273,7 @@ def halfway_registration(
             best_T, device=device, requires_grad=True,
             dtype=torch.float64
         )
-        print('Epoch {:04d} [scale {:02d}]: {:8.4f}'.format(
+        print('Pytorch - Epoch {:04d} [scale {:02d}]: {:8.4f}'.format(
             final_e + 1, s, final_fit
         ))
         best_fit = np.inf
@@ -325,9 +325,9 @@ def sitk_registration(
     ).GetNthTransform(0)
 
     # Always check the reason optimization terminated.
-    print("Final metric value: {0}".format(registration_method.GetMetricValue()))
+    print("SimpleITK - Final metric value: {0}".format(registration_method.GetMetricValue()))
     print(
-        "Optimizer's stopping condition, {0}".format(
+        "SimpleITK - Optimizer's stopping condition, {0}".format(
             registration_method.GetOptimizerStopConditionDescription()
         )
     )
@@ -338,12 +338,17 @@ def sitk_registration(
 
     t = final_transform.GetTranslation()
 
+    half_x = angle_x / 2
+    half_y = angle_y / 2
+    half_z = angle_z / 2
+    half_t = [t_i / 2 for t_i in t]
+
     affine_a = sitk.Euler3DTransform(
-        final_transform.GetCenter(), angle_x / 2, angle_y / 2, angle_z / 2, t / 2
+        final_transform.GetCenter(), half_x, half_y, half_z, half_t
     )
 
     affine_b = sitk.Euler3DTransform(
-        final_transform.GetCenter(), -angle_x / 2, -angle_y / 2, -angle_z / 2, -t / 2
+        final_transform.GetCenter(), -half_x, -half_y, -half_z, -half_t
     )
 
 
