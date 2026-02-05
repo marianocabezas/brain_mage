@@ -185,8 +185,14 @@ def image_info(path, data_dict, epochs, patience):
             bl_th = filters.threshold_otsu(bl_im)
             fu_th = filters.threshold_otsu(fu_im)
 
-            bl_mask = binary_erosion(bl_im > bl_th, structure=np.ones((3, 3, 3)), iterations=10)
-            fu_mask = binary_erosion(fu_im > fu_th, structure=np.ones((3, 3, 3)), iterations=10)
+            bl_mask = binary_erosion(
+                bl_im > bl_th, structure=np.ones((3, 3, 3)),
+                iterations=20
+            )
+            fu_mask = binary_erosion(
+                fu_im > fu_th, structure=np.ones((3, 3, 3)),
+                iterations=20
+            )
 
             bl_hdr = bl_nii.header
             fu_hdr = fu_nii.header
@@ -235,14 +241,6 @@ def image_info(path, data_dict, epochs, patience):
             fu_new_nii = nib.Nifti1Image(fu_new, None, header=fu_hdr)
             fu_new_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
-            )
-
-            sitk_registration(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE.nii'),
-                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE.nii'),
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg_sitk.nii.gz'),
-                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg_sitk.nii.gz'),
-                target_dims, target_spacing
             )
 
 
