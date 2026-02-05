@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import torch
 from utils import color_codes, time_to_string
 from registration import resample, halfway_registration, mse_loss, xcor_loss
+from registration import sitk_registration
 
 
 
@@ -203,7 +204,7 @@ def image_info(path, data_dict, epochs, patience):
 
             affine_fu, affine_bl, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
-                mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss,
+                mask_a=fu_mask, mask_b=bl_mask, loss_f=xcor_loss,
                 shape_target=target_dims, spacing_target=target_spacing,
                 scales=[4, 2, 1], epochs=epochs, patience=patience
             )
@@ -227,6 +228,13 @@ def image_info(path, data_dict, epochs, patience):
             fu_new_nii = nib.Nifti1Image(fu_new, None, header=fu_hdr)
             fu_new_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
+            )
+
+            sitk_registration(
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE.nii'),
+                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE.nii'),
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg_sitk.nii.gz'),
+                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg_sitk.nii.gz'),
             )
 
 
