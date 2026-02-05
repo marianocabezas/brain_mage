@@ -342,13 +342,14 @@ def sitk_registration(
     half_y = angle_y / 2
     half_z = angle_z / 2
     half_t = [t_i / 2 for t_i in t]
+    neg_half_t = [-t_i / 2 for t_i in t]
 
     affine_a = sitk.Euler3DTransform(
         final_transform.GetCenter(), half_x, half_y, half_z, half_t
     )
 
     affine_b = sitk.Euler3DTransform(
-        final_transform.GetCenter(), -half_x, -half_y, -half_z, -half_t
+        final_transform.GetCenter(), -half_x, -half_y, -half_z, neg_half_t
     )
 
 
