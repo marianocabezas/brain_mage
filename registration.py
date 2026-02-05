@@ -502,7 +502,7 @@ def halfway_registration(
     image_b = (image_b - image_b.mean()) / image_b.std()
 
     if shape_target is None:
-        shape_target = image_a
+        shape_target = image_a.shape
     if spacing_target is None:
         spacing_target = spacing_a
     learnable_affine = torch.tensor(
