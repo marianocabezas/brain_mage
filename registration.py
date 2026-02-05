@@ -680,6 +680,7 @@ def sitk_registration(
         transform=affine_a,
         interpolator=sitk.sitkLinear,
         defaultPixelValue=0.0,
+        outputOrigin=[0.0, 0.0, 0.0],
     )
     sitk.WriteImage(
         a_resampled, outputname_a
@@ -692,6 +693,7 @@ def sitk_registration(
         transform=affine_b,
         interpolator=sitk.sitkLinear,
         defaultPixelValue=0.0,
+        outputOrigin=[0.0, 0.0, 0.0],
     )
     sitk.WriteImage(
         b_resampled, outputname_b
