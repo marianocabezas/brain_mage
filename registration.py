@@ -182,7 +182,7 @@ def halfway_registration(
     best_T = T.detach().cpu().numpy()
 
     for s in scales:
-        optimizer = torch.optim.SGD([R, T], lr=lr)
+        optimizer = torch.optim.Adam([R, T], lr=lr)
         no_improv = 0
         for e in range(epochs):
             learnable_affine_a = torch.cat([R, T], dim=1)
