@@ -261,7 +261,7 @@ def halfway_registration(
             optimizer.zero_grad()
             loss.backward()
             if e == 0:
-                print('Epoch {:03d} [scale {:02d}]: {:8.4f}'.format(
+                print('Epoch {:04d} [scale {:02d}]: {:8.4f}'.format(
                     e + 1, s, loss_value
                 ))
             optimizer.step()
@@ -273,7 +273,7 @@ def halfway_registration(
             best_T, device=device, requires_grad=True,
             dtype=torch.float64
         )
-        print('Epoch {:03d} [scale {:02d}]: {:8.4f}'.format(
+        print('Epoch {:04d} [scale {:02d}]: {:8.4f}'.format(
             final_e + 1, s, final_fit
         ))
         best_fit = np.inf
@@ -322,6 +322,16 @@ def sitk_registration(
 
     final_transform = registration_method.Execute(fixed_image, moving_image)
 
+    # Always check the reason optimization terminated.
+    print("Final metric value: {0}".format(registration_method.GetMetricValue()))
+    print(
+        "Optimizer's stopping condition, {0}".format(
+            registration_method.GetOptimizerStopConditionDescription()
+        )
+    )
+
+    print(final_transform)
+
     angle_x = final_transform.GetAngleX()
     angle_y = final_transform.GetAngleY()
     angle_z = final_transform.GetAnglez()
@@ -336,13 +346,7 @@ def sitk_registration(
         final_transform.GetCenter(), -angle_x / 2, -angle_y / 2, -angle_z / 2, -t / 2
     )
 
-    # Always check the reason optimization terminated.
-    print("Final metric value: {0}".format(registration_method.GetMetricValue()))
-    print(
-        "Optimizer's stopping condition, {0}".format(
-            registration_method.GetOptimizerStopConditionDescription()
-        )
-    )
+
 
     a_resampled = sitk.Resample(
         moving_image,
