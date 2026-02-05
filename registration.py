@@ -565,14 +565,7 @@ def halfway_registration(
                 mask_tensor_b_s = None
 
             if mask_tensor_a_s is not None and mask_tensor_b_s is not None:
-                mask_tensor = torch.max(
-                    torch.stack(
-                        (mask_tensor_a_s, mask_tensor_b_s),
-                        dim=0
-                    ),
-                    dim=0
-                )
-                print(mask_tensor.shape, mask_tensor_a_s.shape, mask_tensor_b_s.shape)
+                mask_tensor = torch.maximum(mask_tensor_a_s, mask_tensor_b_s)
             elif mask_tensor_a_s is not None:
                 mask_tensor = mask_tensor_a_s
             elif mask_tensor_b_s is not None:
