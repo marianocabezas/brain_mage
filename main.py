@@ -241,6 +241,30 @@ def image_info(path, data_dict, epochs, patience, lr):
                 scales=[2, 1], epochs=epochs, patience=patience
             )
 
+            bl_hdr.set_zooms(target_spacing)
+            fu_hdr.set_zooms(target_spacing)
+
+            # Init resample
+            bl_init = resample(
+                bl_im, bl_nii.header.get_zooms(),
+                target_dims, target_spacing,
+                torch.eyes(4)
+            ).detach().cpu().numpy()
+            fu_init = resample(
+                fu_im, fu_nii.header.get_zooms(),
+                target_dims, target_spacing,
+                torch.eyes(4)
+            ).detach().cpu().numpy()
+            bl_new_nii = nib.Nifti1Image(bl_init, None, header=bl_hdr)
+            bl_new_nii.to_filename(
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_init.nii.gz')
+            )
+            fu_new_nii = nib.Nifti1Image(fu_init, None, header=fu_hdr)
+            fu_new_nii.to_filename(
+                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_init.nii.gz')
+            )
+
+            # Final resample
             bl_new = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 target_dims, target_spacing,
@@ -251,12 +275,10 @@ def image_info(path, data_dict, epochs, patience, lr):
                 target_dims, target_spacing,
                 affine_fu
             ).detach().cpu().numpy()
-            bl_hdr.set_zooms(target_spacing)
             bl_new_nii = nib.Nifti1Image(bl_new, None, header=bl_hdr)
             bl_new_nii.to_filename(
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
             )
-            fu_hdr.set_zooms(target_spacing)
             fu_new_nii = nib.Nifti1Image(fu_new, None, header=fu_hdr)
             fu_new_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
