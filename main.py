@@ -42,13 +42,13 @@ def parse_inputs():
         '-p', '--patience',
         dest='patience',
         type=int, default=100,
-        help='Number of epochs'
+        help='Maximum number of epochs without improvement'
     )
     parser.add_argument(
         '-s', '--scales',
         dest='scales',
         nargs='+', type=int, default=[4, 2, 1],
-        help='Number of epochs'
+        help='Scale pyramid sequence'
     )
     parser.add_argument(
         '-l', '--learning-rate',
@@ -238,7 +238,7 @@ def image_info(path, data_dict, scales, epochs, patience, lr):
             affine_fu, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss, init_lr=lr,
-                scales=[2, 1], epochs=epochs, patience=patience
+                scales=scales, epochs=epochs, patience=patience
             )
 
             bl_hdr.set_zooms(target_spacing)
@@ -248,12 +248,12 @@ def image_info(path, data_dict, scales, epochs, patience, lr):
             bl_init = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                torch.eye(4)
+                torch.eye(4, dtype=torch.float64)
             ).detach().cpu().numpy()
             fu_init = resample(
                 fu_im, fu_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                torch.eye(4)
+                torch.eye(4, dtype=torch.float64)
             ).detach().cpu().numpy()
             bl_new_nii = nib.Nifti1Image(bl_init, None, header=bl_hdr)
             bl_new_nii.to_filename(
