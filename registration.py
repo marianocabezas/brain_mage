@@ -18,9 +18,9 @@ def mutual_information_loss(fixed, moved, mask=None):
         hist_moved = torch.histogram(moved, bins=bins)
         in2d = torch.stack((fixed.flatten(), moved.flatten()), dim=1)
     else:
-        hist_fixed, bins = torch.histogram(fixed[mask], bins=256)
-        hist_moved = torch.histogram(moved[mask], bins=bins)
-        in2d = torch.stack((fixed[mask], moved[mask]), dim=1)
+        hist_fixed, bins = torch.histogram(fixed[..., mask], bins=256)
+        hist_moved = torch.histogram(moved[..., mask], bins=bins)
+        in2d = torch.stack((fixed[..., mask], moved[..., mask]), dim=1)
 
     I = torch.sum(in2d * torch.log(in2d / (hist_fixed * hist_moved)))
     h_fixed = torch.sum(hist_fixed * torch.log(hist_fixed))
@@ -34,8 +34,8 @@ def xcor_loss(fixed, moved, mask=None):
         fixed_norm = fixed - torch.mean(fixed)
         moved_norm = moved - torch.mean(moved)
     else:
-        valid_fixed = fixed[mask]
-        valid_moved = moved[mask]
+        valid_fixed = fixed[..., mask]
+        valid_moved = moved[..., mask]
         fixed_norm = valid_fixed - torch.mean(valid_fixed)
         moved_norm = valid_moved - torch.mean(valid_moved)
     fixed_sq = torch.sum(fixed_norm ** 2)
@@ -49,40 +49,12 @@ def xcor_loss(fixed, moved, mask=None):
     return 1. - xcor
 
 
-def xcor_patch_loss(fixed, moved, mask=None, k=8):
-    if len(fixed.shape) < 4:
-        unsqueeze = (1,) * (4 - len(fixed.shape))
-        fixed = torch.reshape(fixed, unsqueeze + fixed.shape)
-    if len(moved.shape) < 4:
-        unsqueeze = (1,) * (4 - len(moved.shape))
-        moved = torch.reshape(moved, unsqueeze + moved.shape)
-    fixed_mean = func.interpolate(
-        func.avg_pool2d(fixed, k),
-        fixed.shape[2:]
-    )
-    moved_mean = func.interpolate(
-        func.avg_pool2d(moved, k),
-        moved.shape[2:]
-    )
-    fixed_norm = fixed - fixed_mean
-    moved_norm = moved - moved_mean
-    fixed_sq = func.avg_pool2d(fixed_norm ** 2, k)
-    moved_sq = func.avg_pool2d(moved_norm ** 2, k)
-
-    den = torch.sqrt(fixed_sq * moved_sq)
-    num = func.avg_pool2d(fixed_norm * moved_norm, k)
-
-    xcor = torch.mean(num / den)
-
-    return 1. - xcor
-
-
 def mse_loss(fixed, moved, mask=None):
     if mask is None:
         mse_val = func.mse_loss(moved, fixed)
     else:
-        valid_fixed = fixed[mask]
-        valid_moved = moved[mask]
+        valid_fixed = fixed[..., mask]
+        valid_moved = moved[..., mask]
         mse_val = func.mse_loss(valid_moved, valid_fixed)
 
     return mse_val
