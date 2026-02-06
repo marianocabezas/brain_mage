@@ -1,6 +1,7 @@
 import numpy as np
 import SimpleITK as sitk
 import torch
+from torch.nn import Conv3d
 import torch.nn.functional as func
 from sklearn.metrics import mean_squared_error as mse
 from skimage.metrics import structural_similarity as ssim
@@ -486,9 +487,12 @@ def halfway_rigid_registration(
 def halfway_registration(
     image_a, image_b, spacing_a, spacing_b, mask_a=None, mask_b=None,
     shape_target=None, spacing_target=None,
-    scales=None, epochs=500, patience=100, init_lr=1e-3, loss_f=xcor_loss,
+    scales=None, epochs=500, patience=100, init_lr=1e-3,
+    loss_f=xcor_loss, conv_features=16,
     device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 ):
+    conv5 = Conv3d(1, conv_features, kernel_size=5, padding=2)
+    conv3 = Conv3d(1, conv_features, kernel_size=3, padding=1)
     if scales is None:
         scales = [8, 4, 2, 1]
 
@@ -533,8 +537,18 @@ def halfway_registration(
                 shape_target, spacing_target,
                 torch.inverse(affine)
             )
-            tensor_a = moved_a.view((1, 1) + shape_target)
-            tensor_b = moved_b.view((1, 1) + shape_target)
+            tensor_a3 = conv3(moved_a)
+            tensor_a5 = conv3(moved_a)
+            tensor_b3 = conv3(moved_b)
+            tensor_b5 = conv3(moved_b)
+            tensor_a = torch.cat([
+                moved_a.view((1, 1) + shape_target),
+                tensor_a3, tensor_a5
+            ], dim=1)
+            tensor_b = torch.cat([
+                moved_b.view((1, 1) + shape_target),
+                tensor_b3, tensor_b5
+            ], dim=1)
             tensor_a_s = func.avg_pool3d(tensor_a, s)
             tensor_b_s = func.avg_pool3d(tensor_b, s)
 
