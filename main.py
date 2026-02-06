@@ -220,11 +220,11 @@ def image_info(path, data_dict, scales, epochs, patience, lr):
 
             out_hdr = deepcopy(fu_nii.header)
 
-            bl_mask_nii = nib.Nifti1Image(bl_mask.astype(np.uint8), None, header=bl_hdr)
+            bl_mask_nii = nib.Nifti1Image(bl_mask.astype(np.uint8), None, header=out_hdr)
             bl_mask_nii.to_filename(
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
             )
-            fu_mask_nii = nib.Nifti1Image(fu_mask.astype(np.uint8), None, header=fu_hdr)
+            fu_mask_nii = nib.Nifti1Image(fu_mask.astype(np.uint8), None, header=out_hdr)
             fu_mask_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
             )
