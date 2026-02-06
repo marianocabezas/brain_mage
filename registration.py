@@ -460,7 +460,7 @@ def halfway_registration(
     image_a, image_b, spacing_a, spacing_b, mask_a=None, mask_b=None,
     shape_target=None, spacing_target=None,
     scales=None, epochs=500, patience=100, init_lr=1e-3,
-    loss_f=xcor_loss, conv_features=8,
+    loss_f=xcor_loss, conv_features=4,
     device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 ):
     conv5 = Conv3d(1, conv_features, kernel_size=5, padding=2).to(device)
