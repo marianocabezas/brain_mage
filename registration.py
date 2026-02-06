@@ -491,8 +491,8 @@ def halfway_registration(
     loss_f=xcor_loss, conv_features=16,
     device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 ):
-    conv5 = Conv3d(1, conv_features, kernel_size=5, padding=2)
-    conv3 = Conv3d(1, conv_features, kernel_size=3, padding=1)
+    conv5 = Conv3d(1, conv_features, kernel_size=5, padding=2).to(device)
+    conv3 = Conv3d(1, conv_features, kernel_size=3, padding=1).to(device)
     if scales is None:
         scales = [8, 4, 2, 1]
 
@@ -539,10 +539,10 @@ def halfway_registration(
             )
             tensor_a = moved_a.view((1, 1) + shape_target)
             tensor_a3 = conv3(tensor_a)
-            tensor_a5 = conv3(tensor_a)
+            tensor_a5 = conv5(tensor_a)
             tensor_b = moved_b.view((1, 1) + shape_target)
             tensor_b3 = conv3(tensor_b)
-            tensor_b5 = conv3(tensor_b)
+            tensor_b5 = conv5(tensor_b)
             tensor_a = torch.cat([
                 tensor_a,
                 tensor_a3, tensor_a5
