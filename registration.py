@@ -581,7 +581,7 @@ def halfway_registration(
             optimizer.zero_grad()
             loss.backward()
             if (e % 100) == 0:
-                print('Epoch {:03d} [scale {:02d}]: {:8.4f}'.format(
+                print('Epoch {:05d} [scale {:0d}]: {:8.4f}'.format(
                     e + 1, s, loss_value
                 ))
             optimizer.step()
@@ -589,7 +589,7 @@ def halfway_registration(
             best_affine.cpu().numpy(), device=device, requires_grad=True,
             dtype=torch.float64
         )
-        print('Epoch {:03d} [scale {:02d}]: {:8.4f}'.format(
+        print('Epoch {:05d} [scale {:02d}]: {:8.4f}'.format(
             final_e + 1, s, final_fit
         ))
         best_fit = np.inf
