@@ -580,7 +580,7 @@ def halfway_registration(
                     break
             optimizer.zero_grad()
             loss.backward()
-            if e == 0:
+            if e % 100 == 0:
                 print('Epoch {:03d} [scale {:02d}]: {:8.4f}'.format(
                     e + 1, s, loss_value
                 ))
