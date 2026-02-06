@@ -248,12 +248,12 @@ def image_info(path, data_dict, scales, epochs, patience, lr):
             bl_init = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                torch.eyes(4)
+                torch.eye(4)
             ).detach().cpu().numpy()
             fu_init = resample(
                 fu_im, fu_nii.header.get_zooms(),
                 target_dims, target_spacing,
-                torch.eyes(4)
+                torch.eye(4)
             ).detach().cpu().numpy()
             bl_new_nii = nib.Nifti1Image(bl_init, None, header=bl_hdr)
             bl_new_nii.to_filename(
