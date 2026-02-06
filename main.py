@@ -263,7 +263,8 @@ def image_info(path, data_dict, scales, epochs, patience, lr):
             affine_fu, _, _ = halfway_registration(
                 fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
                 mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss, init_lr=lr,
-                scales=scales, epochs=epochs, patience=patience
+                scales=scales, epochs=epochs, patience=patience,
+                shape_target=bl_nii.shape, spacing_target=bl_nii.header.get_zooms(),
             )
 
             # Final resample
