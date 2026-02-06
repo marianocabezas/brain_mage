@@ -235,12 +235,6 @@ def image_info(path, data_dict, scales, epochs, patience, lr):
                 scales=[4, 2, 1], epochs=epochs, patience=patience
             )'''
 
-            affine_fu, _, _ = halfway_registration(
-                fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
-                mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss, init_lr=lr,
-                scales=scales, epochs=epochs, patience=patience
-            )
-
             bl_hdr.set_zooms(target_spacing)
             fu_hdr.set_zooms(target_spacing)
 
@@ -262,6 +256,12 @@ def image_info(path, data_dict, scales, epochs, patience, lr):
             fu_new_nii = nib.Nifti1Image(fu_init, None, header=fu_hdr)
             fu_new_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_init.nii.gz')
+            )
+
+            affine_fu, _, _ = halfway_registration(
+                fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
+                mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss, init_lr=lr,
+                scales=scales, epochs=epochs, patience=patience
             )
 
             # Final resample
