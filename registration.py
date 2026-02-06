@@ -18,9 +18,9 @@ def mutual_information_loss(fixed, moved, mask=None):
         hist_moved = torch.histogram(moved, bins=bins)
         in2d = torch.stack((fixed.flatten(), moved.flatten()), dim=1)
     else:
-        hist_fixed, bins = torch.histogram(fixed[..., mask], bins=256)
-        hist_moved = torch.histogram(moved[..., mask], bins=bins)
-        in2d = torch.stack((fixed[..., mask], moved[..., mask]), dim=1)
+        hist_fixed, bins = torch.histogram(fixed[1, :, mask], bins=256)
+        hist_moved = torch.histogram(moved[1, :, mask], bins=bins)
+        in2d = torch.stack((fixed[1, :, mask], moved[1, :, mask]), dim=1)
 
     I = torch.sum(in2d * torch.log(in2d / (hist_fixed * hist_moved)))
     h_fixed = torch.sum(hist_fixed * torch.log(hist_fixed))
@@ -34,8 +34,8 @@ def xcor_loss(fixed, moved, mask=None):
         fixed_norm = fixed - torch.mean(fixed)
         moved_norm = moved - torch.mean(moved)
     else:
-        valid_fixed = fixed[..., mask]
-        valid_moved = moved[..., mask]
+        valid_fixed = fixed[1, :, mask]
+        valid_moved = moved[1, :, mask]
         fixed_norm = valid_fixed - torch.mean(valid_fixed)
         moved_norm = valid_moved - torch.mean(valid_moved)
     fixed_sq = torch.sum(fixed_norm ** 2)
@@ -53,8 +53,8 @@ def mse_loss(fixed, moved, mask=None):
     if mask is None:
         mse_val = func.mse_loss(moved, fixed)
     else:
-        valid_fixed = fixed[..., mask]
-        valid_moved = moved[..., mask]
+        valid_fixed = fixed[1, :, mask]
+        valid_moved = moved[1, :, mask]
         mse_val = func.mse_loss(valid_moved, valid_fixed)
 
     return mse_val
