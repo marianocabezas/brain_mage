@@ -1,5 +1,7 @@
 import os
 import argparse
+from copy import deepcopy
+
 import numpy as np
 import pandas as pd
 import nibabel as nib
@@ -216,8 +218,8 @@ def image_info(path, data_dict, scales, epochs, patience, lr):
             bl_mask = get_brain_mask(bl_im)
             fu_mask = get_brain_mask(fu_im)
 
-            bl_hdr = bl_nii.header
-            fu_hdr = fu_nii.header
+            bl_hdr = deepcopy(bl_nii.header)
+            fu_hdr = deepcopy(fu_nii.header)
 
             bl_mask_nii = nib.Nifti1Image(bl_mask.astype(np.uint8), None, header=bl_hdr)
             bl_mask_nii.to_filename(
