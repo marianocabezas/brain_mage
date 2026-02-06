@@ -183,7 +183,7 @@ def get_brain_mask(image):
     return binary_fill_holes(brain)
 
 
-def image_info(path, data_dict, epochs, patience, lr):
+def image_info(path, data_dict, scales, epochs, patience, lr):
     for c, c_data in data_dict.items():
         if c_data['Follow-up']['HasImage'] and c_data['Baseline']['HasImage']:
             bl_nii = nib.load(
@@ -381,6 +381,7 @@ def main():
     epochs = options['epochs']
     patience = options['patience']
     lr = options['learning_rate']
+    scales = options['scales']
     surg_dict, deltas, diffs, surg_deltas, surg_diffs = get_data_dict()
 
     print(np.mean(deltas), np.mean(diffs), type(np.mean(diffs)))
@@ -406,7 +407,7 @@ def main():
 
     print('-'.join([''] * 30))
 
-    image_info(path, surg_dict, epochs, patience, lr)
+    image_info(path, surg_dict, scales, epochs, patience, lr)
 
 
 if __name__ == '__main__':
