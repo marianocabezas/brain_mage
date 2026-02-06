@@ -171,7 +171,7 @@ def get_brain_mask(image):
 
     mask_erode = binary_erosion(
         image > th, structure=np.ones((3, 3, 3)),
-        iterations=3
+        iterations=2
     )
 
     labels, n_lab = label(mask_erode, np.ones((3, 3, 3)))
@@ -180,7 +180,7 @@ def get_brain_mask(image):
     largest_lab = np.argmax(areas[1:]) + 1
 
     core_brain = labels == largest_lab
-    brain = binary_dilation(core_brain, structure=np.ones((3, 3, 3)), iterations=5)
+    brain = binary_dilation(core_brain, structure=np.ones((3, 3, 3)), iterations=2)
 
     return binary_fill_holes(brain)
 
