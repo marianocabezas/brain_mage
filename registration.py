@@ -537,16 +537,18 @@ def halfway_registration(
                 shape_target, spacing_target,
                 torch.inverse(affine)
             )
-            tensor_a3 = conv3(moved_a)
-            tensor_a5 = conv3(moved_a)
-            tensor_b3 = conv3(moved_b)
-            tensor_b5 = conv3(moved_b)
+            tensor_a = moved_a.view((1, 1) + shape_target)
+            tensor_a3 = conv3(tensor_a)
+            tensor_a5 = conv3(tensor_a)
+            tensor_b = moved_b.view((1, 1) + shape_target)
+            tensor_b3 = conv3(tensor_b)
+            tensor_b5 = conv3(tensor_b)
             tensor_a = torch.cat([
-                moved_a.view((1, 1) + shape_target),
+                tensor_a,
                 tensor_a3, tensor_a5
             ], dim=1)
             tensor_b = torch.cat([
-                moved_b.view((1, 1) + shape_target),
+                tensor_b,
                 tensor_b3, tensor_b5
             ], dim=1)
             tensor_a_s = func.avg_pool3d(tensor_a, s)
