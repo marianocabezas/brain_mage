@@ -225,14 +225,15 @@ def main():
     obese_idxs = np.random.permutation(len(obese_images)).tolist()
     surgery_idxs = np.random.permutation(len(surgery_images)).tolist()
 
-    healthy_slots = np.ceil(len(healthy_idxs) / 5).astype(np.int32)
-    obese_slots = np.ceil(len(obese_idxs) / 5).astype(np.int32)
-    surgery_slots = np.ceil(len(surgery_idxs) / 5).astype(np.int32)
+    healthy_slots = len(healthy_idxs) / 5
+    obese_slots = len(obese_idxs) / 5
+    surgery_slots = len(surgery_idxs) / 5
 
     for i in range(5):
-        print('Healthy')
-        healthy_test = healthy_idxs[i * healthy_slots:(i + 1) * healthy_slots]
-        healthy_train = healthy_idxs[:i * healthy_slots] + healthy_idxs[(i + 1) * healthy_slots:]
+        test_ini = np.round(i * healthy_slots).astype(int)
+        test_out = np.round((i + 1) * healthy_slots).astype(int)
+        healthy_test = healthy_idxs[test_ini:test_out]
+        healthy_train = healthy_idxs[:test_ini] + healthy_idxs[test_out:]
         print(healthy_test, len(healthy_test), healthy_train, len(healthy_train))
 
 
