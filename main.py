@@ -157,6 +157,7 @@ def main():
     surgery = []
     for c in patient_codes:
         if c in baseline_codes and c in followup_codes:
+
             pd_idx = ironmet_data['ID'].str.contains(c)
             c_rows = ironmet_data[pd_idx]
 
@@ -164,9 +165,20 @@ def main():
 
             had_surgery = ironmet_data[pd_idx].iloc[0]['Surgery'].tolist() > 0
 
+            is_obese = c_rows.iloc[0]['Obesity'].tolist() > 0
+
+            mage_bl = c_rows.iloc[0]['MAGE']
+
+            print(
+                'Subject {:} - Baseline | BMI = {:>5.2f}{:} | MAGE = {:>5.2f}{:}'.format(
+                    c, bmi_bl, ' (obese) ' if is_obese else '',
+                    mage_bl, ' | Surgery' if had_surgery else ''
+                )
+            )
+
             bl_filename = os.path.join(bl_path, c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
             bl_mask_filename = os.path.join(bl_path, c, 'sT1W_3D_TFE_SENSE_coreg_mask.nii.gz')
-            baseline =nib.load(bl_filename).get_fdata()
+            baseline = nib.load(bl_filename).get_fdata()
             bl_mask = nib.load(bl_mask_filename).get_fdata().astype(bool)
 
             fu_filename = os.path.join(fu_path, c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
