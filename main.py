@@ -221,9 +221,9 @@ def main():
     obese_images = [im[bb] for im in obese]
     surgery_images = [im[bb] for im in surgery]
 
-    healthy_idxs = np.random.permutation(len(healthy_images))
-    obese_idxs = np.random.permutation(len(obese_images))
-    surgery_idxs = np.random.permutation(len(surgery_images))
+    healthy_idxs = np.random.permutation(len(healthy_images)).tolist()
+    obese_idxs = np.random.permutation(len(obese_images)).tolist()
+    surgery_idxs = np.random.permutation(len(surgery_images)).tolist()
 
     healthy_slots = len(healthy_idxs) // 5
     obese_slots = len(obese_idxs) // 5
