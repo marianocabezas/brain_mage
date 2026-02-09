@@ -170,11 +170,15 @@ def main():
 
             mage_bl = c_rows.iloc[0]['MAGE']
             mage_fu = c_rows.iloc[1]['MAGE']
+            diff_mage = mage_fu - mage_bl
 
             print(
-                'Subject {:} - Baseline | BMI = {:>5.2f}{:} | MAGE = {:>5.2f} / {:>6.2f}{:}'.format(
-                    c, bmi_bl, ' (obese) ' if is_obese else '         ',
-                    mage_bl, mage_fu, ' | Surgery' if had_surgery else ''
+                'Subject {:} - Baseline | BMI = {:}{:} | MAGE = {:>5.2f} / {:>6.2f} / {:>6.2f}{:}'.format(
+                    c,
+                    '\033[31m{:>5.2f}\033[0m'.format(bmi_bl) if bmi_bl > 30 else '{:>5.2f}'.format(bmi_bl),
+                    ' (obese) ' if is_obese else '         ',
+                    mage_bl, mage_fu, diff_mage,
+                    ' | Surgery' if had_surgery else ''
                 )
             )
 
