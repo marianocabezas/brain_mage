@@ -221,9 +221,18 @@ def main():
     obese_images = [im[bb] for im in obese]
     surgery_images = [im[bb] for im in surgery]
 
-    show_slices(healthy_images, path, 'healthy')
-    show_slices(obese_images, path, 'obese')
-    show_slices(surgery_images, path, 'surgery')
+    healthy_idxs = np.random.permutation(len(healthy_images))
+    obese_idxs = np.random.permutation(len(obese_images))
+    surgery_idxs = np.random.permutation(len(surgery_images))
+
+    healthy_slots = len(healthy_idxs) // 5
+    obese_slots = len(obese_idxs) // 5
+    surgery_slots = len(surgery_idxs) // 5
+
+    for i in range(5):
+        healthy_test = healthy_idxs[i * healthy_slots:(i + 1) * healthy_slots]
+        healthy_train = healthy_idxs[:i * healthy_slots] + healthy_idxs[(i + 1) * healthy_slots:]
+        print(healthy_test, healthy_train)
 
 
 if __name__ == '__main__':
