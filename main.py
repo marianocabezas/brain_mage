@@ -187,15 +187,21 @@ def main():
             fu_mask_filename = os.path.join(fu_path, c, 'sT1W_3D_TFE_SENSE_coreg_mask.nii.gz')
             followup = nib.load(fu_filename).get_fdata()
             fu_mask = nib.load(fu_mask_filename).get_fdata().astype(bool)
+            mask = np.logical_and(bl_mask, fu_mask)
 
-            masks.append(np.logical_and(bl_mask, fu_mask))
+            masks.append(mask)
+
+            baseline_masked = baseline.copy()
+            baseline_masked[np.logical_not(mask)] = 0
+            followup_masked = followup.copy()
+            followup_masked[np.logical_not(mask)] = 0
 
             if bmi_bl < 30:
-                healthy.append(np.stack([baseline, followup], axis=0))
+                healthy.append(np.stack([baseline_masked, followup_masked], axis=0))
             elif not had_surgery:
-                obese.append(np.stack([baseline, followup], axis=0))
+                obese.append(np.stack([baseline_masked, followup_masked], axis=0))
             else:
-                surgery.append(np.stack([baseline, followup], axis=0))
+                surgery.append(np.stack([baseline_masked, followup_masked], axis=0))
 
     mask = np.sum(masks, axis=0)
     idx = np.where(mask > 0)
