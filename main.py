@@ -171,7 +171,7 @@ def main():
 
             print(
                 'Subject {:} - Baseline | BMI = {:>5.2f}{:} | MAGE = {:>5.2f}{:}'.format(
-                    c, bmi_bl, ' (obese) ' if is_obese else '',
+                    c, bmi_bl, ' (obese) ' if is_obese else '         ',
                     mage_bl, ' | Surgery' if had_surgery else ''
                 )
             )
