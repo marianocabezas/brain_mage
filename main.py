@@ -125,6 +125,7 @@ def show_slices(image_list, path, file_prefix):
         fu_2d = im[1, :, :, z // 2]
         plt.imshow((fu_2d - np.min(fu_2d)) / (np.max(fu_2d) - np.min(fu_2d)), cmap='gray')
         plt.savefig(os.path.join(path, '{:}_{:02d}.png'.format(file_prefix, i)))
+        plt.close()
 
 
 
@@ -171,7 +172,7 @@ def main():
             mage_fu = c_rows.iloc[1]['MAGE']
 
             print(
-                'Subject {:} - Baseline | BMI = {:>5.2f}{:} | MAGE = {:>5.2f} / {:>5.2f}{:}'.format(
+                'Subject {:} - Baseline | BMI = {:>5.2f}{:} | MAGE = {:>5.2f} / {:>6.2f}{:}'.format(
                     c, bmi_bl, ' (obese) ' if is_obese else '         ',
                     mage_bl, mage_fu, ' | Surgery' if had_surgery else ''
                 )
