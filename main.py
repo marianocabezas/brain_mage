@@ -234,6 +234,14 @@ def main():
         healthy_train = healthy_idxs[:i * healthy_slots] + healthy_idxs[(i + 1) * healthy_slots:]
         print(healthy_test, healthy_train)
 
+        obese_test = obese_idxs[i * obese_slots:(i + 1) * obese_slots]
+        obese_train = obese_idxs[:i * obese_slots] + healthy_idxs[(i + 1) * obese_slots:]
+        print(obese_test, obese_train)
+
+        surgery_test = surgery_idxs[i * surgery_slots:(i + 1) * surgery_slots]
+        surgery_train = surgery_idxs[:i * surgery_slots] + healthy_idxs[(i + 1) * surgery_slots:]
+        print(surgery_test, surgery_train)
+
 
 if __name__ == '__main__':
     main()
