@@ -197,7 +197,7 @@ def main():
 
     mask = np.sum(masks, axis=0)
     idx = np.where(mask > 0)
-    bb = tuple(
+    bb = (slice(None),) + tuple(
         slice(min_i, max_i)
         for min_i, max_i in zip(
             np.min(idx, axis=-1), np.max(idx, axis=-1)
