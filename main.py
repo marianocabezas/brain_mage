@@ -225,9 +225,9 @@ def main():
     obese_idxs = np.random.permutation(len(obese_images)).tolist()
     surgery_idxs = np.random.permutation(len(surgery_images)).tolist()
 
-    healthy_slots = len(healthy_idxs) // 5
-    obese_slots = len(obese_idxs) // 5
-    surgery_slots = len(surgery_idxs) // 5
+    healthy_slots = np.round(len(healthy_idxs) / 5)
+    obese_slots = np.round(len(obese_idxs) / 5)
+    surgery_slots = np.round(len(surgery_idxs) / 5)
 
     for i in range(5):
         healthy_test = healthy_idxs[i * healthy_slots:(i + 1) * healthy_slots]
