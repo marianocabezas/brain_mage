@@ -168,11 +168,12 @@ def main():
             is_obese = c_rows.iloc[0]['Obesity'].tolist() > 0
 
             mage_bl = c_rows.iloc[0]['MAGE']
+            mage_fu = c_rows.iloc[1]['MAGE']
 
             print(
-                'Subject {:} - Baseline | BMI = {:>5.2f}{:} | MAGE = {:>5.2f}{:}'.format(
+                'Subject {:} - Baseline | BMI = {:>5.2f}{:} | MAGE = {:>5.2f} / {:>5.2f}{:}'.format(
                     c, bmi_bl, ' (obese) ' if is_obese else '         ',
-                    mage_bl, ' | Surgery' if had_surgery else ''
+                    mage_bl, mage_fu, ' | Surgery' if had_surgery else ''
                 )
             )
 
