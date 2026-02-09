@@ -205,9 +205,9 @@ def main():
         )
     )
 
-    healthy_images = [im[..., bb] for im in healthy]
-    obese_images = [im[..., bb] for im in obese]
-    surgery_images = [im[..., bb] for im in surgery]
+    healthy_images = [im[bb] for im in healthy]
+    obese_images = [im[bb] for im in obese]
+    surgery_images = [im[bb] for im in surgery]
 
     show_slices(healthy_images, path, 'healthy')
     show_slices(obese_images, path, 'obese')
