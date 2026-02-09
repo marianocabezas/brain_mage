@@ -173,11 +173,12 @@ def main():
             diff_mage = mage_fu - mage_bl
 
             print(
-                'Subject {:} - Baseline | BMI = {:}{:} | MAGE = {:>5.2f} / {:>6.2f} / {:>6.2f}{:}'.format(
+                'Subject {:} - Baseline | BMI = {:}{:} | MAGE = {:>5.2f} / {:>6.2f} / {:}{:}'.format(
                     c,
                     '\033[31m{:>5.2f}\033[0m'.format(bmi_bl) if bmi_bl > 30 else '{:>5.2f}'.format(bmi_bl),
                     ' (obese) ' if is_obese else '         ',
-                    mage_bl, mage_fu, diff_mage,
+                    mage_bl, mage_fu,
+                    '\033[31m{:>5.2f}\033[0m'.format(diff_mage) if diff_mage > 20 else '{:>5.2f}'.format(diff_mage),
                     ' | Surgery' if had_surgery else ''
                 )
             )
