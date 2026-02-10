@@ -25,6 +25,8 @@ class LongitudinalDataset(Dataset):
             axis=0
         )
 
+        print(data.shape, target_data.shape)
+
         return data, target_data
 
     def __len__(self):
