@@ -326,7 +326,6 @@ class BaseModel(nn.Module):
             t_s = time_to_string(t_out)
 
             if verbose:
-                print(' '.join([' '] * 300), end='\r')
                 whites = ' '.join([''] * 12)
                 final_s = '\033[K' + whites + ' | '.join(
                     [epoch_s, tr_loss_s, loss_s] +
@@ -342,7 +341,6 @@ class BaseModel(nn.Module):
         t_end = time.time() - t_start
         t_end_s = time_to_string(t_end)
         if verbose:
-            print(' '.join([' '] * 300), end='\r')
             print(
                     'Training finished in {:} epochs ({:}) '
                     'with minimum loss = {:f} (epoch {:d})'.format(
