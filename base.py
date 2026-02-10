@@ -663,7 +663,7 @@ class Random3DTransformer(BaseModel):
         self.std = std
 
     def _sample(self, length):
-        return self.std * torch.randn(length).to(self.device) + self.mean
+        return self.std * torch.randn(length) + self.mean
 
     def forward(self, data):
         ones = torch.ones(len(data))
