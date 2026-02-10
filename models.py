@@ -45,7 +45,7 @@ class FeatureNet(BaseModel):
             {
                 'name': 'triplet',
                 'weight': 1,
-                'f': lambda p, t: self._triplet
+                'f': lambda p, t: self._triplet(p[0], p[1])
             }
         ]
 
@@ -73,14 +73,12 @@ class FeatureNet(BaseModel):
 
         return features_a, features_b
 
-    def _contrastive(self, feature_tuple, labels):
-        features_a, features_b = feature_tuple
+    def _contrastive(self, features_a, features_b):
         y_pos = torch.ones(len(features_a), dtype=torch.uint8).to(self.device)
 
         return F.cosine_embedding_loss(features_a, features_b, target=y_pos)
 
-    def _triplet(self, feature_tuple, labels):
-        features_a, features_b = feature_tuple
+    def _triplet(self, features_a, features_b):
         loss = 0
         for i in range(len(features_a) - 1):
             loss += F.triplet_margin_loss(
