@@ -388,7 +388,7 @@ def main():
 
         test_ds = LongitudinalDataset(test_data, test_labels)
 
-        net = FeatureNet(n_images=n_images)
+        net = FeatureNet(conv_filters=[8, 32, 128, 256, 512], n_images=n_images)
         train_net(net, 'feature-net', train_ds, val_ds)
 
 
