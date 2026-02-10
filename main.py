@@ -301,7 +301,7 @@ def main():
 
             print(
                 'Subject {:} - Baseline | BMI = {:}{:} | MAGE = {:>5.2f} / {:>6.2f} / {:}{:}'.format(
-                    c,
+                    p,
                     '\033[31m{:>5.2f}\033[0m'.format(bmi_bl) if bmi_bl > 30 else '{:>5.2f}'.format(bmi_bl),
                     ' (obese) ' if is_obese else '         ',
                     mage_bl, mage_fu,
