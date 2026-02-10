@@ -193,7 +193,7 @@ def train_net(
         p.numel() for p in net.parameters() if p.requires_grad
     )
 
-    model_path = parse_inputs()['model_path']
+    model_path = os.path.join(parse_inputs()['model_path'], 'weights')
     if not os.path.exists(model_path):
         os.mkdir(model_path)
     try:
