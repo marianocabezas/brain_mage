@@ -556,10 +556,7 @@ class Encoder(BaseModel):
             input_s = c(input_s)
             input_s = F.max_pool3d(input_s, 2)
 
-        features, _ = torch.max(
-            torch.flatten(input_s, (2, 3, 4)),
-            dim=-1
-        )
+        features, _ = torch.max(torch.flatten(input_s, 2), dim=-1)
 
         return features
 
