@@ -650,7 +650,7 @@ class DoubleResConv3dBlock(BaseConv3dBlock):
 
     def forward(self, inputs, return_linear=False, *args, **kwargs):
         res = inputs if self.res is None else self.res(inputs)
-        data = self.conv1(res) + inputs
+        data = self.conv1(inputs) + inputs
         data = self.end_seq1(data)
         data = self.conv2(data) + res
         return self.end_seq2(data)
