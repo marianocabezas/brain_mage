@@ -20,7 +20,10 @@ class LongitudinalDataset(Dataset):
         data = (pair - mean) / std
         label = self.labels[index]
         # Patch "extraction".
-        target_data = np.expand_dims(label.astype(np.uint8), axis=0)
+        target_data = np.expand_dims(
+            np.array(label, dtype=np.uint8),
+            axis=0
+        )
 
         return data, target_data
 
