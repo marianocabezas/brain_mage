@@ -108,6 +108,16 @@ class ClassifierNet(FeatureNet):
         self.heads = nn.Linear(self.conv_filters[-1], n_classes)
         self.heads.to(device)
 
+        self.train_functions = [
+            {
+                'name': 'xent',
+                'weight': 1,
+                'f': F.cross_entropy_with_logits
+            }
+        ]
+
+        self.val_functions = self.train_functions
+
     def forward(self, data):
         features = self.encoder(data)
         logits = self.heads(features)

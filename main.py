@@ -174,9 +174,8 @@ def train_net(
     net, model_name, train_dataset, validation_dataset, verbose=1
 ):
     """
-        Function that applies a CNN-based registration approach. The goal of
-        this network is to find the atrophy deformation, and how it affects the
-        lesion mask, manually segmented on the baseline image.
+        Function that trains a CNN with train_dataset and validates it
+        with validation_dataset.
         :param net:
         :param model_name:
         :param train_dataset:
@@ -262,6 +261,62 @@ def train_net(
             )
 
     net.save_model(os.path.join(model_path, model_name))
+
+def test_net(net, test_dataset, verbose=1):
+    """
+    Function that tests a CNN with test_dataset and
+    returns classification metrics.
+    :param net:
+    :param test_dataset:
+    :param verbose:
+    :return:
+    """
+    # Init
+    c = color_codes()
+
+    batch_size = parse_inputs()['batch_size']
+    num_workers = batch_size * 2
+
+    test_dataloader = DataLoader(
+        test_dataset, batch_size, True, num_workers=num_workers
+    )
+
+    test_start = time.time()
+    tests = len(test_dataloader)
+    tp = 0
+    fp = 0
+    tn = 0
+    fn = 0
+    for i, (x, y) in enumerate(test_dataloader):
+        test_elapsed = time.time() - test_start
+        test_eta = tests * test_elapsed / (i + 1)
+        print(
+            '{:}Testing batch {:d}/{:d}) {:} ETA {:}'.format(
+                c['clr'], i + 1, tests,
+                time_to_string(test_elapsed),
+                time_to_string(test_eta),
+            ),
+            end='\r'
+        )
+
+        pred_y = net(x.to(net.device)).cpu().detach()
+        tp += torch.logical_and(y == 1, pred_y == 1).sum()
+        fp += torch.logical_and(y == 0, pred_y == 1).sum()
+        tn += torch.logical_and(y == 0, pred_y == 0).sum()
+        fn += torch.logical_and(y == 1, pred_y == 0).sum()
+
+        if verbose > 0:
+            time_str = time.strftime(
+                '%H hours %M minutes %S seconds',
+                time.gmtime(time.time() - test_start)
+            )
+            print(
+                '{:}Testing finished{:} (total time {:})'.format(
+                    c['clr'] + c['r'], c['nc'], time_str
+                )
+            )
+
+    return tp, fp, tn, fn
 
 
 def main():
@@ -395,22 +450,42 @@ def main():
 
         test_ds = LongitudinalDataset(test_data, test_labels)
 
+        # Contrastive pre-training (can include self-supervision)
         net = FeatureNet(conv_filters=conv_filters, n_images=n_images)
         train_net(net, 'feature-net', train_ds, val_ds)
 
+        # Using pre-trained weights but frozen features
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         classifier.encoder = deepcopy(net.encoder)
         classifier.encoder.freeze()
-
         train_net(classifier, 'class-frozen-net', train_ds, val_ds)
+        tp_fr, fp_fr, tn_fr, fn_fr = test_net(net, test_ds)
 
+
+        # Using pre-trained weights unfrozen
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         classifier.encoder = deepcopy(net.encoder)
-
         train_net(classifier, 'class-unfrozen-net', train_ds, val_ds)
+        tp_un, fp_un, tn_un, fn_un = test_net(net, test_ds)
 
+        # Training from scratch
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         train_net(classifier, 'class-net', train_ds, val_ds)
+        tp_sc, fp_sc, tn_sc, fn_sc = test_net(net, test_ds)
+        print(
+            'Frozen (pre-trained)   | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} | BACC = {:5.3f}'.format(
+                tp_fr, fp_fr, tn_fr, fn_fr, (tp_fr + fp_fr) / (tp_fr + fp_fr + tn_fr + fn_fr)
+            )
+        )
+        print(
+            'Unfrozen (pre-trained) | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} | BACC = {:5.3f}'.format(
+                tp_un, fp_un, tn_un, fn_un, (tp_un + fp_un) / (tp_un + fp_un + tn_un + fn_un)
+            )
+        )
+        print('From scratch         | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} | BACC = {:5.3f}'.format(
+                tp_sc, fp_sc, tn_sc, fn_sc, (tp_sc + fp_sc) / (tp_sc + fp_sc + tn_sc + fn_sc)
+            )
+        )
 
 if __name__ == '__main__':
     main()
