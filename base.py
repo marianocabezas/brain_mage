@@ -715,7 +715,7 @@ class Random3DTransformer(BaseModel):
         grid = F.affine_grid(
             affine[..., :-1, :], data.shape,
             align_corners=True
-        ).to(self.device)
+        ).to(data.device)
 
         moved = F.grid_sample(
             data, grid,
