@@ -112,7 +112,7 @@ class ClassifierNet(FeatureNet):
             {
                 'name': 'xent',
                 'weight': 1,
-                'f': F.binary_cross_entropy_with_logits
+                'f': lambda p, t: F.binary_cross_entropy_with_logits(p[:, 0, ...], t)
             }
         ]
 
