@@ -279,20 +279,20 @@ def main():
     healthy = []
     obese = []
     surgery = []
-    for c in patient_codes:
-        if c in baseline_codes and c in followup_codes:
+    for p in patient_codes:
+        if p in baseline_codes and p in followup_codes:
 
-            pd_idx = ironmet_data['ID'].str.contains(c)
-            c_rows = ironmet_data[pd_idx]
+            pd_idx = ironmet_data['ID'].str.contains(p)
+            p_rows = ironmet_data[pd_idx]
 
-            bmi_bl = c_rows.iloc[0]['BMI'].tolist()
+            bmi_bl = p_rows.iloc[0]['BMI'].tolist()
 
             had_surgery = ironmet_data[pd_idx].iloc[0]['Surgery'].tolist() > 0
 
-            is_obese = c_rows.iloc[0]['Obesity'].tolist() > 0
+            is_obese = p_rows.iloc[0]['Obesity'].tolist() > 0
 
-            mage_bl = c_rows.iloc[0]['MAGE']
-            mage_fu = c_rows.iloc[1]['MAGE']
+            mage_bl = p_rows.iloc[0]['MAGE']
+            mage_fu = p_rows.iloc[1]['MAGE']
             diff_mage = mage_fu - mage_bl
 
             print(
@@ -306,13 +306,13 @@ def main():
                 )
             )
 
-            bl_filename = os.path.join(bl_path, c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
-            bl_mask_filename = os.path.join(bl_path, c, 'sT1W_3D_TFE_SENSE_coreg_mask.nii.gz')
+            bl_filename = os.path.join(bl_path, p, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
+            bl_mask_filename = os.path.join(bl_path, p, 'sT1W_3D_TFE_SENSE_coreg_mask.nii.gz')
             baseline = nib.load(bl_filename).get_fdata()
             bl_mask = nib.load(bl_mask_filename).get_fdata().astype(bool)
 
-            fu_filename = os.path.join(fu_path, c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
-            fu_mask_filename = os.path.join(fu_path, c, 'sT1W_3D_TFE_SENSE_coreg_mask.nii.gz')
+            fu_filename = os.path.join(fu_path, p, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
+            fu_mask_filename = os.path.join(fu_path, p, 'sT1W_3D_TFE_SENSE_coreg_mask.nii.gz')
             followup = nib.load(fu_filename).get_fdata()
             fu_mask = nib.load(fu_mask_filename).get_fdata().astype(bool)
             mask = np.logical_and(bl_mask, fu_mask)
