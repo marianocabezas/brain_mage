@@ -66,6 +66,7 @@ class FeatureNet(BaseModel):
             )
 
     def forward(self, data):
+        print(data.shape)
         features_a = self.encoder(data)
 
         data_b = self.transformer(data)
