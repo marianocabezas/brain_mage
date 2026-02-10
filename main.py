@@ -292,6 +292,7 @@ def test_net(net, test_dataset, verbose=1):
     fp = 0
     tn = 0
     fn = 0
+    pr_list = []
     for i, (x, y) in enumerate(test_dataloader):
         test_elapsed = time.time() - test_start
         test_eta = tests * test_elapsed / (i + 1)
@@ -304,11 +305,14 @@ def test_net(net, test_dataset, verbose=1):
             end='\r'
         )
 
-        pred_y = net(x.to(net.device)).cpu().detach()
+        pred = net(x.to(net.device)).cpu().detach()
+
+        vals, pred_y = torch.max(pred, 1)
         tp += torch.logical_and(y == 1, pred_y == 1).sum()
         fp += torch.logical_and(y == 0, pred_y == 1).sum()
         tn += torch.logical_and(y == 0, pred_y == 0).sum()
         fn += torch.logical_and(y == 1, pred_y == 0).sum()
+        pr_list += torch.sigmoid(vals).numpy().tolist()
 
         if verbose > 0:
             time_str = time.strftime(
@@ -321,7 +325,7 @@ def test_net(net, test_dataset, verbose=1):
                 )
             )
 
-    return tp, fp, tn, fn
+    return tp, fp, tn, fn, pr_list
 
 
 def main():
@@ -462,36 +466,52 @@ def main():
         classifier.encoder = deepcopy(net.encoder)
         classifier.encoder.freeze()
         train_net(classifier, 'class-frozen-net', train_ds, val_ds)
-        tp_fr, fp_fr, tn_fr, fn_fr = test_net(net, test_ds)
+        tp_fr, fp_fr, tn_fr, fn_fr, pr_fr = test_net(net, test_ds)
 
 
         # Using pre-trained weights unfrozen
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         classifier.encoder = deepcopy(net.encoder)
         train_net(classifier, 'class-unfrozen-net', train_ds, val_ds)
-        tp_un, fp_un, tn_un, fn_un = test_net(net, test_ds)
+        tp_un, fp_un, tn_un, fn_un, pr_un = test_net(net, test_ds)
 
         # Training from scratch
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         train_net(classifier, 'class-net', train_ds, val_ds)
-        tp_sc, fp_sc, tn_sc, fn_sc = test_net(net, test_ds)
+        tp_sc, fp_sc, tn_sc, fn_sc, pr_sc = test_net(net, test_ds)
 
         # Results
         print(
-            'Frozen (pre-trained)   | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} | BACC = {:5.3f}'.format(
-                tp_fr, fp_fr, tn_fr, fn_fr,
-                (tp_fr + fp_fr) / (tp_fr + fp_fr + tn_fr + fn_fr)
+            'Frozen (pre-trained)   | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
+                tp_fr, fp_fr, tn_fr, fn_fr
+            ), end=' '
+        )
+        print(
+            'BACC = {:5.3f} | Scores {:5.3f} +- {:5.3f}'.format(
+                (tp_fr + fp_fr) / (tp_fr + fp_fr + tn_fr + fn_fr),
+                np.mean(pr_fr), np.std(pr_fr)
             )
         )
         print(
-            'Unfrozen (pre-trained) | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} | BACC = {:5.3f}'.format(
-                tp_un, fp_un, tn_un, fn_un,
-                (tp_un + fp_un) / (tp_un + fp_un + tn_un + fn_un)
+            'Unfrozen (pre-trained) | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
+                tp_un, fp_un, tn_un, fn_un
+            ), end=' '
+        )
+        print(
+            'BACC = {:5.3f} | Scores {:5.3f} +- {:5.3f}'.format(
+                (tp_un + fp_un) / (tp_un + fp_un + tn_un + fn_un),
+                np.mean(pr_un), np.std(pr_un)
             )
         )
-        print('From scratch         | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} | BACC = {:5.3f}'.format(
-                tp_sc, fp_sc, tn_sc, fn_sc,
-            (tp_sc + fp_sc) / (tp_sc + fp_sc + tn_sc + fn_sc)
+        print(
+            'From scratch         | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
+                tp_sc, fp_sc, tn_sc, fn_sc
+            ), end=' '
+        )
+        print(
+            'BACC = {:5.3f} | Scores {:5.3f} +- {:5.3f}'.format(
+                (tp_sc + fp_sc) / (tp_sc + fp_sc + tn_sc + fn_sc),
+                np.mean(pr_sc), np.std(pr_sc)
             )
         )
 
