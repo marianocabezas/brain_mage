@@ -439,28 +439,6 @@ class BaseModel(nn.Module):
         print(' '.join([' '] * 100), end='\r')
         print('\033[K' + batch_s, end='\r', flush=True)
 
-    @staticmethod
-    def print_batch(pi, n_patches, i, n_cases, t_in, t_case_in):
-        init_c = '\033[38;5;238m'
-        percent = 25 * (pi + 1) // n_patches
-        progress_s = ''.join(['█'] * percent)
-        remainder_s = ''.join([' '] * (25 - percent))
-
-        t_out = time.time() - t_in
-        t_case_out = time.time() - t_case_in
-        time_s = time_to_string(t_out)
-
-        t_eta = (t_case_out / (pi + 1)) * (n_patches - (pi + 1))
-        eta_s = time_to_string(t_eta)
-        pre_s = '{:}Case {:03d}/{:03d} ({:03d}/{:03d} - {:06.2f}%) [{:}{:}]' \
-                ' {:} ETA: {:}'
-        batch_s = pre_s.format(
-            init_c, i + 1, n_cases, pi + 1, n_patches,
-            100 * (pi + 1) / n_patches,
-            progress_s, remainder_s, time_s, eta_s + '\033[0m'
-        )
-        print(' '.join([' '] * 300), end='\r')
-        print('\033[K' + batch_s, end='\r')
 
     def freeze(self):
         """
