@@ -722,4 +722,6 @@ class Random3DTransformer(BaseModel):
             align_corners=True
         )
 
+        print(affine.shape, grid.shape, moved.shape, data.shape)
+
         return moved
