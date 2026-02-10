@@ -154,8 +154,8 @@ def split_data(idx_list, i, test_length, trainval_split):
     test_out = np.round((i + 1) * test_length).astype(int)
     test = idx_list[test_ini:test_out]
     trainval = idx_list[:test_ini] + idx_list[test_out:]
-    val = idx_list[:int(trainval_split * trainval)]
-    train = idx_list[int(trainval_split * trainval):]
+    val = idx_list[:int(trainval_split * len(trainval))]
+    train = idx_list[int(trainval_split * len(trainval)):]
 
     return train, val, test
 
