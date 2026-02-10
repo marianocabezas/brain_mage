@@ -44,6 +44,12 @@ def parse_inputs():
         help='Number of images per batch'
     )
     parser.add_argument(
+        '-c', '--conv-filters',
+        dest='conv_filters',
+        nargs='+', type=int, default=[32, 64, 128, 256, 512],
+        help='Number of filters per convolutional layer'
+    )
+    parser.add_argument(
         '-b', '--batch-size',
         dest='batch_size',
         type=int, default=2,
@@ -266,6 +272,7 @@ def main():
     folds = options['folds']
 
     trainval_split = 0.2
+    conv_filters = options['conv_filters']
 
     c = color_codes()
 
@@ -388,9 +395,22 @@ def main():
 
         test_ds = LongitudinalDataset(test_data, test_labels)
 
-        net = FeatureNet(conv_filters=[32, 64, 128, 256, 512], n_images=n_images)
+        net = FeatureNet(conv_filters=conv_filters, n_images=n_images)
         train_net(net, 'feature-net', train_ds, val_ds)
 
+        classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
+        classifier.encoder = deepcopy(net.encoder)
+        classifier.encoder.freeze()
+
+        train_net(classifier, 'class-frozen-net', train_ds, val_ds)
+
+        classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
+        classifier.encoder = deepcopy(net.encoder)
+
+        train_net(classifier, 'class-unfrozen-net', train_ds, val_ds)
+
+        classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
+        train_net(classifier, 'class-net', train_ds, val_ds)
 
 if __name__ == '__main__':
     main()
