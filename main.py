@@ -277,6 +277,11 @@ def test_net(net, test_dataset, verbose=1):
     batch_size = parse_inputs()['batch_size']
     num_workers = batch_size * 2
 
+    print(
+        '{:}Loading the {:}testing{:} data ({:03d} subjects)'.format(
+            c['clr'], c['b'], c['nc'], len(test_dataset)
+        )
+    )
     test_dataloader = DataLoader(
         test_dataset, batch_size, True, num_workers=num_workers
     )
@@ -419,23 +424,21 @@ def main():
     surgery_slots = len(surgery_idxs) / folds
 
     for i in range(folds):
-        # Data split
-        healthy_train, healthy_val, healthy_test = split_data(
-            healthy_images, healthy_idxs, i, healthy_slots, trainval_split
-        )
-
-        obese_train, obese_val, obese_test = split_data(
-            obese_images, obese_idxs, i, obese_slots, trainval_split
-        )
-
-        surgery_train, surgery_val, surgery_test = split_data(
-            surgery_images, surgery_idxs, i, surgery_slots, trainval_split
-        )
-
         print(
             '{:}Fold {:}{:2d}/{:2d}{:} (n-folds cross-val)'.format(
                 c['clr'] + c['c'], c['g'], i + 1, folds, c['nc']
             )
+        )
+
+        # Data split
+        healthy_train, healthy_val, healthy_test = split_data(
+            healthy_images, healthy_idxs, i, healthy_slots, trainval_split
+        )
+        obese_train, obese_val, obese_test = split_data(
+            obese_images, obese_idxs, i, obese_slots, trainval_split
+        )
+        surgery_train, surgery_val, surgery_test = split_data(
+            surgery_images, surgery_idxs, i, surgery_slots, trainval_split
         )
 
         test_data = healthy_test + obese_test + surgery_test
@@ -445,9 +448,9 @@ def main():
         val_labels = [0] * len(healthy_val) + [0] * len(obese_val) + [1] * len(surgery_val)
         test_labels = [0] * len(healthy_test) + [0] * len(obese_test) + [1] * len(surgery_test)
 
+        # Dataset objects
         train_ds = LongitudinalDataset(train_data, train_labels)
         val_ds = LongitudinalDataset(val_data, val_labels)
-
         test_ds = LongitudinalDataset(test_data, test_labels)
 
         # Contrastive pre-training (can include self-supervision)
@@ -472,18 +475,23 @@ def main():
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         train_net(classifier, 'class-net', train_ds, val_ds)
         tp_sc, fp_sc, tn_sc, fn_sc = test_net(net, test_ds)
+
+        # Results
         print(
             'Frozen (pre-trained)   | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} | BACC = {:5.3f}'.format(
-                tp_fr, fp_fr, tn_fr, fn_fr, (tp_fr + fp_fr) / (tp_fr + fp_fr + tn_fr + fn_fr)
+                tp_fr, fp_fr, tn_fr, fn_fr,
+                (tp_fr + fp_fr) / (tp_fr + fp_fr + tn_fr + fn_fr)
             )
         )
         print(
             'Unfrozen (pre-trained) | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} | BACC = {:5.3f}'.format(
-                tp_un, fp_un, tn_un, fn_un, (tp_un + fp_un) / (tp_un + fp_un + tn_un + fn_un)
+                tp_un, fp_un, tn_un, fn_un,
+                (tp_un + fp_un) / (tp_un + fp_un + tn_un + fn_un)
             )
         )
         print('From scratch         | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} | BACC = {:5.3f}'.format(
-                tp_sc, fp_sc, tn_sc, fn_sc, (tp_sc + fp_sc) / (tp_sc + fp_sc + tn_sc + fn_sc)
+                tp_sc, fp_sc, tn_sc, fn_sc,
+            (tp_sc + fp_sc) / (tp_sc + fp_sc + tn_sc + fn_sc)
             )
         )
 
