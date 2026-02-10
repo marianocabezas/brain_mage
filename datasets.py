@@ -6,27 +6,21 @@ from torch.utils.data.dataset import Dataset
 
 class LongitudinalDataset(Dataset):
     def __init__(
-        self, pairs, labels, masks
+        self, pairs, labels
     ):
         # Init
         self.pairs = pairs
-        self.masks = masks
         self.labels = labels
 
     def __getitem__(self, index):
-        flip = index >= len(self.labels)
-        if flip:
-            index -= len(self.labels)
 
         pair = self.pairs[index].astype(np.float32)
         data = (pair - np.mean(pair, axis=(1, 2, 3))) / np.std(pair, axis=(1, 2, 3))
         label = self.labels[index]
         # Patch "extraction".
         target_data = np.expand_dims(label.astype(np.uint8), axis=0)
-        if flip:
-            data = np.flip(data, axis=2)
 
         return data, target_data
 
     def __len__(self):
-        return len(self.labels) * 2
+        return len(self.labels)

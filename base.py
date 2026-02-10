@@ -555,7 +555,7 @@ class Encoder(BaseModel):
             )
         ])
 
-    def forward(self, input_s, keepfeat=False):
+    def forward(self, input_s):
         for c in self.down:
             c.to(self.device)
             input_s = c(input_s)
@@ -659,3 +659,72 @@ class DoubleResConv3dBlock(BaseConv3dBlock):
         data = self.end_seq1(data)
         data = self.conv2(data) + res
         return self.end_seq2(data)
+
+
+class Random3DTransformer(BaseModel):
+    def __init__(self, mean=0, std=1):
+        super().__init__()
+        self.mean = mean
+        self.std = std
+
+    def _sample(self, length):
+        return self.std * torch.randn(length).to(self.device) + self.mean
+
+    def forward(self, data):
+        ones = torch.ones(len(data))
+        zeros = torch.ones(len(data))
+
+        angle_x = self._sample(len(data))
+        cos_x = torch.cos(angle_x)
+        sin_x = torch.sin(angle_x)
+        angle_y = self._sample(len(data))
+        cos_y = torch.cos(angle_y)
+        sin_y = torch.sin(angle_y)
+        angle_z = self._sample(len(data))
+        cos_z = torch.cos(angle_z)
+        sin_z = torch.sin(angle_z)
+
+        s = self._sample(len(data))
+
+        t_x = self._sample(len(data))
+        t_y = self._sample(len(data))
+        t_z = self._sample(len(data))
+
+        Rx = torch.stack([
+            torch.stack([ones,  zeros,  zeros, zeros], dim=1),
+            torch.stack([zeros, cos_x, -sin_x, zeros], dim=1),
+            torch.stack([zeros, sin_x,  cos_x, zeros], dim=1),
+            torch.stack([zeros, zeros, zeros, ones], dim=1),
+        ], dim=-1)
+        Ry = torch.stack([
+            torch.stack([ cos_y, zeros, sin_y, zeros], dim=1),
+            torch.stack([ zeros,  ones, zeros, zeros], dim=1),
+            torch.stack([-sin_y, zeros, cos_y, zeros], dim=1),
+            torch.stack([ zeros, zeros, zeros,  ones], dim=1),
+        ], dim=-1)
+        Rz = torch.stack([
+            torch.stack([cos_z, -sin_z, zeros, zeros], dim=1),
+            torch.stack([sin_z,  cos_z, zeros, zeros], dim=1),
+            torch.stack([zeros,  zeros,  ones, zeros], dim=1),
+            torch.stack([zeros,  zeros, zeros,  ones], dim=1),
+        ], dim=-1)
+        Tx = torch.stack([
+            torch.stack([zeros, zeros, zeros,  t_x], dim=1),
+            torch.stack([zeros, zeros, zeros,  t_y], dim=1),
+            torch.stack([zeros, zeros, zeros,  t_z], dim=1),
+            torch.stack([zeros, zeros, zeros, ones], dim=1),
+        ], dim=-1)
+
+        affine = Rx @ Ry @ Rz @ Tx
+
+        grid = F.affine_grid(
+            affine, data.shape,
+            align_corners=True
+        )
+
+        moved = F.grid_sample(
+            data, grid,
+            align_corners=True
+        )
+
+        return moved

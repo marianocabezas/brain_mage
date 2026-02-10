@@ -1,21 +1,19 @@
 import os
+import time
 import argparse
 from copy import deepcopy
-
 import numpy as np
 import pandas as pd
 import nibabel as nib
 from skimage import filters
-from datetime import datetime
 from scipy.ndimage import binary_erosion, binary_dilation, binary_fill_holes, label
-from dateutil.relativedelta import relativedelta
 import seaborn as sns
 import matplotlib.pyplot as plt
 import torch
+from torch.utils.data import DataLoader
 from utils import color_codes, time_to_string
-from registration import resample, halfway_registration, mse_loss, xcor_loss
-from registration import sitk_registration
-
+from datasets import LongitudinalDataset
+from models import FeatureNet, ClassifierNet
 
 
 """
@@ -31,8 +29,25 @@ def parse_inputs():
     # Mode selector
     parser.add_argument(
         '-i', '--input-path',
-        dest='path', default='/home/Data/IronMET_CGM',
+        dest='path', default='/home/mariano/IronMET_CGM',
         help='Path to the files (imaging and tabular data).'
+    )
+    parser.add_argument(
+        '-m', '--model-path',
+        dest='model_path', default='/home/mariano/IronMET_CGM',
+        help='Path to the model files.'
+    )
+    parser.add_argument(
+        '-n', '--number-images',
+        dest='n_images',
+        type=int, default=2,
+        help='Number of images per batch'
+    )
+    parser.add_argument(
+        '-b', '--batch-size',
+        dest='batch_size',
+        type=int, default=2,
+        help='Number of images per batch'
     )
     parser.add_argument(
         '-e', '--epochs',
@@ -51,6 +66,12 @@ def parse_inputs():
         dest='learning_rate',
         type=float, default=1e-3,
         help='Number of epochs'
+    )
+    parser.add_argument(
+        '-f', '--folds',
+        dest='folds',
+        type=int, default=5,
+        help='Number of folds for cross-validation'
     )
     options = vars(parser.parse_args())
 
@@ -128,14 +149,121 @@ def show_slices(image_list, path, file_prefix):
         plt.close()
 
 
+def split_data(idx_list, i, test_length, trainval_split):
+    test_ini = np.round(i * test_length).astype(int)
+    test_out = np.round((i + 1) * test_length).astype(int)
+    test = idx_list[test_ini:test_out]
+    trainval = idx_list[:test_ini] + idx_list[test_out:]
+    val = idx_list[:int(trainval_split * trainval)]
+    train = idx_list[int(trainval_split * trainval):]
+
+    return train, val, test
+
+
+def train_net(
+    net, model_name, train_dataset, validation_dataset, verbose=1
+):
+    """
+        Function that applies a CNN-based registration approach. The goal of
+        this network is to find the atrophy deformation, and how it affects the
+        lesion mask, manually segmented on the baseline image.
+        :param net:
+        :param model_name:
+        :param train_dataset:
+        :param validation_dataset:
+        :param verbose: Verbosity level.
+        :return: None.
+        """
+
+    # Init
+    c = color_codes()
+
+    epochs = parse_inputs()['epochs']
+    patience = parse_inputs()['patience']
+    n_params = sum(
+        p.numel() for p in net.parameters() if p.requires_grad
+    )
+
+    model_path = parse_inputs()['model_path']
+    if not os.path.exists(model_path):
+        os.mkdir(model_path)
+    try:
+        net.load_model(os.path.join(model_path, model_name))
+        print(
+            '{:}Network loaded{:} ({:d} parameters)'.format(
+                c['c'], c['nc'], n_params
+            )
+        )
+    except IOError:
+        if verbose > 0:
+            print(
+                '{:}Starting training{:} ({:d} parameters)'.format(
+                    c['c'], c['nc'], n_params
+                )
+            )
+
+        # Datasets / Dataloaders should be added here
+        if verbose > 1:
+            print('Preparing the training datasets / dataloaders')
+        batch_size = parse_inputs()['batch_size']
+        num_workers = batch_size * 2
+
+        print(
+            '{:}Loading the {:}training{:} data ({:03d} subjects)'.format(
+                c['clr'], c['b'], c['nc'], len(train_dataset)
+            )
+        )
+        print(
+            '{:}Loading the {:}validation{:} data ({:03d} subjects)'.format(
+                c['clr'], c['b'], c['nc'], len(validation_dataset)
+            )
+        )
+
+        if verbose > 1:
+            print('{:}Training dataset (with validation)'.format(c['clr']))
+        train_dataloader = DataLoader(
+            train_dataset, batch_size, True, num_workers=num_workers
+        )
+
+        if verbose > 1:
+            print('{:}Validation dataset (with validation)'.format(c['clr']))
+        val_dataloader = DataLoader(
+            validation_dataset, 4 * batch_size, num_workers=num_workers
+        )
+
+        training_start = time.time()
+
+        net.fit(
+            train_dataloader,
+            val_dataloader,
+            epochs=epochs,
+            patience=patience
+        )
+
+        if verbose > 0:
+            time_str = time.strftime(
+                '%H hours %M minutes %S seconds',
+                time.gmtime(time.time() - training_start)
+            )
+            print(
+                '{:}Training finished{:} (total time {:})'.format(
+                    c['r'], c['nc'], time_str
+                )
+            )
+
+    net.save_model(os.path.join(model_path, model_name))
+
 
 def main():
     # Init
     options = parse_inputs()
     path = options['path']
-    epochs = options['epochs']
-    patience = options['patience']
-    lr = options['learning_rate']
+    n_images = options['n_images']
+    folds = options['folds']
+
+    trainval_split = 0.2
+
+    c = color_codes()
 
     bl_path = os.path.join(path, 'Basal_IronMET_CGM')
     fu_path = os.path.join(path, 'Follow_UP_IronMET_CGM')
@@ -147,11 +275,6 @@ def main():
 
     patient_codes = np.unique(baseline_codes + followup_codes).tolist()
 
-    labels = []
-    mages = []
-    diffmages = []
-    baselines = []
-    followups = []
     masks = []
     healthy = []
     obese = []
@@ -225,16 +348,46 @@ def main():
     obese_idxs = np.random.permutation(len(obese_images)).tolist()
     surgery_idxs = np.random.permutation(len(surgery_images)).tolist()
 
-    healthy_slots = len(healthy_idxs) / 5
-    obese_slots = len(obese_idxs) / 5
-    surgery_slots = len(surgery_idxs) / 5
+    healthy_slots = len(healthy_idxs) / folds
+    obese_slots = len(obese_idxs) / folds
+    surgery_slots = len(surgery_idxs) / folds
 
-    for i in range(5):
-        test_ini = np.round(i * healthy_slots).astype(int)
-        test_out = np.round((i + 1) * healthy_slots).astype(int)
-        healthy_test = healthy_idxs[test_ini:test_out]
-        healthy_train = healthy_idxs[:test_ini] + healthy_idxs[test_out:]
-        print(healthy_test, len(healthy_test), healthy_train, len(healthy_train))
+    for i in range(folds):
+        # Data split
+        healthy_train, healthy_val, healthy_test = split_data(
+            healthy_idxs, i, healthy_slots, trainval_split
+        )
+
+        obese_train, obese_val, obese_test = split_data(
+            obese_idxs, i, obese_slots, trainval_split
+        )
+
+        surgery_train, surgery_val, surgery_test = split_data(
+            surgery_idxs, i, surgery_slots, trainval_split
+        )
+
+        print(
+            '{:}Fold {:}{:2d}/{:2d}{:} (n-folds cross-val)'.format(
+                c['clr'] + c['c'], c['g'], i + 1, folds, c['nc']
+            )
+        )
+
+        test_data = healthy_test + obese_test + surgery_test
+        val_data = healthy_val + obese_val + surgery_val
+        train_data = healthy_train + obese_train + surgery_train
+        train_labels = [0] * len(healthy_train) + [0] * len(obese_train) + [1] * len(surgery_train)
+        val_labels = [0] * len(healthy_val) + [0] * len(obese_val) + [1] * len(surgery_val)
+        test_labels = [0] * len(healthy_test) + [0] * len(obese_test) + [1] * len(surgery_test)
+
+        train_ds = LongitudinalDataset(train_data, train_labels)
+        val_ds = LongitudinalDataset(val_data, val_labels)
+
+        test_ds = LongitudinalDataset(test_data, test_labels)
+
+        net = FeatureNet(n_images=n_images)
+        train_net(net, 'feature-net', train_ds, val_ds)
+
+
 
 
 if __name__ == '__main__':
