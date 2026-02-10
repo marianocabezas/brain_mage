@@ -713,7 +713,7 @@ class Random3DTransformer(BaseModel):
         affine = Rx @ Ry @ Rz @ Tx
 
         grid = F.affine_grid(
-            affine, data.shape,
+            affine[..., :-1, :], data.shape,
             align_corners=True
         )
 
@@ -721,7 +721,5 @@ class Random3DTransformer(BaseModel):
             data, grid,
             align_corners=True
         )
-
-        print(affine.shape, grid.shape, moved.shape, data.shape)
 
         return moved
