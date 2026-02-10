@@ -43,7 +43,7 @@ class FeatureNet(BaseModel):
         # <Loss function setup>
         self.train_functions = [
             {
-                'name': 'triplet',
+                'name': 'tripl',
                 'weight': 1,
                 'f': lambda p, t: self._triplet(p[0], p[1])
             }
