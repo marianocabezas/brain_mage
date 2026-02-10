@@ -516,7 +516,7 @@ class Encoder(BaseModel):
         # output for each level.
         self.down = nn.ModuleList([
             block_partial(f_in, f_out) for f_in, f_out in zip(
-                n_inputs + conv_filters[:-1], conv_filters
+                [n_inputs] + conv_filters[:-1], conv_filters
             )
         ])
 
