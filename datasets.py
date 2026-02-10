@@ -15,7 +15,9 @@ class LongitudinalDataset(Dataset):
     def __getitem__(self, index):
 
         pair = self.pairs[index].astype(np.float32)
-        data = (pair - np.mean(pair, axis=(1, 2, 3))) / np.std(pair, axis=(1, 2, 3))
+        mean =  np.mean(pair, axis=(1, 2, 3), keepdims=True)
+        std = np.std(pair, axis=(1, 2, 3), keepdims=True)
+        data = (pair - mean) / std
         label = self.labels[index]
         # Patch "extraction".
         target_data = np.expand_dims(label.astype(np.uint8), axis=0)
