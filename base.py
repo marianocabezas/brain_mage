@@ -511,16 +511,12 @@ class Encoder(BaseModel):
         self.device = device
         self.filters = conv_filters
 
-        conv_in, conv_out, deconv_in, deconv_out = block.compute_filters(
-            n_inputs, conv_filters
-        )
-
         # Down path
         # We'll use the partial and fill it with the channels for input and
         # output for each level.
         self.down = nn.ModuleList([
             block_partial(f_in, f_out) for f_in, f_out in zip(
-                conv_in, conv_out
+                n_inputs + conv_filters[:-1], conv_filters
             )
         ])
 
@@ -548,16 +544,6 @@ class BaseConv3dBlock(BaseModel):
     @staticmethod
     def default_activation(n_filters):
         return nn.ReLU()
-
-    @staticmethod
-    def compute_filters(n_inputs, conv_filters):
-        conv_in = [n_inputs] + conv_filters[:-2]
-        conv_out = conv_filters[:-1]
-        down_out = conv_filters[-2::-1]
-        up_out = conv_filters[:0:-1]
-        deconv_in = list(map(sum, zip(down_out, up_out)))
-        deconv_out = down_out
-        return conv_in, conv_out, deconv_in, deconv_out
 
 
 class ResConv3dBlock(BaseConv3dBlock):
