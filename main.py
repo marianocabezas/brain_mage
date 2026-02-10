@@ -149,7 +149,7 @@ def show_slices(image_list, path, file_prefix):
         plt.close()
 
 
-def split_data(idx_list, i, test_length, trainval_split):
+def split_data(image_list, idx_list, i, test_length, trainval_split):
     test_ini = np.round(i * test_length).astype(int)
     test_out = np.round((i + 1) * test_length).astype(int)
     test = idx_list[test_ini:test_out]
@@ -157,7 +157,11 @@ def split_data(idx_list, i, test_length, trainval_split):
     val = idx_list[:int(trainval_split * len(trainval))]
     train = idx_list[int(trainval_split * len(trainval)):]
 
-    return train, val, test
+    im_train = [im for im in np.stack(image_list)[train]]
+    im_val = [im for im in np.stack(image_list)[val]]
+    im_test = [im for im in np.stack(image_list)[test]]
+
+    return im_train, im_val, im_test
 
 
 def train_net(
@@ -355,15 +359,15 @@ def main():
     for i in range(folds):
         # Data split
         healthy_train, healthy_val, healthy_test = split_data(
-            healthy_idxs, i, healthy_slots, trainval_split
+            healthy_images, healthy_idxs, i, healthy_slots, trainval_split
         )
 
         obese_train, obese_val, obese_test = split_data(
-            obese_idxs, i, obese_slots, trainval_split
+            obese_images, obese_idxs, i, obese_slots, trainval_split
         )
 
         surgery_train, surgery_val, surgery_test = split_data(
-            surgery_idxs, i, surgery_slots, trainval_split
+            surgery_images, surgery_idxs, i, surgery_slots, trainval_split
         )
 
         print(
@@ -386,8 +390,6 @@ def main():
 
         net = FeatureNet(n_images=n_images)
         train_net(net, 'feature-net', train_ds, val_ds)
-
-
 
 
 if __name__ == '__main__':
