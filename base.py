@@ -241,15 +241,13 @@ class BaseModel(nn.Module):
                     t_out = time.time() - self.t_val
                     t_s = time_to_string(t_out)
 
-                    drop_s = '{:5.3f}'.format(self.dropout)
-
                     print('\033[K', end='')
                     whites = ' '.join([''] * 12)
                     print('{:}Epoch num |  {:}  |'.format(whites, l_hdr))
                     print('{:}----------|--{:}--|'.format(whites, l_bars))
                     final_s = whites + ' | '.join(
                         [epoch_s, tr_loss_s, loss_s] +
-                        losses_s + acc_s + [drop_s, t_s]
+                        losses_s + acc_s + [t_s]
                     )
                     print(final_s)
         else:
@@ -328,21 +326,18 @@ class BaseModel(nn.Module):
             t_out = time.time() - self.t_train
             t_s = time_to_string(t_out)
 
-            drop_s = '{:5.3f}'.format(self.dropout)
-            self.dropout_update()
-
             if verbose:
                 print(' '.join([' '] * 300), end='\r')
                 whites = ' '.join([''] * 12)
                 final_s = '\033[K' + whites + ' | '.join(
                     [epoch_s, tr_loss_s, loss_s] +
-                    losses_s + acc_s + [drop_s, t_s]
+                    losses_s + acc_s + [t_s]
                 )
                 print(final_s)
 
             self.epoch_update(epochs, train_loader)
 
-            if no_improv_e == int(patience / (1 - self.dropout)):
+            if no_improv_e == patience:
                 break
 
         t_end = time.time() - t_start
