@@ -462,7 +462,7 @@ def main():
     scales = options['scales']
     surg_dict, deltas, diffs, surg_deltas, surg_diffs = get_data_dict()
 
-    print(np.mean(deltas), np.mean(diffs), type(np.mean(diffs)))
+    print(np.mean(deltas), np.mean(diffs))
     print(np.mean(surg_deltas), np.mean(surg_diffs))
     print(
         'Mean difference: {:d} years, {:d} months and {:d} days (from baseline)'.format(
