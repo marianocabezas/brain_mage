@@ -497,7 +497,7 @@ def main():
         train_net(classifier, 'class-frozen-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
         tp_fr, fp_fr, tn_fr, fn_fr, pr_fr = test_net(classifier, test_ds)
         t_tp_fr += tp_fr
-        t_tp_fr += tp_fr
+        t_fp_fr += fp_fr
         t_tn_fr += tn_fr
         t_fn_fr += fn_fr
         t_pr_fr += pr_fr
@@ -513,7 +513,7 @@ def main():
         train_net(classifier, 'class-unfrozen-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
         tp_un, fp_un, tn_un, fn_un, pr_un = test_net(classifier, test_ds)
         t_tp_un += tp_un
-        t_tp_un += tp_un
+        t_fp_un += fp_un
         t_tn_un += tn_un
         t_fn_un += fn_un
         t_pr_un += pr_un
@@ -528,7 +528,7 @@ def main():
         train_net(classifier, 'class-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
         tp_sc, fp_sc, tn_sc, fn_sc, pr_sc = test_net(classifier, test_ds)
         t_tp_sc += tp_sc
-        t_tp_sc += tp_sc
+        t_fp_sc += fp_sc
         t_tn_sc += tn_sc
         t_fn_sc += fn_sc
         t_pr_sc += pr_sc
@@ -541,7 +541,7 @@ def main():
         )
         print(
             'BACC = {:5.3f} | Scores {:5.3f} +- {:5.3f}'.format(
-                (tp_fr + fp_fr) / (tp_fr + fp_fr + tn_fr + fn_fr),
+                (tp_fr + tn_fr) / (tp_fr + fp_fr + tn_fr + fn_fr),
                 np.mean(pr_fr), np.std(pr_fr)
             )
         )
@@ -552,7 +552,7 @@ def main():
         )
         print(
             'BACC = {:5.3f} | Scores {:5.3f} +- {:5.3f}'.format(
-                (tp_un + fp_un) / (tp_un + fp_un + tn_un + fn_un),
+                (tp_un + tn_un) / (tp_un + fp_un + tn_un + fn_un),
                 np.mean(pr_un), np.std(pr_un)
             )
         )
@@ -563,7 +563,7 @@ def main():
         )
         print(
             'BACC = {:5.3f} | Scores {:5.3f} +- {:5.3f}'.format(
-                (tp_sc + fp_sc) / (tp_sc + fp_sc + tn_sc + fn_sc),
+                (tp_sc + tn_sc) / (tp_sc + fp_sc + tn_sc + fn_sc),
                 np.mean(pr_sc), np.std(pr_sc)
             )
         )
