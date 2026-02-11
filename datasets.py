@@ -21,7 +21,7 @@ class LongitudinalDataset(Dataset):
         label = self.labels[index]
         # Patch "extraction".
         target_data = np.expand_dims(
-            np.array(label, dtype=np.uint8),
+            np.array(label, dtype=np.float32),
             axis=0
         )
 
