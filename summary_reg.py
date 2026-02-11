@@ -61,15 +61,13 @@ def parse_inputs():
     parser.add_argument(
         '-d', '--deformable',
         dest='deformable',
-        type=bool, default=False,
-        action='store_true',
+        default=False, action='store_true',
         help='Apply deformable registration'
     )
     parser.add_argument(
         '-a', '--affine',
         dest='deformable',
-        type=bool, default=False,
-        action='store_true',
+        default=False, action='store_true',
         help='Apply affine registration'
     )
     options = vars(parser.parse_args())
