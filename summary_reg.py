@@ -481,16 +481,16 @@ def main():
 
     print('-'.join([''] * 100))
 
-    print('{:}MAGE{:} statistics'.format(c['b'], c['nc']))
+    print('{:}MAGE{:} statistics'.format(c['b'], c['nc']), ''.join([' '] * 33), '|')
     mage_info(path, surg_dict)
 
     if parse_inputs()['affine']:
-        print('-'.join([''] * 60))
+        print('-'.join([''] * 100))
         print('{:}Affine{:} registration'.format(c['b'], c['nc']))
         affine_registration(path, surg_dict, scales, epochs, patience, lr)
 
     if parse_inputs()['deformable']:
-        print('-'.join([''] * 60))
+        print('-'.join([''] * 100))
         print('{:}Deformable{:} registration'.format(c['b'], c['nc']))
         deformable_registration(path, surg_dict, scales, epochs, patience, lr)
 
