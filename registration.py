@@ -620,7 +620,7 @@ def nonlinear_registration(
     id_affine = torch.eye(4, dtype=torch.float64)
 
     moving_norm = (moving - moving.mean()) / moving.std()
-    fixed_norm = (fixed - fixed.mean()) / fixed.std()
+    fixed_norm = torch.tensor((fixed - fixed.mean()) / fixed.std())
 
     lr = init_lr
 
