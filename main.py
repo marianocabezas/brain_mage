@@ -307,12 +307,12 @@ def test_net(net, test_dataset, verbose=1):
 
         pred = net(x.to(net.device)).cpu().detach()
 
-        vals, pred_y = torch.max(pred, 1)
-        tp += torch.logical_and(y == 1, pred_y == 1).sum()
-        fp += torch.logical_and(y == 0, pred_y == 1).sum()
-        tn += torch.logical_and(y == 0, pred_y == 0).sum()
-        fn += torch.logical_and(y == 1, pred_y == 0).sum()
-        pr_list += torch.sigmoid(vals).numpy().tolist()
+        pred_y = torch.sigmoid(pred)
+        tp += torch.logical_and(y == 1, pred_y >= 0.5).sum()
+        fp += torch.logical_and(y == 0, pred_y >= 0.5).sum()
+        tn += torch.logical_and(y == 0, pred_y < 0.5).sum()
+        fn += torch.logical_and(y == 1, pred_y < 0.5).sum()
+        pr_list += torch.sigmoid(pred).numpy().tolist()
 
     if verbose > 0:
         time_str = time.strftime(
