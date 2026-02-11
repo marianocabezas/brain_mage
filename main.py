@@ -451,6 +451,10 @@ def main():
     t_fn_sc = 0
     t_ppr_sc = []
     t_npr_sc = []
+
+    t_bacc_fr = 0
+    t_bacc_un = 0
+    t_bacc_sc = 0
     for i in range(folds):
         print(
             '{:}Fold {:}{:2d}/{:2d}{:} (n-folds cross-val)'.format(
@@ -507,6 +511,8 @@ def main():
         t_fn_fr += fn_fr
         t_ppr_fr += ppr_fr
         t_npr_fr += npr_fr
+        bacc_fr = 0.5 * (tp_fr / (tp_fr + fn_fr) + tn_fr / (fp_fr + tn_fr))
+        t_bacc_fr += bacc_fr
 
         # Using pre-trained weights unfrozen
         print(
@@ -524,6 +530,8 @@ def main():
         t_fn_un += fn_un
         t_ppr_un += ppr_un
         t_npr_un += npr_un
+        bacc_un = 0.5 * (tp_un / (tp_un + fn_un) + tn_un / (fp_un + tn_un))
+        t_bacc_un += bacc_un
 
         # Training from scratch
         print(
@@ -540,6 +548,8 @@ def main():
         t_fn_sc += fn_sc
         t_ppr_sc += ppr_sc
         t_npr_sc += npr_sc
+        bacc_sc = 0.5 * (tp_sc / (tp_sc + fn_sc) + tn_sc / (fp_sc + tn_sc))
+        t_bacc_sc += bacc_sc
 
         # Results per fold
         print(
@@ -547,7 +557,7 @@ def main():
                 tp_fr, fp_fr, tn_fr, fn_fr
             ), end=' '
         )
-        bacc_fr = 0.5 * (tp_fr / (tp_fr + fn_fr) + tn_fr / (fp_fr + tn_fr))
+
         print(
             'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
                 bacc_fr, np.mean(ppr_fr), np.std(ppr_fr), np.mean(npr_fr), np.std(npr_fr)
@@ -558,13 +568,13 @@ def main():
                 tp_un, fp_un, tn_un, fn_un
             ), end=' '
         )
-        bacc_un = 0.5 * (tp_un / (tp_un + fn_un) + tn_un / (fp_un + tn_un))
+
         print(
             'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
                 bacc_un, np.mean(ppr_un), np.std(ppr_un), np.mean(npr_un), np.std(npr_un)
             )
         )
-        bacc_sc = 0.5 * (tp_sc / (tp_sc + fn_sc) + tn_sc / (fp_sc + tn_sc))
+
         print(
             'From scratch           | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
                 tp_sc, fp_sc, tn_sc, fn_sc
@@ -588,10 +598,10 @@ def main():
             t_tp_fr, t_fp_fr, t_tn_fr, t_fn_fr
         ), end=' '
     )
-    t_bacc_fr = 0.5 * (t_tp_fr / (t_tp_fr + t_fn_fr) + t_tn_fr / (t_fp_fr + t_tn_fr))
+
     print(
         'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
-            t_bacc_fr, np.mean(t_ppr_fr), np.std(t_ppr_fr), np.mean(t_npr_fr), np.std(t_npr_fr)
+            t_bacc_fr / 5, np.mean(t_ppr_fr), np.std(t_ppr_fr), np.mean(t_npr_fr), np.std(t_npr_fr)
         )
     )
     print(
@@ -599,10 +609,10 @@ def main():
             t_tp_un, t_fp_un, t_tn_un, t_fn_un
         ), end=' '
     )
-    t_bacc_un = 0.5 * (t_tp_un / (t_tp_un + t_fn_un) + t_tn_un / (t_fp_un + t_tn_un))
+
     print(
         'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
-            t_bacc_un, np.mean(t_ppr_un), np.std(t_ppr_un), np.mean(t_npr_un), np.std(t_npr_un)
+            t_bacc_un / 5, np.mean(t_ppr_un), np.std(t_ppr_un), np.mean(t_npr_un), np.std(t_npr_un)
         )
     )
     print(
@@ -610,10 +620,10 @@ def main():
             t_tp_sc, t_fp_sc, t_tn_sc, t_fn_sc
         ), end=' '
     )
-    t_bacc_sc = 0.5 * (t_tp_sc / (t_tp_sc + t_fn_sc) + t_tn_sc / (t_fp_sc + t_tn_sc))
+
     print(
         'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
-            t_bacc_sc, np.mean(t_ppr_sc), np.std(t_ppr_sc), np.mean(t_npr_sc), np.std(t_npr_sc)
+            t_bacc_sc / 5, np.mean(t_ppr_sc), np.std(t_ppr_sc), np.mean(t_npr_sc), np.std(t_npr_sc)
         )
     )
 
