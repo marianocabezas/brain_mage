@@ -314,16 +314,16 @@ def test_net(net, test_dataset, verbose=1):
         fn += torch.logical_and(y == 1, pred_y == 0).sum()
         pr_list += torch.sigmoid(vals).numpy().tolist()
 
-        if verbose > 0:
-            time_str = time.strftime(
-                '%H hours %M minutes %S seconds',
-                time.gmtime(time.time() - test_start)
+    if verbose > 0:
+        time_str = time.strftime(
+            '%H hours %M minutes %S seconds',
+            time.gmtime(time.time() - test_start)
+        )
+        print(
+            '{:}Testing finished{:} (total time {:})'.format(
+                c['clr'] + c['r'], c['nc'], time_str
             )
-            print(
-                '{:}Testing finished{:} (total time {:})'.format(
-                    c['clr'] + c['r'], c['nc'], time_str
-                )
-            )
+        )
 
     return tp, fp, tn, fn, pr_list
 
@@ -429,6 +429,23 @@ def main():
 
     f_string = ''.join(['c{:}'.format(f) for f in conv_filters])
 
+    t_tp_fr = 0
+    t_fp_fr = 0
+    t_tn_fr = 0
+    t_fn_fr = 0
+    t_pr_fr = []
+
+    t_tp_un = 0
+    t_fp_un = 0
+    t_tn_un = 0
+    t_fn_un = 0
+    t_pr_un = []
+
+    t_tp_sc = 0
+    t_fp_sc = 0
+    t_tn_sc = 0
+    t_fn_sc = 0
+    t_pr_sc = []
     for i in range(folds):
         print(
             '{:}Fold {:}{:2d}/{:2d}{:} (n-folds cross-val)'.format(
@@ -469,20 +486,34 @@ def main():
         classifier.encoder.freeze()
         train_net(classifier, 'class-frozen-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
         tp_fr, fp_fr, tn_fr, fn_fr, pr_fr = test_net(classifier, test_ds)
-
+        t_tp_fr += tp_fr
+        t_tp_fr += tp_fr
+        t_tn_fr += tn_fr
+        t_fn_fr += fn_fr
+        t_pr_fr += pr_fr
 
         # Using pre-trained weights unfrozen
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         classifier.encoder = deepcopy(net.encoder)
         train_net(classifier, 'class-unfrozen-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
         tp_un, fp_un, tn_un, fn_un, pr_un = test_net(classifier, test_ds)
+        t_tp_un += tp_un
+        t_tp_un += tp_un
+        t_tn_un += tn_un
+        t_fn_un += fn_un
+        t_pr_un += pr_un
 
         # Training from scratch
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         train_net(classifier, 'class-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
         tp_sc, fp_sc, tn_sc, fn_sc, pr_sc = test_net(classifier, test_ds)
+        t_tp_sc += tp_sc
+        t_tp_sc += tp_sc
+        t_tn_sc += tn_sc
+        t_fn_sc += fn_sc
+        t_pr_sc += pr_sc
 
-        # Results
+        # Results per fold
         print(
             'Frozen (pre-trained)   | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
                 tp_fr, fp_fr, tn_fr, fn_fr
@@ -506,7 +537,7 @@ def main():
             )
         )
         print(
-            'From scratch         | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
+            'From scratch           | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
                 tp_sc, fp_sc, tn_sc, fn_sc
             ), end=' '
         )
@@ -516,6 +547,41 @@ def main():
                 np.mean(pr_sc), np.std(pr_sc)
             )
         )
+
+    # Total results
+    print(
+        'Frozen (pre-trained)   | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
+            t_tp_fr, t_fp_fr, t_tn_fr, t_fn_fr
+        ), end=' '
+    )
+    print(
+        'BACC = {:5.3f} | Scores {:5.3f} +- {:5.3f}'.format(
+            (t_tp_fr + t_fp_fr) / (t_tp_fr + t_fp_fr + t_tn_fr + t_fn_fr),
+            np.mean(t_pr_fr), np.std(t_pr_fr)
+        )
+    )
+    print(
+        'Unfrozen (pre-trained) | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
+            t_tp_un, t_fp_un, t_tn_un, t_fn_un
+        ), end=' '
+    )
+    print(
+        'BACC = {:5.3f} | Scores {:5.3f} +- {:5.3f}'.format(
+            (t_tp_un + t_fp_un) / (t_tp_un + t_fp_un + t_tn_un + t_fn_un),
+            np.mean(t_pr_un), np.std(t_pr_un)
+        )
+    )
+    print(
+        'From scratch           | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
+            t_tp_sc, t_fp_sc, t_tn_sc, t_fn_sc
+        ), end=' '
+    )
+    print(
+        'BACC = {:5.3f} | Scores {:5.3f} +- {:5.3f}'.format(
+            (t_tp_sc + t_fp_sc) / (t_tp_sc + t_fp_sc + t_tn_sc + t_fn_sc),
+            np.mean(t_pr_sc), np.std(t_pr_sc)
+        )
+    )
 
 if __name__ == '__main__':
     main()
