@@ -641,10 +641,10 @@ def nonlinear_registration(
                 fixed.shape, (1, 1, 1),
                 affine=id_affine, df=learnable_df
             )
-            tensor_moved = moved.view((1, 1) + moved.shape)
+            tensor_moved = moved.view((1, 1) + moved.shape).to(device)
             tensor_moved3 = conv3(tensor_moved)
             tensor_moved5 = conv5(tensor_moved)
-            tensor_fixed = fixed_norm.view((1, 1) + fixed_norm.shape)
+            tensor_fixed = fixed_norm.view((1, 1) + fixed_norm.shape).to(device)
             tensor_fixed3 = conv3(tensor_fixed)
             tensor_fixed5 = conv5(tensor_fixed)
             tensor_moved = torch.cat([
