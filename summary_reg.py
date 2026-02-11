@@ -58,6 +58,20 @@ def parse_inputs():
         type=float, default=1e-3,
         help='Number of epochs'
     )
+    parser.add_argument(
+        '-d', '--deformable',
+        dest='deformable',
+        type=bool, default=False,
+        action='store_true',
+        help='Apply deformable registration'
+    )
+    parser.add_argument(
+        '-a', '--affine',
+        dest='deformable',
+        type=bool, default=False,
+        action='store_true',
+        help='Apply affine registration'
+    )
     options = vars(parser.parse_args())
 
     return options
