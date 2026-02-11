@@ -706,7 +706,7 @@ def nonlinear_registration(
                     break
             optimizer.zero_grad()
             loss.backward()
-            if (e % 100) == 0:
+            if (e % 25) == 0:
                 print('Epoch {:05d} [scale {:02d}]: {:8.4f}'.format(
                     e + 1, s, loss_value
                 ))
