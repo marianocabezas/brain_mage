@@ -459,18 +459,18 @@ def main():
         ),
     )
 
-    print('-'.join([''] * 30))
+    print('-'.join([''] * 60))
 
     print('{:}MAGE{:} statistics'.format(c['b'], c['nc']))
     mage_info(path, surg_dict)
 
     if parse_inputs()['affine']:
-        print('-'.join([''] * 30))
+        print('-'.join([''] * 60))
         print('{:}Affine{:} registration'.format(c['b'], c['nc']))
         affine_registration(path, surg_dict, scales, epochs, patience, lr)
 
     if parse_inputs()['deformable']:
-        print('-'.join([''] * 30))
+        print('-'.join([''] * 60))
         print('{:}Deformable{:} registration'.format(c['b'], c['nc']))
         deformable_registration(path, surg_dict, scales, epochs, patience, lr)
 
