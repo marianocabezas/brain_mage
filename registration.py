@@ -631,6 +631,7 @@ def nonlinear_registration(
     )
     best_df = learnable_df.detach().clone()
     loss_log = {}
+    print(' '.join(['-'] * 17))
     for s in scales:
         scale_log = []
         optimizer = torch.optim.Adam([learnable_df], lr=lr)
