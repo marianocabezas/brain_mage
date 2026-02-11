@@ -343,38 +343,58 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
 
 
 def mage_info(path, data_dict):
-    notobese_nosurg_mage = [
-        c_data['Follow-up']['MAGE']
-        for c, c_data in data_dict.items()
-        if c_data['Follow-up']['HasImage'] and not c_data['Obese'] and not c_data['HadSurgery']
-    ]
-
-    obese_nosurg_mage = [
-        c_data['Follow-up']['MAGE']
-        for c, c_data in data_dict.items()
-        if c_data['Follow-up']['HasImage'] and c_data['Obese'] and not c_data['HadSurgery']
-    ]
-
-    surg_mage = [
-        c_data['Follow-up']['MAGE']
-        for c, c_data in data_dict.items()
-        if c_data['Follow-up']['HasImage'] and c_data['HadSurgery']
-    ]
+    notobese_nosurg_mage = []
+    obese_nosurg_mage = []
+    surg_mage = []
+    notobese_nosurg_diffmage = []
+    obese_nosurg_diffmage = []
+    surg_diffmage = []
+    for c, c_data in data_dict.items():
+        if c_data['Follow-up']['HasImage'] and not c_data['Obese'] and not c_data['HadSurgery']:
+            notobese_nosurg_mage.append(
+                c_data['Follow-up']['MAGE']
+            )
+            notobese_nosurg_diffmage.append(
+                c_data['Follow-up']['MAGE'] - c_data['Baseline']['MAGE']
+            )
+        elif c_data['Follow-up']['HasImage'] and not c_data['Obese'] and not c_data['HadSurgery']:
+            obese_nosurg_mage.append(
+                c_data['Follow-up']['MAGE']
+            )
+            obese_nosurg_diffmage.append(
+                c_data['Follow-up']['MAGE'] - c_data['Baseline']['MAGE']
+            )
+        elif c_data['Follow-up']['HasImage'] and c_data['Obese'] and not c_data['HadSurgery']:
+            surg_mage.append(
+                c_data['Follow-up']['MAGE']
+            )
+            surg_diffmage.append(
+                c_data['Follow-up']['MAGE'] - c_data['Baseline']['MAGE']
+            )
 
     n_fu = len(notobese_nosurg_mage) + len(obese_nosurg_mage) + len(surg_mage)
 
 
     print(
         'Not obese (no surgery)', len(notobese_nosurg_mage),
-        '{: 5.2f}%'.format(100 * len(notobese_nosurg_mage) / n_fu)
+        '{:>5.2f}%'.format(100 * len(notobese_nosurg_mage) / n_fu),
+        '{:>5.2f}'.format(np.mean(notobese_nosurg_mage)),
+        '{:>6.2f}'.format(np.mean(notobese_nosurg_diffmage)),
+        '|'
     )
     print(
         'Obese (no surgery)    ', len(obese_nosurg_mage),
-        '{: 5.2f}%'.format(100 * len(obese_nosurg_mage) / n_fu)
+        '{:>5.2f}%'.format(100 * len(obese_nosurg_mage) / n_fu),
+        '{:>5.2f}'.format(np.mean(obese_nosurg_mage)),
+        '{:>6.2f}'.format(np.mean(obese_nosurg_diffmage)),
+        '|'
     )
     print(
         'Surgery               ', len(surg_mage),
-        '{: 5.2f}%'.format(100 * len(surg_mage) / n_fu)
+        '{:>5.2f}%'.format(100 * len(surg_mage) / n_fu),
+        '{:>5.2f}'.format(np.mean(surg_mage)),
+        '{:>6.2f}'.format(np.mean(surg_diffmage)),
+        '|'
     )
 
     # Absolute MAGE at follow-up
@@ -459,7 +479,7 @@ def main():
         ),
     )
 
-    print('-'.join([''] * 60))
+    print('-'.join([''] * 100))
 
     print('{:}MAGE{:} statistics'.format(c['b'], c['nc']))
     mage_info(path, surg_dict)
