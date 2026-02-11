@@ -336,7 +336,8 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
                 scales=scales, epochs=epochs, patience=patience
             )
 
-            df_nii = nib.Nifti1Image(df.detach().cpu().numpy(), None, header=out_hdr)
+            df_numpy = np.moveaxis(df.detach().cpu().numpy(), 0,-1)
+            df_nii = nib.Nifti1Image(df_numpy, None, header=out_hdr)
             df_nii.to_filename(
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_df.nii.gz')
             )
