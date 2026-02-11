@@ -477,10 +477,20 @@ def main():
         test_ds = LongitudinalDataset(test_data, test_labels)
 
         # Contrastive pre-training (can include self-supervision)
+        print(
+            'Training with {:}contrastive{:} learning'.format(
+                c['b'], c['nc']
+            )
+        )
         net = FeatureNet(conv_filters=conv_filters, n_images=n_images)
         train_net(net, 'feature-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
 
         # Using pre-trained weights but frozen features
+        print(
+            'Fine tuning with {:}frozen{:} feature layers'.format(
+                c['b'], c['nc']
+            )
+        )
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         classifier.encoder = deepcopy(net.encoder)
         classifier.encoder.freeze()
@@ -493,6 +503,11 @@ def main():
         t_pr_fr += pr_fr
 
         # Using pre-trained weights unfrozen
+        print(
+            'Fine tuning with {:}unfrozen{:} feature layers'.format(
+                c['b'], c['nc']
+            )
+        )
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         classifier.encoder = deepcopy(net.encoder)
         train_net(classifier, 'class-unfrozen-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
@@ -504,6 +519,11 @@ def main():
         t_pr_un += pr_un
 
         # Training from scratch
+        print(
+            'Training {:}from scratch{:}'.format(
+                c['b'], c['nc']
+            )
+        )
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         train_net(classifier, 'class-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
         tp_sc, fp_sc, tn_sc, fn_sc, pr_sc = test_net(classifier, test_ds)
