@@ -298,6 +298,21 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
 
             bl_im = bl_nii.get_fdata()
             fu_im = fu_nii.get_fdata()
+            bl_x, bl_y, bl_z = bl_nii.get_fdata().shape
+            bl_sx, bl_sy, bl_sz = bl_nii.header.get_zooms()
+            fu_x, fu_y, fu_z = fu_nii.get_fdata().shape
+            fu_sx, fu_sy, fu_sz = fu_nii.header.get_zooms()
+
+            print(
+                'Subject {:} - Baseline {:3d} x {:3d} x {:3d} ({:4.2f} x {:4.2f} x {:4.2f})'.format(
+                    c, bl_x, bl_y, bl_z, bl_sx, bl_sy, bl_sz
+                ), end=' '
+            )
+            print(
+                '- Follow-up {:3d} x {:3d} x {:3d} ({:4.2f} x {:4.2f} x {:4.2f})'.format(
+                    fu_x, fu_y, fu_z, fu_sx, fu_sy, fu_sz
+                )
+            )
 
             bl_mask = get_brain_mask(bl_im)
             fu_mask = get_brain_mask(fu_im)
@@ -437,7 +452,11 @@ def main():
 
     print('-'.join([''] * 30))
 
-    image_info(path, surg_dict, scales, epochs, patience, lr)
+    affine_registration(path, surg_dict, scales, epochs, patience, lr)
+
+    print('-'.join([''] * 30))
+
+    deformable_registration(path, surg_dict, scales, epochs, patience, lr)
 
 
 if __name__ == '__main__':
