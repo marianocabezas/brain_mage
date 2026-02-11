@@ -630,8 +630,9 @@ def nonlinear_registration(
         requires_grad=True
     )
     best_df = learnable_df.detach().clone()
-
+    loss_log = {}
     for s in scales:
+        scale_log = []
         optimizer = torch.optim.Adam([learnable_df], lr=lr)
         no_improv = 0
         for e in range(epochs):
@@ -695,6 +696,7 @@ def nonlinear_registration(
                 loss = loss_f(tensor_moved_s, tensor_fixed_s, mask_tensor)
 
             loss_value = loss.detach().cpu().numpy().tolist()
+            scale_log.append(loss_value)
             if loss_value < best_fit:
                 final_e = e
                 final_fit = loss_value
@@ -711,6 +713,7 @@ def nonlinear_registration(
                     e + 1, s, loss_value
                 ))
             optimizer.step()
+        loss_log[str(s)] = scale_log
         learnable_df = torch.tensor(
             best_df.cpu().numpy(), device=device, requires_grad=True,
             dtype=torch.float64
@@ -720,7 +723,7 @@ def nonlinear_registration(
         ))
         best_fit = np.inf
         # lr = lr / 5
-    return best_df, final_e, final_fit
+    return best_df, final_e, final_fit, loss_log
 
 
 def sitk_registration(
