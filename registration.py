@@ -620,7 +620,7 @@ def nonlinear_registration(
     id_affine = torch.eye(4, dtype=torch.float64)
 
     moving_norm = (moving - moving.mean()) / moving.std()
-    fixed_norm = torch.tensor((fixed - fixed.mean()) / fixed.std())
+    fixed_norm = (fixed - fixed.mean()) / fixed.std()
 
     lr = init_lr
 
@@ -644,8 +644,8 @@ def nonlinear_registration(
             tensor_moved = moved.view((1, 1) + moved.shape).to(device)
             tensor_moved3 = conv3(tensor_moved)
             tensor_moved5 = conv5(tensor_moved)
-            print(moved.shape, tensor_moved.shape, fixed_norm.shape)
-            tensor_fixed = fixed_norm.view((1, 1) + fixed_norm.shape).to(device)
+            torch_fixed = torch.tensor(fixed_norm, dtype=torch.float64)
+            tensor_fixed = torch_fixed.view((1, 1) + fixed_norm.shape).to(device)
             tensor_fixed3 = conv3(tensor_fixed)
             tensor_fixed5 = conv5(tensor_fixed)
             tensor_moved = torch.cat([
