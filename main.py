@@ -592,6 +592,8 @@ def main():
         )
     )
 
+    print('-'.join([''] * 60))
+
     # Total results
     print(
         'Frozen (pre-trained)   | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(

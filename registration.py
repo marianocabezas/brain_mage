@@ -721,7 +721,7 @@ def nonlinear_registration(
         print('Epoch {:05d} [scale {:02d}]: {:8.4f}'.format(
             final_e + 1, s, final_fit
         ))
-        print('- - - - - - - - - - - - - - - - -')
+        print(' '.join(['-'] * 16))
         best_fit = np.inf
         # lr = lr / 5
     return best_df, final_e, final_fit, loss_log
