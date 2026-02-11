@@ -292,7 +292,8 @@ def test_net(net, test_dataset, verbose=1):
     fp = 0
     tn = 0
     fn = 0
-    pr_list = []
+    pos_pr_list = []
+    neg_pr_list = []
     for i, (x, y) in enumerate(test_dataloader):
         test_elapsed = time.time() - test_start
         test_eta = tests * test_elapsed / (i + 1)
@@ -312,7 +313,8 @@ def test_net(net, test_dataset, verbose=1):
         fp += torch.logical_and(y == 0, pred_y >= 0.5).sum()
         tn += torch.logical_and(y == 0, pred_y < 0.5).sum()
         fn += torch.logical_and(y == 1, pred_y < 0.5).sum()
-        pr_list += torch.sigmoid(pred).numpy().tolist()
+        pos_pr_list += pred_y[pred_y >= 0.5].numpy().tolist()
+        neg_pr_list += pred_y[pred_y < 0.5].numpy().tolist()
 
     if verbose > 0:
         time_str = time.strftime(
@@ -325,7 +327,7 @@ def test_net(net, test_dataset, verbose=1):
             )
         )
 
-    return tp, fp, tn, fn, pr_list
+    return tp, fp, tn, fn, pos_pr_list, neg_pr_list
 
 
 def main():
@@ -433,19 +435,22 @@ def main():
     t_fp_fr = 0
     t_tn_fr = 0
     t_fn_fr = 0
-    t_pr_fr = []
+    t_ppr_fr = []
+    t_npr_fr = []
 
     t_tp_un = 0
     t_fp_un = 0
     t_tn_un = 0
     t_fn_un = 0
-    t_pr_un = []
+    t_ppr_un = []
+    t_npr_un = []
 
     t_tp_sc = 0
     t_fp_sc = 0
     t_tn_sc = 0
     t_fn_sc = 0
-    t_pr_sc = []
+    t_ppr_sc = []
+    t_npr_sc = []
     for i in range(folds):
         print(
             '{:}Fold {:}{:2d}/{:2d}{:} (n-folds cross-val)'.format(
@@ -495,12 +500,13 @@ def main():
         classifier.encoder = deepcopy(net.encoder)
         classifier.encoder.freeze()
         train_net(classifier, 'class-frozen-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
-        tp_fr, fp_fr, tn_fr, fn_fr, pr_fr = test_net(classifier, test_ds)
+        tp_fr, fp_fr, tn_fr, fn_fr, ppr_fr, npr_fr = test_net(classifier, test_ds)
         t_tp_fr += tp_fr
         t_fp_fr += fp_fr
         t_tn_fr += tn_fr
         t_fn_fr += fn_fr
-        t_pr_fr += pr_fr
+        t_ppr_fr += ppr_fr
+        t_npr_fr += npr_fr
 
         # Using pre-trained weights unfrozen
         print(
@@ -511,12 +517,13 @@ def main():
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         classifier.encoder = deepcopy(net.encoder)
         train_net(classifier, 'class-unfrozen-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
-        tp_un, fp_un, tn_un, fn_un, pr_un = test_net(classifier, test_ds)
+        tp_un, fp_un, tn_un, fn_un, ppr_un, npr_un = test_net(classifier, test_ds)
         t_tp_un += tp_un
         t_fp_un += fp_un
         t_tn_un += tn_un
         t_fn_un += fn_un
-        t_pr_un += pr_un
+        t_ppr_un += ppr_un
+        t_npr_un += npr_un
 
         # Training from scratch
         print(
@@ -526,12 +533,13 @@ def main():
         )
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         train_net(classifier, 'class-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
-        tp_sc, fp_sc, tn_sc, fn_sc, pr_sc = test_net(classifier, test_ds)
+        tp_sc, fp_sc, tn_sc, fn_sc, ppr_sc, npr_sc = test_net(classifier, test_ds)
         t_tp_sc += tp_sc
         t_fp_sc += fp_sc
         t_tn_sc += tn_sc
         t_fn_sc += fn_sc
-        t_pr_sc += pr_sc
+        t_ppr_sc += ppr_sc
+        t_npr_sc += npr_sc
 
         # Results per fold
         print(
@@ -541,8 +549,8 @@ def main():
         )
         bacc_fr = 0.5 * (tp_fr / (tp_fr + fn_fr) + tn_fr / (fp_fr + tn_fr))
         print(
-            'BACC = {:5.3f} | Scores {:5.3f} ± {:5.3f}'.format(
-                bacc_fr, np.mean(pr_fr), np.std(pr_fr)
+            'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+                bacc_fr, np.mean(ppr_fr), np.std(ppr_fr), np.mean(npr_fr), np.std(npr_fr)
             )
         )
         print(
@@ -552,8 +560,8 @@ def main():
         )
         bacc_un = 0.5 * (tp_un / (tp_un + fn_un) + tn_un / (fp_un + tn_un))
         print(
-            'BACC = {:5.3f} | Scores {:5.3f} ± {:5.3f}'.format(
-                bacc_un, np.mean(pr_un), np.std(pr_un)
+            'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+                bacc_un, np.mean(ppr_un), np.std(ppr_un), np.mean(npr_un), np.std(npr_un)
             )
         )
         bacc_sc = 0.5 * (tp_sc / (tp_sc + fn_sc) + tn_sc / (fp_sc + tn_sc))
@@ -563,8 +571,8 @@ def main():
             ), end=' '
         )
         print(
-            'BACC = {:5.3f} | Scores {:5.3f} ± {:5.3f}'.format(
-                bacc_sc, np.mean(pr_sc), np.std(pr_sc)
+            'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+                bacc_sc, np.mean(ppr_sc), np.std(ppr_sc), np.mean(npr_sc), np.std(npr_sc)
             )
         )
 
@@ -576,8 +584,8 @@ def main():
     )
     t_bacc_fr = t_tp_fr / (t_tp_fr + t_fn_fr) + t_tn_fr / (t_fp_fr + t_tn_fr)
     print(
-        'BACC = {:5.3f} | Scores {:5.3f} ± {:5.3f}'.format(
-            t_bacc_fr, np.mean(t_pr_fr), np.std(t_pr_fr)
+        'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+            t_bacc_fr, np.mean(t_ppr_fr), np.std(t_ppr_fr), np.mean(t_npr_fr), np.std(t_npr_fr)
         )
     )
     print(
@@ -587,8 +595,8 @@ def main():
     )
     t_bacc_un = t_tp_un / (t_tp_un + t_fn_un) + t_tn_un / (t_fp_un + t_tn_un)
     print(
-        'BACC = {:5.3f} | Scores {:5.3f} ± {:5.3f}'.format(
-            t_bacc_un, np.mean(t_pr_un), np.std(t_pr_un)
+        'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+            t_bacc_un, np.mean(t_ppr_un), np.std(t_ppr_un), np.mean(t_npr_un), np.std(t_npr_un)
         )
     )
     print(
@@ -598,8 +606,8 @@ def main():
     )
     t_bacc_sc = 0.5 * (t_tp_sc / (t_tp_sc + t_fn_sc) + t_tn_sc / (t_fp_sc + t_tn_sc))
     print(
-        'BACC = {:5.3f} | Scores {:5.3f} ± {:5.3f}'.format(
-            t_bacc_sc, np.mean(t_pr_sc), np.std(t_pr_sc)
+        'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+            t_bacc_sc, np.mean(t_ppr_sc), np.std(t_ppr_sc), np.mean(t_npr_sc), np.std(t_npr_sc)
         )
     )
 
