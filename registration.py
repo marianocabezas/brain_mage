@@ -631,9 +631,8 @@ def nonlinear_registration(
     )
     best_df = learnable_df.detach().clone()
 
-    optimizer = torch.optim.Adam([learnable_df], lr=lr)
-
     for s in scales:
+        optimizer = torch.optim.Adam([learnable_df], lr=lr)
         no_improv = 0
         for e in range(epochs):
             moved = resample(
