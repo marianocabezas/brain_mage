@@ -298,7 +298,7 @@ def test_net(net, test_dataset, verbose=1):
         test_elapsed = time.time() - test_start
         test_eta = tests * test_elapsed / (i + 1)
         print(
-            '{:}Testing batch {:d}/{:d}) {:} ETA {:}'.format(
+            '{:}Testing batch {:d}/{:d} {:} (ETA {:})'.format(
                 c['clr'], i + 1, tests,
                 time_to_string(test_elapsed),
                 time_to_string(test_eta),
