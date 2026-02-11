@@ -67,7 +67,7 @@ def mse_loss(fixed, moved, mask=None):
 
 def resample(
     moving, moving_spacing, output_dims, output_spacing,
-    affine, mode='bilinear'
+    affine, df=None, mode='bilinear'
 ):
     m_width, m_height, m_depth = moving.shape
     m_width_s, m_height_s, m_depth_s = moving_spacing
@@ -117,9 +117,13 @@ def resample(
         dtype=torch.float64, device=affine.device
     )
 
-    affine_grid = 2 * (affine @ grid)[:3, :] / scales - 1
+    if df is None:
+        final_grid = 2 * (affine @ grid)[:3, :] / scales - 1
+    else:
+        df_vec = df.flatten(1)
+        final_grid = 2 * (affine @ grid)[:3, :] + df_vec / scales - 1
 
-    tensor_grid = torch.swapaxes(affine_grid, 0, 1).view(
+    tensor_grid = torch.swapaxes(final_grid, 0, 1).view(
         1, f_width, f_height, f_depth, 3
     )
 
@@ -596,6 +600,123 @@ def halfway_registration(
         # lr = lr / 5
     best_affine = torch.cat([learnable_affine, fixed_affine.detach()])
     return best_affine, final_e, final_fit
+
+
+def nonlinear_registration(
+    moving, fixed, mask_moving=None, mask_fixed=None,
+    scales=None, epochs=500, patience=100, init_lr=1e-3,
+    loss_f=xcor_loss, conv_features=4,
+    device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+):
+    conv5 = Conv3d(1, conv_features, kernel_size=5, padding=2).to(device)
+    conv3 = Conv3d(1, conv_features, kernel_size=3, padding=1).to(device)
+    if scales is None:
+        scales = [8, 4, 2, 1]
+
+    best_fit = np.inf
+    final_e = 0
+    final_fit = np.inf
+
+    id_affine = torch.eye(4, dtype=torch.float64)
+
+    moving_norm = (moving - moving.mean()) / moving.std()
+    fixed_norm = (fixed - fixed.mean()) / fixed.std()
+
+    lr = init_lr
+
+    x, y, z = fixed.shape
+    learnable_df = torch.zeros(
+        (3, x, y, z), device=device, dtype=torch.float64,
+        requires_grad=True
+    )
+    best_df = learnable_df.detach().clone()
+
+    optimizer = torch.optim.Adam([learnable_df], lr=lr)
+
+    for s in scales:
+        no_improv = 0
+        for e in range(epochs):
+            moved = resample(
+                moving_norm, (1, 1, 1),
+                fixed.shape, (1, 1, 1),
+                affine=id_affine, df=learnable_df
+            )
+            tensor_moved = moved.view((1, 1) + moved.shape)
+            tensor_moved3 = conv3(tensor_moved)
+            tensor_moved5 = conv5(tensor_moved)
+            tensor_fixed = fixed_norm.view((1, 1) + fixed_norm.shape)
+            tensor_fixed3 = conv3(tensor_fixed)
+            tensor_fixed5 = conv5(tensor_fixed)
+            tensor_moved = torch.cat([
+                tensor_moved,
+                tensor_moved3, tensor_moved5
+            ], dim=1)
+            tensor_fixed = torch.cat([
+                tensor_fixed,
+                tensor_fixed3, tensor_fixed5
+            ], dim=1)
+            tensor_moved_s = func.avg_pool3d(tensor_moved, s)
+            tensor_fixed_s = func.avg_pool3d(tensor_fixed, s)
+
+            if mask_moving is not None:
+                mask_tensor_moving = mask_moving.astype(np.float32).view((1, 1) + mask_moving.shape)
+                mask_tensor_moving_s = func.max_pool3d(
+                    mask_tensor_moving, s
+                ) > 0
+            else:
+                mask_tensor_moving_s = None
+
+            if mask_fixed is not None:
+                mask_tensor_fixed = mask_fixed.astype(np.float32).view((1, 1) + mask_fixed.shape)
+                mask_tensor_fixed_s = func.max_pool3d(
+                    mask_tensor_fixed, s
+                ) > 0
+            else:
+                mask_tensor_fixed_s = None
+
+            if mask_tensor_moving_s is not None and mask_tensor_fixed_s is not None:
+                mask_tensor = torch.maximum(
+                    mask_tensor_moving_s, mask_tensor_fixed_s
+                ).squeeze((0, 1))
+            elif mask_tensor_moving_s is not None:
+                mask_tensor = mask_tensor_moving_s.squeeze((0, 1))
+            elif mask_tensor_fixed_s is not None:
+                mask_tensor = mask_tensor_fixed_s.squeeze((0, 1))
+            else:
+                mask_tensor = None
+
+            if mask_tensor is None:
+                loss = loss_f(tensor_moved_s, tensor_fixed_s)
+            else:
+                loss = loss_f(tensor_moved_s, tensor_fixed_s, mask_tensor)
+
+            loss_value = loss.detach().cpu().numpy().tolist()
+            if loss_value < best_fit:
+                final_e = e
+                final_fit = loss_value
+                best_fit = loss_value
+                best_df = learnable_df.detach().clone()
+            else:
+                no_improv += 1
+                if no_improv == patience:
+                    break
+            optimizer.zero_grad()
+            loss.backward()
+            if (e % 100) == 0:
+                print('Epoch {:05d} [scale {:02d}]: {:8.4f}'.format(
+                    e + 1, s, loss_value
+                ))
+            optimizer.step()
+        learnable_df = torch.tensor(
+            best_df.cpu().numpy(), device=device, requires_grad=True,
+            dtype=torch.float64
+        )
+        print('Epoch {:05d} [scale {:02d}]: {:8.4f}'.format(
+            final_e + 1, s, final_fit
+        ))
+        best_fit = np.inf
+        # lr = lr / 5
+    return best_df, final_e, final_fit
 
 
 def sitk_registration(

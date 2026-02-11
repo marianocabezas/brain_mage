@@ -13,8 +13,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import torch
 from utils import color_codes, time_to_string
-from registration import resample, halfway_registration, mse_loss, xcor_loss
-from registration import sitk_registration
+from registration import resample, halfway_registration, nonlinear_registration
+from registration import sitk_registration, mse_loss, xcor_loss
 
 
 
@@ -185,7 +185,7 @@ def get_brain_mask(image):
     return binary_fill_holes(brain)
 
 
-def image_info(path, data_dict, scales, epochs, patience, lr):
+def affine_registration(path, data_dict, scales, epochs, patience, lr):
     for c, c_data in data_dict.items():
         if c_data['Follow-up']['HasImage'] and c_data['Baseline']['HasImage']:
             bl_nii = nib.load(
@@ -283,6 +283,35 @@ def image_info(path, data_dict, scales, epochs, patience, lr):
             fu_new_nii = nib.Nifti1Image(fu_new, None, header=out_hdr)
             fu_new_nii.to_filename(
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
+            )
+
+
+def deformable_registration(path, data_dict, scales, epochs, patience, lr):
+    for c, c_data in data_dict.items():
+        if c_data['Follow-up']['HasImage'] and c_data['Baseline']['HasImage']:
+            bl_nii = nib.load(
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii')
+            )
+            fu_nii = nib.load(
+                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii')
+            )
+
+            bl_im = bl_nii.get_fdata()
+            fu_im = fu_nii.get_fdata()
+
+            bl_mask = get_brain_mask(bl_im)
+            fu_mask = get_brain_mask(fu_im)
+
+            out_hdr = deepcopy(fu_nii.header)
+
+            df, _, _ = nonlinear_registration(
+                bl_im, fu_im, bl_mask, fu_mask, loss_f=mse_loss, init_lr=lr,
+                scales=scales, epochs=epochs, patience=patience
+            )
+
+            df_nii = nib.Nifti1Image(df.detach().cpu().numpy(), None, header=out_hdr)
+            df_nii.to_filename(
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_df.nii.gz')
             )
 
 
