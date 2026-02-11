@@ -339,7 +339,7 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
             moved = resample(
                 bl_im, bl_nii.header.get_zooms(),
                 bl_im.shape, bl_nii.header.get_zooms(),
-                torch.eye(4), df
+                torch.eye(4, dtype=torch.float64), df
             ).detach().cpu().numpy()
 
             moved_nii = nib.Nifti1Image(moved, None, header=out_hdr)
