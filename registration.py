@@ -671,7 +671,7 @@ def nonlinear_registration(
 
             if mask_fixed is not None:
                 mask_tensor_fixed = torch.tensor(
-                    mask_fixed, dtype=np.float32
+                    mask_fixed, dtype=torch.float32
                 ).view((1, 1) + mask_fixed.shape)
                 mask_tensor_fixed_s = func.max_pool3d(
                     mask_tensor_fixed, s
