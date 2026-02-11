@@ -468,19 +468,19 @@ def main():
         classifier.encoder = deepcopy(net.encoder)
         classifier.encoder.freeze()
         train_net(classifier, 'class-frozen-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
-        tp_fr, fp_fr, tn_fr, fn_fr, pr_fr = test_net(net, test_ds)
+        tp_fr, fp_fr, tn_fr, fn_fr, pr_fr = test_net(classifier, test_ds)
 
 
         # Using pre-trained weights unfrozen
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         classifier.encoder = deepcopy(net.encoder)
         train_net(classifier, 'class-unfrozen-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
-        tp_un, fp_un, tn_un, fn_un, pr_un = test_net(net, test_ds)
+        tp_un, fp_un, tn_un, fn_un, pr_un = test_net(classifier, test_ds)
 
         # Training from scratch
         classifier = ClassifierNet(conv_filters=conv_filters, n_images=n_images)
         train_net(classifier, 'class-net_{:}_n{:d}.pt'.format(f_string, i), train_ds, val_ds)
-        tp_sc, fp_sc, tn_sc, fn_sc, pr_sc = test_net(net, test_ds)
+        tp_sc, fp_sc, tn_sc, fn_sc, pr_sc = test_net(classifier, test_ds)
 
         # Results
         print(
