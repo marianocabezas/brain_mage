@@ -302,10 +302,10 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
     for c, c_data in data_dict.items():
         if c_data['Follow-up']['HasImage'] and c_data['Baseline']['HasImage']:
             bl_nii = nib.load(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii')
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
             )
             fu_nii = nib.load(
-                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii')
+                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
             )
 
             bl_im = bl_nii.get_fdata()
