@@ -112,7 +112,7 @@ class ClassifierNet(FeatureNet):
             {
                 'name': 'xent',
                 'weight': 1,
-                'f': lambda p, t: F.binary_cross_entropy_with_logits(p[:, 0, ...], t)
+                'f': F.binary_cross_entropy_with_logits
             }
         ]
 
@@ -122,4 +122,4 @@ class ClassifierNet(FeatureNet):
         features = self.encoder(data)
         logits = self.heads(features)
 
-        return logits
+        return logits[:, :-1]
