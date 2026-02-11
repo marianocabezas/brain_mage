@@ -331,7 +331,7 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
 
             out_hdr = deepcopy(fu_nii.header)
 
-            df, _, _ = nonlinear_registration(
+            df, _, _, log = nonlinear_registration(
                 bl_im, fu_im, bl_mask, fu_mask, loss_f=mse_loss, init_lr=lr,
                 scales=scales, epochs=epochs, patience=patience
             )
