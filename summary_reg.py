@@ -343,112 +343,81 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
 
 
 def mage_info(path, data_dict):
-    notobese_nosurg_mage = []
-    obese_nosurg_mage = []
-    surg_mage = []
+    notobese_nosurg_mage_fu = []
+    obese_nosurg_mage_fu = []
+    surg_mage_fu = []
+    notobese_nosurg_mage_bl = []
+    obese_nosurg_mage_bl = []
+    surg_mage_bl = []
     notobese_nosurg_diffmage = []
     obese_nosurg_diffmage = []
     surg_diffmage = []
     for c, c_data in data_dict.items():
         if c_data['Follow-up']['HasImage'] and not c_data['Obese'] and not c_data['HadSurgery']:
-            notobese_nosurg_mage.append(
+            notobese_nosurg_mage_fu.append(
                 c_data['Follow-up']['MAGE']
+            )
+            notobese_nosurg_mage_bl.append(
+                c_data['Baseline']['MAGE']
             )
             notobese_nosurg_diffmage.append(
                 c_data['Follow-up']['MAGE'] - c_data['Baseline']['MAGE']
             )
         elif c_data['Follow-up']['HasImage'] and c_data['Obese'] and not c_data['HadSurgery']:
-            obese_nosurg_mage.append(
+            obese_nosurg_mage_fu.append(
                 c_data['Follow-up']['MAGE']
+            )
+            obese_nosurg_mage_bl.append(
+                c_data['Baseline']['MAGE']
             )
             obese_nosurg_diffmage.append(
                 c_data['Follow-up']['MAGE'] - c_data['Baseline']['MAGE']
             )
         elif c_data['Follow-up']['HasImage'] and c_data['HadSurgery']:
-            surg_mage.append(
+            surg_mage_fu.append(
                 c_data['Follow-up']['MAGE']
+            )
+            surg_mage_bl.append(
+                c_data['Baseline']['MAGE']
             )
             surg_diffmage.append(
                 c_data['Follow-up']['MAGE'] - c_data['Baseline']['MAGE']
             )
 
-    n_fu = len(notobese_nosurg_mage) + len(obese_nosurg_mage) + len(surg_mage)
+    n_fu = len(notobese_nosurg_mage_fu) + len(obese_nosurg_mage_fu) + len(surg_mage_fu)
 
 
     print(
-        'Not obese (no surgery)', len(notobese_nosurg_mage),
-        '{:>5.2f}%'.format(100 * len(notobese_nosurg_mage) / n_fu),
-        '{:>5.2f}'.format(np.mean(notobese_nosurg_mage)),
-        '{:>6.2f}'.format(np.mean(notobese_nosurg_diffmage)),
+        'Not obese (no surgery)', len(notobese_nosurg_mage_fu),
+        '{:>5.2f}%'.format(100 * len(notobese_nosurg_mage_fu) / n_fu),
+        '{:>5.2f}'.format(np.mean(notobese_nosurg_mage_fu)),
+        '{:>6.2f}±{:>5.2f}'.format(
+            np.mean(notobese_nosurg_diffmage),
+            np.std(notobese_nosurg_diffmage)
+        ),
         '|'
     )
     print(
-        'Obese (no surgery)    ', len(obese_nosurg_mage),
-        '{:>5.2f}%'.format(100 * len(obese_nosurg_mage) / n_fu),
-        '{:>5.2f}'.format(np.mean(obese_nosurg_mage)),
-        '{:>6.2f}'.format(np.mean(obese_nosurg_diffmage)),
+        'Obese (no surgery)    ', len(obese_nosurg_mage_fu),
+        '{:>5.2f}%'.format(100 * len(obese_nosurg_mage_fu) / n_fu),
+        '{:>5.2f}'.format(np.mean(obese_nosurg_mage_fu)),
+        '{:>6.2f}±{:>5.2f}'.format(
+            np.mean(obese_nosurg_diffmage),
+            np.std(notobese_nosurg_diffmage)
+        ),
         '|'
     )
     print(
-        'Surgery               ', len(surg_mage),
-        '{:>5.2f}%'.format(100 * len(surg_mage) / n_fu),
-        '{:>5.2f}'.format(np.mean(surg_mage)),
-        '{:>6.2f}'.format(np.mean(surg_diffmage)),
+        'Surgery               ', len(surg_mage_fu),
+        '{:>5.2f}%'.format(100 * len(surg_mage_fu) / n_fu),
+        '{:>5.2f}'.format(np.mean(surg_mage_fu)),
+        '{:>6.2f}±{:>5.2f}'.format(
+            np.mean(surg_diffmage),
+            np.std(surg_diffmage)
+        ),
         '|'
     )
 
-    # Absolute MAGE at follow-up
-
-    x = ['Not obese (no surgery)'] * len(notobese_nosurg_mage) + ['Obese (no surgery)'] * len(obese_nosurg_mage) + [
-        'Surgery'] * len(surg_mage)
-    y = notobese_nosurg_mage + obese_nosurg_mage + surg_mage
-
-    mage_df = pd.DataFrame(list(zip(y, x)), columns=['MAGE', 'Group'])
-
-    # MAGE difference data
-
-    notobese_nosurg_diffmage = [
-        data['Follow-up']['MAGE'] - data['Baseline']['MAGE']
-        for c, data in data_dict.items()
-        if
-        data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and not data['Obese'] and not data['HadSurgery']
-    ]
-
-    obese_nosurg_diffmage = [
-        data['Follow-up']['MAGE'] - data['Baseline']['MAGE']
-        for c, data in data_dict.items()
-        if data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and data['Obese'] and not data['HadSurgery']
-    ]
-
-    surg_diffmage = [
-        data['Follow-up']['MAGE'] - data['Baseline']['MAGE']
-        for c, data in data_dict.items()
-        if data['Follow-up']['HasImage'] and data['Baseline']['HasImage'] and data['HadSurgery']
-    ]
-
-    x = ['Not obese (no surgery)'] * len(notobese_nosurg_diffmage) + ['Obese (no surgery)'] * len(
-        obese_nosurg_diffmage) + ['Surgery'] * len(surg_diffmage)
-    y = notobese_nosurg_diffmage + obese_nosurg_diffmage + surg_diffmage
-
-    diffmage_df = pd.DataFrame(list(zip(y, x)), columns=['DiffMAGE', 'Group'])
-
-    plt.figure(figsize=(10, 5))
-    plt.subplot(1, 2, 1)
-    sns.boxplot(x='Group', y='MAGE', data=mage_df)
-    plt.xticks(rotation=45)
-    plt.subplot(1, 2, 2)
-    sns.boxplot(x='Group', y='DiffMAGE', data=diffmage_df)
-    plt.xticks(rotation=45)
-    plt.savefig(os.path.join(path, 'mage_boxplots.png'))
-
-    plt.figure(figsize=(10, 5))
-    plt.subplot(1, 2, 1)
-    sns.violinplot(x='Group', y='MAGE', data=mage_df)
-    plt.xticks(rotation=45)
-    plt.subplot(1, 2, 2)
-    sns.violinplot(x='Group', y='DiffMAGE', data=diffmage_df)
-    plt.xticks(rotation=45)
-    plt.savefig(os.path.join(path, 'mage_violinplots.png'))
 
 
 def main():
