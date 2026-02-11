@@ -660,7 +660,9 @@ def nonlinear_registration(
             tensor_fixed_s = func.avg_pool3d(tensor_fixed, s)
 
             if mask_moving is not None:
-                mask_tensor_moving = mask_moving.astype(np.float32).view((1, 1) + mask_moving.shape)
+                mask_tensor_moving = torch.tensor(
+                    mask_moving, dtype=torch.float32
+                ).view((1, 1) + mask_moving.shape)
                 mask_tensor_moving_s = func.max_pool3d(
                     mask_tensor_moving, s
                 ) > 0
@@ -668,7 +670,9 @@ def nonlinear_registration(
                 mask_tensor_moving_s = None
 
             if mask_fixed is not None:
-                mask_tensor_fixed = mask_fixed.astype(np.float32).view((1, 1) + mask_fixed.shape)
+                mask_tensor_fixed = torch.tensor(
+                    mask_fixed, dtype=np.float32
+                ).view((1, 1) + mask_fixed.shape)
                 mask_tensor_fixed_s = func.max_pool3d(
                     mask_tensor_fixed, s
                 ) > 0
