@@ -66,7 +66,7 @@ def parse_inputs():
     )
     parser.add_argument(
         '-a', '--affine',
-        dest='deformable',
+        dest='affine',
         default=False, action='store_true',
         help='Apply affine registration'
     )
@@ -433,6 +433,7 @@ def mage_info(path, data_dict):
 
 def main():
     # Init
+    c = color_codes()
     options = parse_inputs()
     path = options['path']
     epochs = options['epochs']
@@ -460,15 +461,18 @@ def main():
 
     print('-'.join([''] * 30))
 
+    print('{:}MAGE{:} statistics'.format(c['b'], c['nc']))
     mage_info(path, surg_dict)
 
-    print('-'.join([''] * 30))
+    if parse_inputs()['affine']:
+        print('-'.join([''] * 30))
+        print('{:}Affine{:} registration'.format(c['b'], c['nc']))
+        affine_registration(path, surg_dict, scales, epochs, patience, lr)
 
-    affine_registration(path, surg_dict, scales, epochs, patience, lr)
-
-    print('-'.join([''] * 30))
-
-    deformable_registration(path, surg_dict, scales, epochs, patience, lr)
+    if parse_inputs()['deformable']:
+        print('-'.join([''] * 30))
+        print('{:}Deformable{:} registration'.format(c['b'], c['nc']))
+        deformable_registration(path, surg_dict, scales, epochs, patience, lr)
 
 
 if __name__ == '__main__':
