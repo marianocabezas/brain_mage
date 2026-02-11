@@ -644,7 +644,7 @@ def nonlinear_registration(
             tensor_moved = moved.view((1, 1) + moved.shape).to(device)
             tensor_moved3 = conv3(tensor_moved)
             tensor_moved5 = conv5(tensor_moved)
-            torch_fixed = torch.tensor(fixed_norm, dtype=torch.float64)
+            torch_fixed = torch.tensor(fixed_norm, dtype=torch.float32)
             tensor_fixed = torch_fixed.view((1, 1) + fixed_norm.shape).to(device)
             tensor_fixed3 = conv3(tensor_fixed)
             tensor_fixed5 = conv5(tensor_fixed)
