@@ -481,7 +481,7 @@ def main():
 
     print('-'.join([''] * 100))
 
-    print('{:}MAGE{:} statistics'.format(c['b'], c['nc']), ''.join([' '] * 33), '|')
+    print('{:}MAGE{:} statistics'.format(c['b'], c['nc']), ''.join([' '] * 28), '|')
     mage_info(path, surg_dict)
 
     if parse_inputs()['affine']:
