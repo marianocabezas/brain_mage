@@ -120,7 +120,7 @@ def resample(
     if df is None:
         final_grid = 2 * (affine @ grid)[:3, :] / scales - 1
     else:
-        df_vec = df.flatten(1)
+        df_vec = df.flatten(1).to(affine.device)
         final_grid = 2 * (affine @ grid)[:3, :] + df_vec / scales - 1
 
     tensor_grid = torch.swapaxes(final_grid, 0, 1).view(
