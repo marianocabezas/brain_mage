@@ -357,7 +357,7 @@ def mage_info(path, data_dict):
             notobese_nosurg_diffmage.append(
                 c_data['Follow-up']['MAGE'] - c_data['Baseline']['MAGE']
             )
-        elif c_data['Follow-up']['HasImage'] and not c_data['Obese'] and not c_data['HadSurgery']:
+        elif c_data['Follow-up']['HasImage'] and c_data['Obese'] and not c_data['HadSurgery']:
             obese_nosurg_mage.append(
                 c_data['Follow-up']['MAGE']
             )
