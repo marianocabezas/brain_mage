@@ -709,7 +709,7 @@ def nonlinear_registration(
             optimizer.zero_grad()
             loss.backward()
             if (e % 50) == 0:
-                print('Epoch {:05d} [scale {:02d}]: {:8.4f}|'.format(
+                print('Epoch {:05d} [scale {:02d}]: {:8.4f} |'.format(
                     e + 1, s, loss_value
                 ))
             optimizer.step()
@@ -718,7 +718,7 @@ def nonlinear_registration(
             best_df.cpu().numpy(), device=device, requires_grad=True,
             dtype=torch.float64
         )
-        print('Epoch {:05d} [scale {:02d}]: {:8.4f}|'.format(
+        print('Epoch {:05d} [scale {:02d}]: {:8.4f} |'.format(
             final_e + 1, s, final_fit
         ))
         print(' '.join(['-'] * 17))
