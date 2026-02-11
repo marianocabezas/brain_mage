@@ -582,7 +582,7 @@ def main():
             t_tp_fr, t_fp_fr, t_tn_fr, t_fn_fr
         ), end=' '
     )
-    t_bacc_fr = t_tp_fr / (t_tp_fr + t_fn_fr) + t_tn_fr / (t_fp_fr + t_tn_fr)
+    t_bacc_fr = 0.5 * (t_tp_fr / (t_tp_fr + t_fn_fr) + t_tn_fr / (t_fp_fr + t_tn_fr))
     print(
         'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
             t_bacc_fr, np.mean(t_ppr_fr), np.std(t_ppr_fr), np.mean(t_npr_fr), np.std(t_npr_fr)
@@ -593,7 +593,7 @@ def main():
             t_tp_un, t_fp_un, t_tn_un, t_fn_un
         ), end=' '
     )
-    t_bacc_un = t_tp_un / (t_tp_un + t_fn_un) + t_tn_un / (t_fp_un + t_tn_un)
+    t_bacc_un = 0.5 * (t_tp_un / (t_tp_un + t_fn_un) + t_tn_un / (t_fp_un + t_tn_un))
     print(
         'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
             t_bacc_un, np.mean(t_ppr_un), np.std(t_ppr_un), np.mean(t_npr_un), np.std(t_npr_un)
