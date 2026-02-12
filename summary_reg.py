@@ -366,7 +366,7 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
             )
 
 
-def mage_info(path, data_dict):
+def mage_info(data_dict):
     notobese_nosurg_mage_fu = []
     obese_nosurg_mage_fu = []
     surg_mage_fu = []
