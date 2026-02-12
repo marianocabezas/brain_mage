@@ -475,7 +475,7 @@ def main():
     print('-'.join([''] * 100))
 
     print('{:}MAGE{:} statistics'.format(c['b'], c['nc']), ''.join([' '] * 29), '|')
-    mage_info(path, surg_dict)
+    mage_info(surg_dict)
 
     if parse_inputs()['affine']:
         print('-'.join([''] * 100))
