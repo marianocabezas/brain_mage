@@ -326,8 +326,20 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
                 )
             )
 
-            bl_mask = get_brain_mask(bl_im)
-            fu_mask = get_brain_mask(fu_im)
+            try:
+                bl_mask_nii = nib.load(
+                    os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg_mask.nii.gz')
+                )
+                bl_mask = bl_mask_nii.get_fdata() > 0
+            except IOError:
+                bl_mask = get_brain_mask(bl_im)
+            try:
+                fu_mask_nii = nib.load(
+                    os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg_mask.nii.gz')
+                )
+                fu_mask = fu_mask_nii.get_fdata() > 0
+            except IOError:
+                fu_mask = get_brain_mask(fu_im)
 
             out_hdr = deepcopy(fu_nii.header)
 
