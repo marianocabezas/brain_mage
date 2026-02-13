@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import torch
 from utils import color_codes, time_to_string
 from registration import resample, halfway_registration, nonlinear_registration
-from registration import sitk_registration, mse_loss, xcor_loss
+from registration import sitk_registration, mse_loss, xcor_loss, jacobian_determinant
 
 
 
@@ -364,6 +364,20 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
             df_nii.to_filename(
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_df.nii.gz')
             )
+
+            jacobian_det = jacobian_determinant(df_numpy, (fu_sx, fu_sy, fu_sz))
+            jacobian_nii = nib.Nifti1Image(jacobian_det, None, header=out_hdr)
+            jacobian_nii.to_filename(
+                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_jacobian.nii.gz')
+            )
+
+            print(
+                'Subject {:} - Jacobian mean value (< 1 ~ atrophy) = {:6.4f}'.format(
+                    c, np.mean(jacobian_det[fu_mask])
+                )
+            )
+
+            print('-'.join([''] * 100))
 
 
 def mage_info(data_dict):
