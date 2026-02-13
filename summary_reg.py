@@ -695,9 +695,9 @@ def main():
             print(
                 'Region {:<20d}:'.format(region),
                 'Healthy = {:4.2f} ± {:4.2f} | Obese = {:4.2f} ± {:4.2f} | Surgery = {:4.2f} ± {:4.2f}'.format(
-                    np.mean(atrophy_data['healthy_atrophy']), np.std(atrophy_data['healthy_atrophy']),
-                    np.mean(atrophy_data['obese_atrophy']), np.std(atrophy_data['obese_atrophy']),
-                    np.mean(atrophy_data['surgery_atrophy']), np.std(atrophy_data['surgery_atrophy']),
+                    np.mean(atrophy_data['healthy_natrophy']), np.std(atrophy_data['healthy_natrophy']),
+                    np.mean(atrophy_data['obese_natrophy']), np.std(atrophy_data['obese_natrophy']),
+                    np.mean(atrophy_data['surgery_natrophy']), np.std(atrophy_data['surgery_natrophy']),
                 )
             )
 
