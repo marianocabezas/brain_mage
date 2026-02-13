@@ -541,27 +541,27 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
             for i in np.unique(seg).astype(np.int32)[1:]:
                 if i not in [4, 5, 14, 15, 24, 43, 44, 72]:
                     lab_mask = seg == i
-                    atrophy = np.mean(jacobian_det[lab_mask])
+                    atrophy = 100 * (np.mean(jacobian_det[lab_mask]) - 1)
                     inner_mask = binary_erosion(lab_mask, structure=np.ones((3, 3, 3)))
                     boundary_mask = np.logical_and(
                         lab_mask, np.logical_not(inner_mask)
                     )
-                    bound_atrophy = np.mean(jacobian_det[boundary_mask])
+                    bound_atrophy = 100 * (np.mean(jacobian_det[boundary_mask]) - 1)
                     if not c_data['Obese'] and not c_data['HadSurgery']:
-                        label_dict[i]['healthy_atrophy'].append(atrophy - 1)
-                        label_dict[i]['healthy_batrophy'].append(bound_atrophy - 1)
-                        label_dict[i]['healthy_natrophy'].append((atrophy - 1) / t_diff)
-                        label_dict[i]['healthy_bnatrophy'].append((bound_atrophy - 1)  / t_diff)
+                        label_dict[i]['healthy_atrophy'].append(atrophy)
+                        label_dict[i]['healthy_batrophy'].append(bound_atrophy)
+                        label_dict[i]['healthy_natrophy'].append(atrophy / t_diff)
+                        label_dict[i]['healthy_bnatrophy'].append(bound_atrophy  / t_diff)
                     elif not c_data['HadSurgery']:
-                        label_dict[i]['obese_atrophy'].append(atrophy - 1)
-                        label_dict[i]['obese_batrophy'].append(bound_atrophy - 1)
-                        label_dict[i]['obese_natrophy'].append((atrophy - 1) / t_diff)
-                        label_dict[i]['obese_bnatrophy'].append((bound_atrophy - 1) / t_diff)
+                        label_dict[i]['obese_atrophy'].append(atrophy)
+                        label_dict[i]['obese_batrophy'].append(bound_atrophy)
+                        label_dict[i]['obese_natrophy'].append(atrophy / t_diff)
+                        label_dict[i]['obese_bnatrophy'].append(bound_atrophy / t_diff)
                     else:
-                        label_dict[i]['surgery_atrophy'].append(atrophy - 1)
-                        label_dict[i]['surgery_batrophy'].append(bound_atrophy - 1)
-                        label_dict[i]['surgery_natrophy'].append((atrophy - 1) / t_diff)
-                        label_dict[i]['surgery_bnatrophy'].append((bound_atrophy - 1) / t_diff)
+                        label_dict[i]['surgery_atrophy'].append(atrophy)
+                        label_dict[i]['surgery_batrophy'].append(bound_atrophy)
+                        label_dict[i]['surgery_natrophy'].append(atrophy / t_diff)
+                        label_dict[i]['surgery_bnatrophy'].append(bound_atrophy / t_diff)
 
             print('-'.join([''] * 100))
 
@@ -694,7 +694,7 @@ def main():
         for region, atrophy_data in atrophy_dict.items():
             print(
                 'Region {:<20d}:'.format(region),
-                'Healthy = {:4.2f} ± {:4.2f} | Obese = {:4.2f} ± {:4.2f} | Surgery = {:4.2f} ± {:4.2f}'.format(
+                'Healthy = {:4.2f}% ± {:4.2f} | Obese = {:4.2f}% ± {:4.2f} | Surgery = {:4.2f}% ± {:4.2f}'.format(
                     np.mean(atrophy_data['healthy_natrophy']), np.std(atrophy_data['healthy_natrophy']),
                     np.mean(atrophy_data['obese_natrophy']), np.std(atrophy_data['obese_natrophy']),
                     np.mean(atrophy_data['surgery_natrophy']), np.std(atrophy_data['surgery_natrophy']),
