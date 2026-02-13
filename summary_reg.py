@@ -241,61 +241,62 @@ def affine_registration(path, data_dict, scales, epochs, patience, lr):
                 os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
             )
 
-            '''affine_fu, affine_bl, _, _ = halfway_registration(
-                fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
-                mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss,
-                shape_target=target_dims, spacing_target=target_spacing,
-                scales=[4, 2, 1], epochs=epochs, patience=patience
-            )'''
+            try:
+                nib.load(
+                    os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
+                )
+                nib.load(
+                    os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
+                )
+            except IOError:
+                out_hdr.set_zooms(target_spacing)
 
-            out_hdr.set_zooms(target_spacing)
+                # Init resample
+                bl_init = resample(
+                    bl_im, bl_nii.header.get_zooms(),
+                    target_dims, target_spacing,
+                    torch.eye(4, dtype=torch.float64)
+                ).detach().cpu().numpy()
+                fu_init = resample(
+                    fu_im, fu_nii.header.get_zooms(),
+                    target_dims, target_spacing,
+                    torch.eye(4, dtype=torch.float64)
+                ).detach().cpu().numpy()
+                bl_new_nii = nib.Nifti1Image(bl_init, None, header=out_hdr)
+                bl_new_nii.to_filename(
+                    os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_init.nii.gz')
+                )
+                fu_new_nii = nib.Nifti1Image(fu_init, None, header=out_hdr)
+                fu_new_nii.to_filename(
+                    os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_init.nii.gz')
+                )
 
-            # Init resample
-            bl_init = resample(
-                bl_im, bl_nii.header.get_zooms(),
-                target_dims, target_spacing,
-                torch.eye(4, dtype=torch.float64)
-            ).detach().cpu().numpy()
-            fu_init = resample(
-                fu_im, fu_nii.header.get_zooms(),
-                target_dims, target_spacing,
-                torch.eye(4, dtype=torch.float64)
-            ).detach().cpu().numpy()
-            bl_new_nii = nib.Nifti1Image(bl_init, None, header=out_hdr)
-            bl_new_nii.to_filename(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_init.nii.gz')
-            )
-            fu_new_nii = nib.Nifti1Image(fu_init, None, header=out_hdr)
-            fu_new_nii.to_filename(
-                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_init.nii.gz')
-            )
+                affine_fu, _, _ = halfway_registration(
+                    fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
+                    mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss, init_lr=lr,
+                    scales=scales, epochs=epochs, patience=patience,
+                    shape_target=bl_nii.shape, spacing_target=bl_nii.header.get_zooms(),
+                )
 
-            affine_fu, _, _ = halfway_registration(
-                fu_im, bl_im, fu_nii.header.get_zooms(), bl_nii.header.get_zooms(),
-                mask_a=fu_mask, mask_b=bl_mask, loss_f=mse_loss, init_lr=lr,
-                scales=scales, epochs=epochs, patience=patience,
-                shape_target=bl_nii.shape, spacing_target=bl_nii.header.get_zooms(),
-            )
-
-            # Final resample
-            bl_new = resample(
-                bl_im, bl_nii.header.get_zooms(),
-                target_dims, target_spacing,
-                torch.inverse(affine_fu)
-            ).detach().cpu().numpy()
-            fu_new = resample(
-                fu_im, fu_nii.header.get_zooms(),
-                target_dims, target_spacing,
-                affine_fu
-            ).detach().cpu().numpy()
-            bl_new_nii = nib.Nifti1Image(bl_new, None, header=out_hdr)
-            bl_new_nii.to_filename(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
-            )
-            fu_new_nii = nib.Nifti1Image(fu_new, None, header=out_hdr)
-            fu_new_nii.to_filename(
-                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
-            )
+                # Final resample
+                bl_new = resample(
+                    bl_im, bl_nii.header.get_zooms(),
+                    target_dims, target_spacing,
+                    torch.inverse(affine_fu)
+                ).detach().cpu().numpy()
+                fu_new = resample(
+                    fu_im, fu_nii.header.get_zooms(),
+                    target_dims, target_spacing,
+                    affine_fu
+                ).detach().cpu().numpy()
+                bl_new_nii = nib.Nifti1Image(bl_new, None, header=out_hdr)
+                bl_new_nii.to_filename(
+                    os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
+                )
+                fu_new_nii = nib.Nifti1Image(fu_new, None, header=out_hdr)
+                fu_new_nii.to_filename(
+                    os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
+                )
 
 
 def deformable_registration(path, data_dict, scales, epochs, patience, lr):
