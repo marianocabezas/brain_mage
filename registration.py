@@ -728,6 +728,47 @@ def nonlinear_registration(
     return best_df, final_e, final_fit, loss_log
 
 
+'''def deformation_gradient(df_image):
+    dim = df_image.dimension
+    tshp = df_image.shape
+    tdir = df_image.direction
+    spc = df_image.spacing
+    gradient_list = [np.gradient(df_image[..., k], *spc, axis=range(dim)) for k in range(dim)]
+    # This correctly calculates J.T, where dg[..., i, j] = d(u_j)/d(x_i)
+    dg = np.stack([np.stack(grad_k, axis=-1) for grad_k in gradient_list], axis=-1)
+    dg = (tdir @ dg).swapaxes(-1, -2)
+    dg += np.eye(dim)
+    if to_rotation or to_inverse_rotation:
+        U, s, Vh = np.linalg.svd(dg)
+        Z = U @ Vh
+        dets = np.linalg.det(Z)
+        reflection_mask = dets < 0
+        Vh[reflection_mask, -1, :] *= -1
+        Z[reflection_mask] = U[reflection_mask] @ Vh[reflection_mask]
+        dg = Z
+        if to_inverse_rotation:
+            dg = np.transpose(dg, axes=(*range(dg.ndim - 2), dg.ndim - 1, dg.ndim - 2))
+    new_shape = tshp + (dim * dim,)
+    dg_reshaped = np.reshape(dg, new_shape)
+    return dg_reshaped'''
+
+
+def jacobian_determinant(df_image, spacing):
+    x, y, z, dim = df_image.shape
+
+    gradients = np.stack([
+        np.stack(
+            np.gradient(df_image[..., k], *spacing, axis=range(dim)), axis=-1
+        ) for k in range(dim)
+    ], axis=-1)
+
+    jacobian = gradients + np.eye(dim)
+
+    jacobian_det = np.linalg.det(jacobian)
+
+    return jacobian_det
+
+
 def sitk_registration(
         imagename_a, imagename_b, outputname_a, outputname_b,
         shape_target, spacing_target
