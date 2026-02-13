@@ -221,26 +221,6 @@ def affine_registration(path, data_dict, scales, epochs, patience, lr):
                 )
             )
 
-            target_spacing = (0.9583333, 0.9583333, 1.0)
-            target_dims = (240, 240, 145)
-
-            bl_im = bl_nii.get_fdata()
-            fu_im = fu_nii.get_fdata()
-
-            bl_mask = get_brain_mask(bl_im)
-            fu_mask = get_brain_mask(fu_im)
-
-            out_hdr = deepcopy(fu_nii.header)
-
-            bl_mask_nii = nib.Nifti1Image(bl_mask.astype(np.uint8), None, header=out_hdr)
-            bl_mask_nii.to_filename(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
-            )
-            fu_mask_nii = nib.Nifti1Image(fu_mask.astype(np.uint8), None, header=out_hdr)
-            fu_mask_nii.to_filename(
-                os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
-            )
-
             try:
                 nib.load(
                     os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
@@ -249,6 +229,26 @@ def affine_registration(path, data_dict, scales, epochs, patience, lr):
                     os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
                 )
             except IOError:
+                target_spacing = (0.9583333, 0.9583333, 1.0)
+                target_dims = (240, 240, 145)
+
+                bl_im = bl_nii.get_fdata()
+                fu_im = fu_nii.get_fdata()
+
+                bl_mask = get_brain_mask(bl_im)
+                fu_mask = get_brain_mask(fu_im)
+
+                out_hdr = deepcopy(fu_nii.header)
+
+                bl_mask_nii = nib.Nifti1Image(bl_mask.astype(np.uint8), None, header=out_hdr)
+                bl_mask_nii.to_filename(
+                    os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
+                )
+                fu_mask_nii = nib.Nifti1Image(fu_mask.astype(np.uint8), None, header=out_hdr)
+                fu_mask_nii.to_filename(
+                    os.path.join(path, 'Follow_UP_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_mask.nii.gz')
+                )
+
                 out_hdr.set_zooms(target_spacing)
 
                 # Init resample
