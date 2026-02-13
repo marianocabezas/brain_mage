@@ -1518,27 +1518,33 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
 
             out_hdr = deepcopy(fu_nii.header)
 
-            df, _, _, log = nonlinear_registration(
-                bl_im, fu_im, bl_mask, fu_mask, loss_f=mse_loss, init_lr=lr,
-                scales=scales, epochs=epochs, patience=patience
-            )
+            try:
+                df_nii = nib.load(
+                    os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_df.nii.gz')
+                )
+                df_numpy = df_nii.get_fdata()
+            except IOError:
+                df, _, _, log = nonlinear_registration(
+                    bl_im, fu_im, bl_mask, fu_mask, loss_f=mse_loss, init_lr=lr,
+                    scales=scales, epochs=epochs, patience=patience
+                )
 
-            moved = resample(
-                bl_im, bl_nii.header.get_zooms(),
-                bl_im.shape, bl_nii.header.get_zooms(),
-                torch.eye(4, dtype=torch.float64), df
-            ).detach().cpu().numpy()
+                moved = resample(
+                    bl_im, bl_nii.header.get_zooms(),
+                    bl_im.shape, bl_nii.header.get_zooms(),
+                    torch.eye(4, dtype=torch.float64), df
+                ).detach().cpu().numpy()
 
-            moved_nii = nib.Nifti1Image(moved, None, header=out_hdr)
-            moved_nii.to_filename(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_warped.nii.gz')
-            )
+                moved_nii = nib.Nifti1Image(moved, None, header=out_hdr)
+                moved_nii.to_filename(
+                    os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_warped.nii.gz')
+                )
 
-            df_numpy = np.moveaxis(df.detach().cpu().numpy(), 0,-1)
-            df_nii = nib.Nifti1Image(df_numpy, None, header=out_hdr)
-            df_nii.to_filename(
-                os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_df.nii.gz')
-            )
+                df_numpy = np.moveaxis(df.detach().cpu().numpy(), 0,-1)
+                df_nii = nib.Nifti1Image(df_numpy, None, header=out_hdr)
+                df_nii.to_filename(
+                    os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_df.nii.gz')
+                )
 
             jacobian_det = jacobian_determinant(df_numpy, (fu_sx, fu_sy, fu_sz))
             jacobian_nii = nib.Nifti1Image(jacobian_det, None, header=out_hdr)
