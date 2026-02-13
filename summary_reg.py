@@ -536,6 +536,8 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
             )
             seg = seg_nii.get_fdata()
 
+            t_diff = c_data['DateDiff'].years + c_data['DateDiff'].months / 12
+
             for i in np.unique(seg).astype(np.int32)[1:]:
                 if i not in [4, 5, 14, 15, 24, 43, 44, 72]:
                     lab_mask = seg == i
@@ -548,12 +550,18 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
                     if not c_data['Obese'] and not c_data['HadSurgery']:
                         label_dict[i]['healthy_atrophy'].append(atrophy)
                         label_dict[i]['healthy_batrophy'].append(bound_atrophy)
+                        label_dict[i]['healthy_natrophy'].append(atrophy / t_diff)
+                        label_dict[i]['healthy_bnatrophy'].append(bound_atrophy  / t_diff)
                     elif not c_data['HadSurgery']:
                         label_dict[i]['obese_atrophy'].append(atrophy)
                         label_dict[i]['obese_batrophy'].append(bound_atrophy)
+                        label_dict[i]['obese_natrophy'].append(atrophy / t_diff)
+                        label_dict[i]['obese_bnatrophy'].append(bound_atrophy / t_diff)
                     else:
                         label_dict[i]['surgery_atrophy'].append(atrophy)
                         label_dict[i]['surgery_batrophy'].append(bound_atrophy)
+                        label_dict[i]['surgery_natrophy'].append(atrophy / t_diff)
+                        label_dict[i]['surgery_bnatrophy'].append(bound_atrophy / t_diff)
 
             print('-'.join([''] * 100))
 
