@@ -548,20 +548,20 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
                     )
                     bound_atrophy = np.mean(jacobian_det[boundary_mask])
                     if not c_data['Obese'] and not c_data['HadSurgery']:
-                        label_dict[i]['healthy_atrophy'].append(atrophy)
-                        label_dict[i]['healthy_batrophy'].append(bound_atrophy)
-                        label_dict[i]['healthy_natrophy'].append(atrophy / t_diff)
-                        label_dict[i]['healthy_bnatrophy'].append(bound_atrophy  / t_diff)
+                        label_dict[i]['healthy_atrophy'].append(atrophy - 1)
+                        label_dict[i]['healthy_batrophy'].append(bound_atrophy - 1)
+                        label_dict[i]['healthy_natrophy'].append((atrophy - 1) / t_diff)
+                        label_dict[i]['healthy_bnatrophy'].append((bound_atrophy - 1)  / t_diff)
                     elif not c_data['HadSurgery']:
-                        label_dict[i]['obese_atrophy'].append(atrophy)
-                        label_dict[i]['obese_batrophy'].append(bound_atrophy)
-                        label_dict[i]['obese_natrophy'].append(atrophy / t_diff)
-                        label_dict[i]['obese_bnatrophy'].append(bound_atrophy / t_diff)
+                        label_dict[i]['obese_atrophy'].append(atrophy - 1)
+                        label_dict[i]['obese_batrophy'].append(bound_atrophy - 1)
+                        label_dict[i]['obese_natrophy'].append((atrophy - 1) / t_diff)
+                        label_dict[i]['obese_bnatrophy'].append((bound_atrophy - 1) / t_diff)
                     else:
-                        label_dict[i]['surgery_atrophy'].append(atrophy)
-                        label_dict[i]['surgery_batrophy'].append(bound_atrophy)
-                        label_dict[i]['surgery_natrophy'].append(atrophy / t_diff)
-                        label_dict[i]['surgery_bnatrophy'].append(bound_atrophy / t_diff)
+                        label_dict[i]['surgery_atrophy'].append(atrophy - 1)
+                        label_dict[i]['surgery_batrophy'].append(bound_atrophy - 1)
+                        label_dict[i]['surgery_natrophy'].append((atrophy - 1) / t_diff)
+                        label_dict[i]['surgery_bnatrophy'].append((bound_atrophy - 1) / t_diff)
 
             print('-'.join([''] * 100))
 
