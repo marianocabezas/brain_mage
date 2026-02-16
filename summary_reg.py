@@ -128,18 +128,18 @@ def get_data_dict():
             fu_date = datetime.strptime(
                 c_rows.iloc[1]['Date'], '%d/%m/%Y'
             ).date()
-            date_diff = fu_date - bl_date
             if had_surgery:
                 surg_date = datetime.strptime(
                     c_rows.iloc[0]['Surgerydate'], '%d/%m/%Y'
                 ).date()
+                date_diff = fu_date - surg_date
+                diffs.append(fu_date - bl_date)
+                surg_diffs.append(fu_date - surg_date)
+            else:
+                date_diff = fu_date - bl_date
+                diffs.append(date_diff)
         except TypeError:
             date_diff = None
-
-        if date_diff is not None:
-            diffs.append(fu_date - bl_date)
-            if had_surgery:
-                surg_diffs.append(fu_date - surg_date)
 
         surg_dict[c] = {
             'Obese': obesity_bl > 0,
