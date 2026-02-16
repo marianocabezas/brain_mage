@@ -128,7 +128,7 @@ def get_data_dict():
             fu_date = datetime.strptime(
                 c_rows.iloc[1]['Date'], '%d/%m/%Y'
             ).date()
-            date_diff = relativedelta(fu_date, bl_date)
+            date_diff = fu_date - bl_date
             if had_surgery:
                 surg_date = datetime.strptime(
                     c_rows.iloc[0]['Surgerydate'], '%d/%m/%Y'
