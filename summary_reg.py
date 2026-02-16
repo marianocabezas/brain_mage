@@ -528,7 +528,7 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
             t_diff = c_data['DateDiff'].days / 365
 
             print(
-                'Subject {:} - Jacobian mean value (< 1 ~ atrophy) = {:6.4f} [{:6.4f}]'.format(
+                'Subject {:} - Jacobian mean value (< 1 ~ atrophy) = {:6.4f} [{:6.4f} years]'.format(
                     c, np.mean(jacobian_det[fu_mask]), t_diff
                 )
             )
