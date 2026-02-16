@@ -661,19 +661,21 @@ def main():
     lr = options['learning_rate']
     scales = options['scales']
     surg_dict, diffs, surg_diffs = get_data_dict()
+    diffs_days = np.mean(diffs).days
+    surg_days = np.mean(surg_diffs).days
     print('{:}Time to follow-up{:} distribution'.format(c['b'], c['nc']))
     print(
         'Mean difference: {:d} years, {:d} months and {:d} days (from baseline)'.format(
-            np.mean(diffs) // 365,
-            (np.mean(diffs) % 365) // 30,
-            (np.mean(diffs) % 365) % 30
+            diffs_days // 365,
+            (diffs_days % 365) // 30,
+            (diffs_days % 365) % 30
         ),
     )
     print(
         'Mean difference: {:d} years, {:d} months and {:d} days (from surgery)'.format(
-            np.mean(surg_diffs) // 365,
-            (np.mean(surg_diffs) % 365) // 30,
-            (np.mean(surg_diffs) % 365) % 30
+            surg_days // 365,
+            (surg_days % 365) // 30,
+            (surg_days % 365) % 30
         ),
     )
 
