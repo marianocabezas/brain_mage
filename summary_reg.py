@@ -447,7 +447,7 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
 
     n_subjects = 0
     for c, c_data in data_dict.items():
-        if c_data['Follow-up']['HasImage'] and c_data['Baseline']['HasImage']:
+        if c_data['Follow-up']['HasImage'] and c_data['Baseline']['HasImage'] and c_data['DateDiff'] is not None:
             n_subjects += 1
             bl_nii = nib.load(
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
