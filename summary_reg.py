@@ -135,7 +135,7 @@ def get_data_dict():
                 ).date()
         except TypeError:
             print(
-                c_rows.iloc[0]['Date'], c_rows.iloc[1]['Date'],
+                c, c_rows.iloc[0]['Date'], c_rows.iloc[1]['Date'],
                 had_surgery, c_rows.iloc[1]['Surgerydate']
             )
             date_diff = None
