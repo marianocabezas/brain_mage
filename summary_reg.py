@@ -536,7 +536,7 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
             )
             seg = seg_nii.get_fdata()
 
-            t_diff = c_data['DateDiff'].years + c_data['DateDiff'].months / 12
+            t_diff = c_data['DateDiff'].days / 365
 
             for i in np.unique(seg).astype(np.int32)[1:]:
                 if i not in [4, 5, 14, 15, 24, 43, 44, 72]:
