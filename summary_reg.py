@@ -134,10 +134,6 @@ def get_data_dict():
                     c_rows.iloc[0]['Surgerydate'], '%d/%m/%Y'
                 ).date()
         except TypeError:
-            print(
-                c, c_rows.iloc[0]['Date'], c_rows.iloc[1]['Date'],
-                had_surgery, c_rows.iloc[0]['Surgerydate'], c_rows.iloc[1]['Surgerydate']
-            )
             date_diff = None
 
         if date_diff is not None:
