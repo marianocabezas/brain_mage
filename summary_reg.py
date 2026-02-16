@@ -525,9 +525,11 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_jacobian.nii.gz')
             )
 
+            t_diff = c_data['DateDiff'].days / 365
+
             print(
-                'Subject {:} - Jacobian mean value (< 1 ~ atrophy) = {:6.4f}'.format(
-                    c, np.mean(jacobian_det[fu_mask])
+                'Subject {:} - Jacobian mean value (< 1 ~ atrophy) = {:6.4f} [{:6.4f}]'.format(
+                    c, np.mean(jacobian_det[fu_mask]), t_diff
                 )
             )
 
@@ -535,8 +537,6 @@ def deformable_registration(path, data_dict, scales, epochs, patience, lr):
                 os.path.join(path, 'Basal_IronMET_CGM', c, 'sT1W_3D_TFE_SENSE_coreg_seg.nii.gz')
             )
             seg = seg_nii.get_fdata()
-
-            t_diff = c_data['DateDiff'].days / 365
 
             for i in np.unique(seg).astype(np.int32)[1:]:
                 if i not in [4, 5, 14, 15, 24, 43, 44, 72]:
