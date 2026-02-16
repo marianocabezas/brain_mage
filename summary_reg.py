@@ -131,12 +131,12 @@ def get_data_dict():
             date_diff = relativedelta(fu_date, bl_date)
             if had_surgery:
                 surg_date = datetime.strptime(
-                    c_rows.iloc[1]['Surgerydate'], '%d/%m/%Y'
+                    c_rows.iloc[0]['Surgerydate'], '%d/%m/%Y'
                 ).date()
         except TypeError:
             print(
                 c, c_rows.iloc[0]['Date'], c_rows.iloc[1]['Date'],
-                had_surgery, c_rows.iloc[1]['Surgerydate']
+                had_surgery, c_rows.iloc[0]['Surgerydate'], c_rows.iloc[1]['Surgerydate']
             )
             date_diff = None
 
