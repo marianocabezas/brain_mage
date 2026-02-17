@@ -693,15 +693,35 @@ def main():
         print('-'.join([''] * 100))
         print('{:}Deformable{:} registration'.format(c['b'], c['nc']))
         atrophy_dict = deformable_registration(path, surg_dict, scales, epochs, patience, lr)
+        healthy_natrophy = None
+        obese_natrophy = None
+        surgery_natrophy = None
+
         for region, atrophy_data in atrophy_dict.items():
+            if healthy_natrophy is None:
+                healthy_natrophy = np.array(atrophy_data['healthy_natrophy'])
+                obese_natrophy = np.array(atrophy_data['obese_natrophy'])
+                surgery_natrophy = np.array(atrophy_data['surgery_natrophy'])
+            else:
+                healthy_natrophy += np.array(atrophy_data['healthy_natrophy'])
+                obese_natrophy += np.array(atrophy_data['obese_natrophy'])
+                surgery_natrophy += np.array(atrophy_data['surgery_natrophy'])
             print(
-                'Region {:<20d}:'.format(region),
-                'Healthy = {:4.2f}% ± {:4.2f} | Obese = {:4.2f}% ± {:4.2f} | Surgery = {:4.2f}% ± {:4.2f}'.format(
+                'Region {:<4}:'.format(region),
+                'Healthy = {:>5.2f}% ± {:4.2f} | Obese = {:>5.2f}% ± {:4.2f} | Surgery = {:>5.2f}% ± {:4.2f}'.format(
                     np.mean(atrophy_data['healthy_natrophy']), np.std(atrophy_data['healthy_natrophy']),
                     np.mean(atrophy_data['obese_natrophy']), np.std(atrophy_data['obese_natrophy']),
                     np.mean(atrophy_data['surgery_natrophy']), np.std(atrophy_data['surgery_natrophy']),
                 )
             )
+        print(
+            '{:<11}:'.format('Global volumetry'),
+            'Healthy = {:>5.2f}% ± {:4.2f} | Obese = {:>5.2f}% ± {:4.2f} | Surgery = {:>5.2f}% ± {:4.2f}'.format(
+                np.mean(healthy_natrophy), np.std(healthy_natrophy),
+                np.mean(obese_natrophy), np.std(obese_natrophy),
+                np.mean(surgery_natrophy), np.std(surgery_natrophy),
+            )
+        )
 
 
 if __name__ == '__main__':
