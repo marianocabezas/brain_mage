@@ -364,6 +364,12 @@ def main():
     mage_surgery_fu = []
     mage_diff_high = 0
     mage_diff_low = 0
+    bmi_healthy_bl = []
+    bmi_healthy_fu = []
+    bmi_obese_bl = []
+    bmi_obese_fu = []
+    bmi_surgery_bl = []
+    bmi_surgery_fu = []
     for p in patient_codes:
         if p in baseline_codes and p in followup_codes:
 
@@ -371,6 +377,7 @@ def main():
             p_rows = ironmet_data[pd_idx]
 
             bmi_bl = p_rows.iloc[0]['BMI'].tolist()
+            bmi_fu = p_rows.iloc[1]['BMI'].tolist()
 
             had_surgery = ironmet_data[pd_idx].iloc[0]['Surgery'].tolist() > 0
 
@@ -389,10 +396,11 @@ def main():
                 diff_mage_s = '{:>6.2f}'.format(diff_mage)
 
             print(
-                'Subject {:} - Baseline | BMI = {:}{:} | MAGE = {:>5.2f} / {:>6.2f} / {:}{:}'.format(
+                'Subject {:} - Baseline | BMI = {:}{:} / {:} | MAGE = {:>5.2f} / {:>6.2f} / {:}{:}'.format(
                     p,
                     '\033[31m{:>5.2f}\033[0m'.format(bmi_bl) if bmi_bl > 30 else '{:>5.2f}'.format(bmi_bl),
                     ' (obese) ' if is_obese else '         ',
+                    '\033[31m{:>5.2f}\033[0m'.format(bmi_fu) if bmi_fu > 30 else '{:>5.2f}'.format(bmi_fu),
                     mage_bl, mage_fu, diff_mage_s,
                     ' | Surgery' if had_surgery else ''
                 )
@@ -420,14 +428,20 @@ def main():
                 healthy.append(np.stack([baseline_masked, followup_masked], axis=0))
                 mage_healthy_bl.append(mage_bl)
                 mage_healthy_fu.append(mage_fu)
+                bmi_healthy_bl.append(bmi_bl)
+                bmi_healthy_fu.append(bmi_fu)
             elif not had_surgery:
                 obese.append(np.stack([baseline_masked, followup_masked], axis=0))
                 mage_obese_bl.append(mage_bl)
                 mage_obese_fu.append(mage_fu)
+                bmi_obese_bl.append(bmi_bl)
+                bmi_obese_fu.append(bmi_fu)
             else:
                 surgery.append(np.stack([baseline_masked, followup_masked], axis=0))
                 mage_surgery_bl.append(mage_bl)
                 mage_surgery_fu.append(mage_fu)
+                bmi_surgery_bl.append(bmi_bl)
+                bmi_surgery_fu.append(bmi_fu)
     print(
         '{:d} subjects | {:d} healthy | {:d} obese | {:d} surgery | {:d} MAGE high | {:d} MAGE low'.format(
             len(masks), len(healthy), len(obese), len(surgery), mage_diff_high, mage_diff_low
