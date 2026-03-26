@@ -451,18 +451,30 @@ def main():
         'MAGE healthy: {:5.2f} ± {:5.2f} - {:5.2f} ± {:5.2f}'.format(
             np.mean(mage_healthy_bl), np.std(mage_healthy_bl),
             np.mean(mage_healthy_fu), np.std(mage_healthy_fu)
+        ), '|',
+        'BMI healthy: {:5.2f} ± {:5.2f} - {:5.2f} ± {:5.2f}'.format(
+            np.mean(bmi_healthy_bl), np.std(bmi_healthy_bl),
+            np.mean(bmi_healthy_fu), np.std(bmi_healthy_fu)
         )
     )
     print(
         'MAGE obese:   {:5.2f} ± {:5.2f} - {:5.2f} ± {:5.2f}'.format(
             np.mean(mage_obese_bl), np.std(mage_obese_bl),
             np.mean(mage_obese_fu), np.std(mage_obese_fu)
+        ), '|',
+        'BMI obese:   {:5.2f} ± {:5.2f} - {:5.2f} ± {:5.2f}'.format(
+            np.mean(bmi_obese_bl), np.std(bmi_obese_bl),
+            np.mean(bmi_obese_fu), np.std(bmi_obese_fu)
         )
     )
     print(
         'MAGE surgery: {:5.2f} ± {:5.2f} - {:5.2f} ± {:5.2f}'.format(
             np.mean(mage_surgery_bl), np.std(mage_surgery_bl),
             np.mean(mage_surgery_fu), np.std(mage_surgery_fu)
+        ), '|',
+        'BMI surgery: {:5.2f} ± {:5.2f} - {:5.2f} ± {:5.2f}'.format(
+            np.mean(bmi_surgery_bl), np.std(bmi_surgery_bl),
+            np.mean(bmi_surgery_fu), np.std(bmi_surgery_fu)
         )
     )
 
