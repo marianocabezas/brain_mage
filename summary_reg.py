@@ -709,19 +709,19 @@ def main():
 
             h_atrophy = atrophy_data['healthy_natrophy']
             h_matrophy = np.mean(h_atrophy)
-            if h_atrophy > 0:
+            if h_matrophy > 0:
                 h_atrophy_s = '\033[32m{:>5.2f}%\033[0m'.format(h_matrophy)
             else:
                 h_atrophy_s = '\033[31m{:>5.2f}%\033[0m'.format(h_matrophy)
             o_atrophy = np.mean(atrophy_data['obese_natrophy'])
             o_matrophy = np.mean(h_atrophy)
-            if o_atrophy > 0:
+            if o_matrophy > 0:
                 o_atrophy_s = '\033[32m{:>5.2f}%\033[0m'.format(o_matrophy)
             else:
                 o_atrophy_s = '\033[31m{:>5.2f}%\033[0m'.format(o_matrophy)
             s_atrophy = np.mean(atrophy_data['surgery_natrophy'])
             s_matrophy = np.mean(h_atrophy)
-            if s_atrophy > 0:
+            if s_matrophy > 0:
                 s_atrophy_s = '\033[32m{:>5.2f}%\033[0m'.format(s_matrophy)
             else:
                 s_atrophy_s = '\033[31m{:>5.2f}%\033[0m'.format(s_matrophy)
