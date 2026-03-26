@@ -699,20 +699,37 @@ def main():
 
         for region, atrophy_data in atrophy_dict.items():
             if healthy_natrophy is None:
-                healthy_natrophy = np.array(atrophy_data['healthy_natrophy'])
-                obese_natrophy = np.array(atrophy_data['obese_natrophy'])
-                surgery_natrophy = np.array(atrophy_data['surgery_natrophy'])
+                healthy_natrophy = [atrophy_data['healthy_natrophy']]
+                obese_natrophy = [atrophy_data['obese_natrophy']]
+                surgery_natrophy = [atrophy_data['surgery_natrophy']]
             else:
-                healthy_natrophy += np.array(atrophy_data['healthy_natrophy'])
-                obese_natrophy += np.array(atrophy_data['obese_natrophy'])
-                surgery_natrophy += np.array(atrophy_data['surgery_natrophy'])
+                healthy_natrophy.append(atrophy_data['healthy_natrophy'])
+                obese_natrophy.append(atrophy_data['obese_natrophy'])
+                surgery_natrophy.append(atrophy_data['surgery_natrophy'])
+
+            h_atrophy = atrophy_data['healthy_natrophy']
+            h_matrophy = np.mean(h_atrophy)
+            if h_atrophy > 0:
+                h_atrophy_s = '\033[32m{:>5.2f}%\033[0m'.format(h_matrophy)
+            else:
+                h_atrophy_s = '\033[31m{:>5.2f}%\033[0m'.format(h_matrophy)
+            o_atrophy = np.mean(atrophy_data['obese_natrophy'])
+            o_matrophy = np.mean(h_atrophy)
+            if o_atrophy > 0:
+                o_atrophy_s = '\033[32m{:>5.2f}%\033[0m'.format(o_matrophy)
+            else:
+                o_atrophy_s = '\033[31m{:>5.2f}%\033[0m'.format(o_matrophy)
+            s_atrophy = np.mean(atrophy_data['surgery_natrophy'])
+            s_matrophy = np.mean(h_atrophy)
+            if s_atrophy > 0:
+                s_atrophy_s = '\033[32m{:>5.2f}%\033[0m'.format(s_matrophy)
+            else:
+                s_atrophy_s = '\033[31m{:>5.2f}%\033[0m'.format(s_matrophy)
             print(
-                'Region {:<4}:'.format(region),
-                'Healthy = {:>5.2f}% ± {:4.2f} | Obese = {:>5.2f}% ± {:4.2f} | Surgery = {:>5.2f}% ± {:4.2f}'.format(
-                    np.mean(atrophy_data['healthy_natrophy']), np.std(atrophy_data['healthy_natrophy']),
-                    np.mean(atrophy_data['obese_natrophy']), np.std(atrophy_data['obese_natrophy']),
-                    np.mean(atrophy_data['surgery_natrophy']), np.std(atrophy_data['surgery_natrophy']),
-                )
+                'Region ({:<4}) {:<31}'.format(region, atrophy_data['name']),
+                'Healthy =', h_atrophy_s, '±', '{:4.2f}'.format(np.std(h_atrophy)), '|',
+                'Obese =', o_atrophy_s, '±', '{:4.2f}'.format(np.std(o_atrophy)), '|',
+                'Surgery =', s_atrophy_s, '±', '{:4.2f}'.format(np.std(s_atrophy)), '|',
             )
         print(
             '{:<11}:'.format('Global volumetry'),
