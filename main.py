@@ -356,6 +356,14 @@ def main():
     healthy = []
     obese = []
     surgery = []
+    mage_healthy_bl = []
+    mage_healthy_fu = []
+    mage_obese_bl = []
+    mage_obese_fu = []
+    mage_surgery_bl = []
+    mage_surgery_fu = []
+    mage_diff_high = 0
+    mage_diff_low = 0
     for p in patient_codes:
         if p in baseline_codes and p in followup_codes:
 
@@ -371,14 +379,21 @@ def main():
             mage_bl = p_rows.iloc[0]['MAGE']
             mage_fu = p_rows.iloc[1]['MAGE']
             diff_mage = mage_fu - mage_bl
+            if diff_mage > 20:
+                diff_mage_s = '\033[31m{:>6.2f}\033[0m'.format(diff_mage)
+                mage_diff_high += 1
+            elif diff_mage < 0:
+                mage_diff_low += 1
+                diff_mage_s = '\033[32m{:>6.2f}\033[0m'.format(diff_mage)
+            else:
+                diff_mage_s = '{:>6.2f}'.format(diff_mage)
 
             print(
                 'Subject {:} - Baseline | BMI = {:}{:} | MAGE = {:>5.2f} / {:>6.2f} / {:}{:}'.format(
                     p,
                     '\033[31m{:>5.2f}\033[0m'.format(bmi_bl) if bmi_bl > 30 else '{:>5.2f}'.format(bmi_bl),
                     ' (obese) ' if is_obese else '         ',
-                    mage_bl, mage_fu,
-                    '\033[31m{:>6.2f}\033[0m'.format(diff_mage) if diff_mage > 20 else '{:>6.2f}'.format(diff_mage),
+                    mage_bl, mage_fu, diff_mage_s,
                     ' | Surgery' if had_surgery else ''
                 )
             )
@@ -403,10 +418,39 @@ def main():
 
             if bmi_bl < 30:
                 healthy.append(np.stack([baseline_masked, followup_masked], axis=0))
+                mage_healthy_bl.append(mage_bl)
+                mage_healthy_fu.append(mage_fu)
             elif not had_surgery:
                 obese.append(np.stack([baseline_masked, followup_masked], axis=0))
+                mage_obese_bl.append(mage_bl)
+                mage_obese_fu.append(mage_fu)
             else:
                 surgery.append(np.stack([baseline_masked, followup_masked], axis=0))
+                mage_surgery_bl.append(mage_bl)
+                mage_surgery_fu.append(mage_fu)
+    print(
+        '{:d} subjects | {:d} healthy | {:d} obese | {:d} surgery | {:d} MAGE high | {:d} MAGE low'.format(
+            len(masks), len(healthy), len(obese), len(surgery), mage_diff_high, mage_diff_low
+        )
+    )
+    print(
+        'MAGE healthy: {:5.2f} ± {:5.2f} - {:5.2f} ± {:5.2f}'.format(
+            np.mean(mage_healthy_bl), np.std(mage_healthy_bl),
+            np.mean(mage_healthy_fu), np.std(mage_healthy_fu)
+        )
+    )
+    print(
+        'MAGE obese:   {:5.2f} ± {:5.2f} - {:5.2f} ± {:5.2f}'.format(
+            np.mean(mage_obese_bl), np.std(mage_obese_bl),
+            np.mean(mage_obese_fu), np.std(mage_obese_fu)
+        )
+    )
+    print(
+        'MAGE surgery: {:5.2f} ± {:5.2f} - {:5.2f} ± {:5.2f}'.format(
+            np.mean(mage_surgery_bl), np.std(mage_surgery_bl),
+            np.mean(mage_surgery_fu), np.std(mage_surgery_fu)
+        )
+    )
 
     mask = np.sum(masks, axis=0)
     idx = np.where(mask > 0)
