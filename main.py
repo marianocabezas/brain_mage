@@ -525,6 +525,9 @@ def main():
     t_bacc_fr = 0
     t_bacc_un = 0
     t_bacc_sc = 0
+    t_acc_fr = 0
+    t_acc_un = 0
+    t_acc_sc = 0
     for i in range(folds):
         print(
             '{:}Fold {:}{:2d}/{:2d}{:} (n-folds cross-val)'.format(
@@ -586,6 +589,7 @@ def main():
         pr_fr = tp_fr / (tp_fr + fn_fr)
         re_fr = tp_fr / (tp_fr + fp_fr)
         t_bacc_fr += bacc_fr
+        t_acc_fr += acc_fr
 
         # Using pre-trained weights unfrozen
         print(
@@ -608,6 +612,7 @@ def main():
         pr_un = tp_un / (tp_un + fn_un)
         re_un = tp_un / (tp_un + fp_un)
         t_bacc_un += bacc_un
+        t_acc_un += acc_un
 
         # Training from scratch
         print(
@@ -629,6 +634,7 @@ def main():
         pr_sc = tp_sc / (tp_sc + fn_sc)
         re_sc = tp_sc / (tp_sc + fp_sc)
         t_bacc_sc += bacc_sc
+        t_acc_sc += acc_sc
 
         # Results per fold
         print(
@@ -694,8 +700,8 @@ def main():
     )
 
     print(
-        'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
-            t_bacc_fr / 5, np.mean(t_ppr_fr), np.std(t_ppr_fr), np.mean(t_npr_fr), np.std(t_npr_fr)
+        'ACC = {:5.3f} | BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+            t_acc_fr / 5, t_bacc_fr / 5, np.mean(t_ppr_fr), np.std(t_ppr_fr), np.mean(t_npr_fr), np.std(t_npr_fr)
         )
     )
     print(
@@ -705,8 +711,8 @@ def main():
     )
 
     print(
-        'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
-            t_bacc_un / 5, np.mean(t_ppr_un), np.std(t_ppr_un), np.mean(t_npr_un), np.std(t_npr_un)
+        'ACC = {:5.3f} | BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+            t_acc_un / 5, t_bacc_un / 5, np.mean(t_ppr_un), np.std(t_ppr_un), np.mean(t_npr_un), np.std(t_npr_un)
         )
     )
     print(
@@ -716,8 +722,8 @@ def main():
     )
 
     print(
-        'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
-            t_bacc_sc / 5, np.mean(t_ppr_sc), np.std(t_ppr_sc), np.mean(t_npr_sc), np.std(t_npr_sc)
+        'ACC = {:5.3f} | BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+            t_acc_sc / 5, t_bacc_sc / 5, np.mean(t_ppr_sc), np.std(t_ppr_sc), np.mean(t_npr_sc), np.std(t_npr_sc)
         )
     )
 
