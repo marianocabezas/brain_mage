@@ -582,6 +582,9 @@ def main():
         t_ppr_fr += ppr_fr
         t_npr_fr += npr_fr
         bacc_fr = 0.5 * (tp_fr / (tp_fr + fn_fr) + tn_fr / (fp_fr + tn_fr))
+        acc_fr = (tp_fr + tn_fr) / (tp_fr + tn_fr + fp_fr + fn_fr)
+        pr_fr = tp_fr / (tp_fr + fn_fr)
+        re_fr = tp_fr / (tp_fr + fp_fr)
         t_bacc_fr += bacc_fr
 
         # Using pre-trained weights unfrozen
@@ -601,6 +604,9 @@ def main():
         t_ppr_un += ppr_un
         t_npr_un += npr_un
         bacc_un = 0.5 * (tp_un / (tp_un + fn_un) + tn_un / (fp_un + tn_un))
+        acc_un = (tp_un + tn_un) / (tp_un + tn_un + fp_un + fn_un)
+        pr_un = tp_un / (tp_un + fn_un)
+        re_un = tp_un / (tp_un + fp_un)
         t_bacc_un += bacc_un
 
         # Training from scratch
@@ -619,6 +625,9 @@ def main():
         t_ppr_sc += ppr_sc
         t_npr_sc += npr_sc
         bacc_sc = 0.5 * (tp_sc / (tp_sc + fn_sc) + tn_sc / (fp_sc + tn_sc))
+        acc_sc = (tp_sc + tn_sc) / (tp_sc + tn_sc + fp_sc + fn_sc)
+        pr_sc = tp_sc / (tp_sc + fn_sc)
+        re_sc = tp_sc / (tp_sc + fp_sc)
         t_bacc_sc += bacc_sc
 
         # Results per fold
@@ -627,10 +636,14 @@ def main():
                 tp_fr, fp_fr, tn_fr, fn_fr
             ), end=' '
         )
-
         print(
-            'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
-                bacc_fr, np.mean(ppr_fr), np.std(ppr_fr), np.mean(npr_fr), np.std(npr_fr)
+            'Precision = {:5.3f} | Recall = {:5.3f} |'.format(
+                pr_fr, re_fr
+            ), end=' '
+        )
+        print(
+            'ACC = {:5.3f} | BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+                acc_fr, bacc_fr, np.mean(ppr_fr), np.std(ppr_fr), np.mean(npr_fr), np.std(npr_fr)
             )
         )
         print(
@@ -638,10 +651,14 @@ def main():
                 tp_un, fp_un, tn_un, fn_un
             ), end=' '
         )
-
         print(
-            'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
-                bacc_un, np.mean(ppr_un), np.std(ppr_un), np.mean(npr_un), np.std(npr_un)
+            'Precision = {:5.3f} | Recall = {:5.3f} |'.format(
+                pr_un, re_un
+            ), end=' '
+        )
+        print(
+            'ACC = {:5.3f} | BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+                acc_un, bacc_un, np.mean(ppr_un), np.std(ppr_un), np.mean(npr_un), np.std(npr_un)
             )
         )
 
@@ -651,8 +668,13 @@ def main():
             ), end=' '
         )
         print(
-            'BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
-                bacc_sc, np.mean(ppr_sc), np.std(ppr_sc), np.mean(npr_sc), np.std(npr_sc)
+            'Precision = {:5.3f} | Recall = {:5.3f} |'.format(
+                pr_sc, re_sc
+            ), end=' '
+        )
+        print(
+            'ACC = {:5.3f} | BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
+                acc_sc, bacc_sc, np.mean(ppr_sc), np.std(ppr_sc), np.mean(npr_sc), np.std(npr_sc)
             )
         )
 
