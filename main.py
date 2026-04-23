@@ -395,7 +395,7 @@ def main():
             else:
                 diff_mage_s = '{:>6.2f}'.format(diff_mage)
 
-            print(
+            '''print(
                 'Subject {:} - Baseline | BMI = {:}{:} / {:} | MAGE = {:>5.2f} / {:>6.2f} / {:}{:}'.format(
                     p,
                     '\033[31m{:>5.2f}\033[0m'.format(bmi_bl) if bmi_bl > 30 else '{:>5.2f}'.format(bmi_bl),
@@ -404,7 +404,7 @@ def main():
                     mage_bl, mage_fu, diff_mage_s,
                     ' | Surgery' if had_surgery else ''
                 )
-            )
+            )'''
 
             bl_filename = os.path.join(bl_path, p, 'sT1W_3D_TFE_SENSE_coreg.nii.gz')
             bl_mask_filename = os.path.join(bl_path, p, 'sT1W_3D_TFE_SENSE_coreg_mask.nii.gz')
