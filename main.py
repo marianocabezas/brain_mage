@@ -528,6 +528,12 @@ def main():
     t_acc_fr = 0
     t_acc_un = 0
     t_acc_sc = 0
+    t_pr_fr = 0
+    t_pr_un = 0
+    t_pr_sc = 0
+    t_re_fr = 0
+    t_re_un = 0
+    t_re_sc = 0
     for i in range(folds):
         print(
             '{:}Fold {:}{:2d}/{:2d}{:} (n-folds cross-val)'.format(
@@ -590,6 +596,8 @@ def main():
         re_fr = tp_fr / (tp_fr + fp_fr)
         t_bacc_fr += bacc_fr
         t_acc_fr += acc_fr
+        t_pr_fr += pr_fr
+        t_re_fr += re_fr
 
         # Using pre-trained weights unfrozen
         print(
@@ -613,6 +621,8 @@ def main():
         re_un = tp_un / (tp_un + fp_un)
         t_bacc_un += bacc_un
         t_acc_un += acc_un
+        t_pr_un += pr_un
+        t_re_un += re_un
 
         # Training from scratch
         print(
@@ -635,6 +645,8 @@ def main():
         re_sc = tp_sc / (tp_sc + fp_sc)
         t_bacc_sc += bacc_sc
         t_acc_sc += acc_sc
+        t_pr_sc += pr_sc
+        t_re_sc += re_sc
 
         # Results per fold
         print(
@@ -698,29 +710,43 @@ def main():
             t_tp_fr, t_fp_fr, t_tn_fr, t_fn_fr
         ), end=' '
     )
-
+    print(
+        'Precision = {:5.3f} | Recall = {:5.3f} |'.format(
+            t_pr_fr / 5, t_re_fr / 5
+        ), end=' '
+    )
     print(
         'ACC = {:5.3f} | BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
             t_acc_fr / 5, t_bacc_fr / 5, np.mean(t_ppr_fr), np.std(t_ppr_fr), np.mean(t_npr_fr), np.std(t_npr_fr)
         )
     )
+
     print(
         'Unfrozen (pre-trained) | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
             t_tp_un, t_fp_un, t_tn_un, t_fn_un
         ), end=' '
     )
-
+    print(
+        'Precision = {:5.3f} | Recall = {:5.3f} |'.format(
+            t_pr_un / 5, t_re_un / 5
+        ), end=' '
+    )
     print(
         'ACC = {:5.3f} | BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
             t_acc_un / 5, t_bacc_un / 5, np.mean(t_ppr_un), np.std(t_ppr_un), np.mean(t_npr_un), np.std(t_npr_un)
         )
     )
+
     print(
         'From scratch           | TP = {:03d} | FP = {:03d} | TN = {:03d} | FN = {:03d} |'.format(
             t_tp_sc, t_fp_sc, t_tn_sc, t_fn_sc
         ), end=' '
     )
-
+    print(
+        'Precision = {:5.3f} | Recall = {:5.3f} |'.format(
+            t_pr_sc / 5, t_re_sc / 5
+        ), end=' '
+    )
     print(
         'ACC = {:5.3f} | BACC = {:5.3f} | + Scores {:5.3f} ± {:5.3f} | - Scores {:5.3f} ± {:5.3f}'.format(
             t_acc_sc / 5, t_bacc_sc / 5, np.mean(t_ppr_sc), np.std(t_ppr_sc), np.mean(t_npr_sc), np.std(t_npr_sc)
